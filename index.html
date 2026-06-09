@@ -40,17 +40,6 @@
   .pill.leak { background:#fae8e8; color:#a01414; } .pill.exempt { background:#eef0f2; color:#5e626a; } .pill.newtok { background:#e6f2ef; color:#0f7b53; }
   .ok-row td:first-child { border-left:3px solid #51c787; }
   .warn-row td:first-child { border-left:3px solid #ffae51; }
-  /* primitive ramp strips */
-  .ramp { background:#fff; border:1px solid var(--bd); border-radius:12px; padding:14px 16px; margin-bottom:12px; }
-  .ramp-head { font-size:13.5px; margin-bottom:9px; }
-  .ramp-head b { font-size:14px; }
-  .strip { display:flex; gap:3px; }
-  .sstep { flex:1; min-width:0; border-radius:6px; padding:8px 4px 7px; display:flex; flex-direction:column; gap:2px; align-items:center; border:1px solid rgba(0,0,0,.08); }
-  .sstep .ss-n { font-size:11px; font-weight:700; }
-  .sstep .ss-h { font-family:ui-monospace,Menlo,monospace; font-size:8.5px; opacity:.8; }
-  .maptbl { margin-top:10px; border:none; background:transparent; }
-  .maptbl td { padding:3px 8px 3px 0; border:none; }
-  .maptbl tr:first-child td { padding-top:8px; }
   footer { max-width:1320px; margin:0 auto; padding:24px; color:var(--sub); font-size:12px; line-height:1.5; }
   code { background:#eef0f2; padding:1px 5px; border-radius:4px; font-size:.9em; }
 </style>
@@ -314,20 +303,24 @@ function chip(hex){ return hex ? `<span class="sw" style="background:${hex}"></s
 function hx(hex){ return hex ? `<span class="hex">${hex}</span>` : ''; }
 
 // Remap
-let h = `<h2>Primitives — full new color scales</h2><p class="sub">Every color family gets a complete <b>50–950</b> ramp (pulled from Figma <code>[UV] Global Colors → Redesign/*</code>). The strip shows all 11 new steps; the table under each maps the <b>old</b> token to the <b>new step</b> it becomes. Old ramps are deprecated once consumers move over (DS-128).</p>`;
+let h = `<h2>Primitives — full new color scales</h2><p class="sub">Every color family gets a complete <b>50–950</b> ramp (pulled from Figma <code>[UV] Global Colors → Redesign/*</code>). Each family is a group below: one row per new step, with the <b>old</b> token that maps onto it (blank = net-new step). Old ramps are deprecated once consumers move over (DS-128).</p>`;
+h += `<table><thead><tr><th>Old token</th><th>now</th><th></th><th>New step</th><th>future</th><th>Note</th></tr></thead><tbody>`;
 for (const r of ramps){
-  h += `<div class="ramp"><div class="ramp-head"><b>${r.name}</b> <span class="note">${r.group} · ${r.replaces}</span></div><div class="strip">`;
-  r.hexes.forEach((hex,i)=>{ h += `<div class="sstep" style="background:${hex};color:${i>=6?'#fff':'#1d1d1d'}"><span class="ss-n">${STEPS[i]}</span><span class="ss-h">${hex}</span></div>`; });
-  h += `</div>`;
-  if(r.map.length){
-    h += `<table class="maptbl"><tbody>`;
-    for(const m of r.map){ const ns=m[2]; const ni=STEPS.indexOf(ns); const nh=ni>=0?r.hexes[ni]:''; const note=m[3];
-      h += `<tr class="${ns==='—'?'del':''}"><td class="tok">${m[0]}</td><td>${chip(m[1])}</td><td>${hx(m[1])}</td><td class="arrow">→</td><td class="tok">${r.name} ${ns}${note?` <span class="note">(${note})</span>`:''}</td><td>${chip(nh)} ${hx(nh)}</td></tr>`;
-    }
-    h += `</tbody></table>`;
-  }
-  h += `</div>`;
+  h += `<tr class="grp"><td colspan="6">${r.name} <span style="font-weight:400;text-transform:none;letter-spacing:0">— ${r.group} · ${r.replaces}</span></td></tr>`;
+  // reverse the old→new map: newStep → {oldTok, oldHex, note}
+  const rev = {}; const drops = [];
+  for (const m of r.map){ if(m[2]==='—') drops.push(m); else rev[m[2]] = {old:m[0], oldHex:m[1], note:m[3]}; }
+  STEPS.forEach((step,i)=>{
+    const nh = r.hexes[i]; const e = rev[step];
+    const oldTok = e ? e.old : '<span class="note">—</span>';
+    const oldCell = e ? `${chip(e.oldHex)} ${hx(e.oldHex)}` : '';
+    let note = e ? (e.note || (step==='700'?'exact / core step':'remapped')) : 'new step';
+    if(!e && step==='700') note = 'core brand/role step (new)';
+    h += `<tr><td class="tok">${oldTok}</td><td>${oldCell}</td><td class="arrow">→</td><td class="tok">${r.name} ${step}</td><td>${chip(nh)} ${hx(nh)}</td><td class="note">${note}</td></tr>`;
+  });
+  for (const m of drops){ h += `<tr class="del"><td class="tok">${m[0]}</td><td>${chip(m[1])} ${hx(m[1])}</td><td class="arrow">→</td><td class="tok">— drop</td><td></td><td class="note">${m[3]||'dropped'}</td></tr>`; }
 }
+h += `</tbody></table>`;
 h += `<h2>Neutrals <span class="note" style="font-weight:400">(not new scales)</span></h2><table><thead><tr><th>Current</th><th>now</th><th></th><th>Proposed</th><th>future</th><th>Note</th></tr></thead><tbody>`;
 for (const [c,ch,p,ph,n] of neutrals){ h+=`<tr><td class="tok">${c}</td><td>${ch.startsWith('#')?chip(ch):''} ${hx(ch)}</td><td class="arrow">→</td><td class="tok">${p}</td><td>${ph.startsWith('#')?chip(ph):''} ${hx(ph)}</td><td class="note">${n}</td></tr>`; }
 h += `</tbody></table>`;
