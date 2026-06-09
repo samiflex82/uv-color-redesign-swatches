@@ -41,26 +41,34 @@
   .ok-row td:first-child { border-left:3px solid #51c787; }
   .warn-row td:first-child { border-left:3px solid #ffae51; }
   /* roadmap tab */
-  .principles { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:10px; margin:6px 0 20px; }
-  .principle { background:#fff; border:1px solid var(--bd); border-radius:10px; padding:12px 14px; }
-  .principle b { display:block; font-size:12.5px; margin-bottom:4px; }
-  .principle span { font-size:11.5px; color:var(--sub); line-height:1.5; }
-  .phase { background:#fff; border:1px solid var(--bd); border-radius:12px; padding:16px 18px; margin-bottom:14px; }
-  .phase-head { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
-  .phase-head h3 { font-size:16px; margin:0; letter-spacing:-.01em; }
-  .phase-why { font-size:11.5px; color:var(--sub); line-height:1.5; margin:6px 0 12px; max-width:880px; }
-  .step { display:flex; gap:10px; padding:7px 0; border-top:1px solid #f0f1f3; }
-  .step:first-of-type { border-top:none; }
-  .step .st { flex:0 0 64px; }
+  .flow { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:10px 0 22px; }
+  .fnode { display:inline-flex; align-items:center; gap:6px; background:#fff; border:1px solid var(--bd); border-radius:20px; padding:5px 12px; font-size:12px; font-weight:600; }
+  .fnode .dot { width:8px; height:8px; border-radius:50%; }
+  .fnode .dot.done { background:#51c787; } .fnode .dot.now { background:#ffae51; } .fnode .dot.todo { background:#c7cad0; }
+  .farrow { color:#c7cad0; font-weight:700; }
+  .phase { background:#fff; border:1px solid var(--bd); border-radius:12px; padding:0; margin-bottom:14px; overflow:hidden; }
+  .phase.now { border-color:#ffae51; box-shadow:0 0 0 1px #ffae51; }
+  .phase-top { padding:14px 18px 12px; }
+  .phase-top h3 { font-size:15.5px; margin:0; letter-spacing:-.01em; }
+  .phase-top h3 .num { color:#c7cad0; font-weight:800; margin-right:8px; }
+  .phase-goal { font-size:12px; color:var(--sub); line-height:1.5; margin:5px 0 0; max-width:880px; }
+  .gate { display:flex; gap:8px; align-items:baseline; background:#f6f7f8; border-top:1px solid var(--bd); border-bottom:1px solid var(--bd); padding:8px 18px; font-size:11.5px; }
+  .gate b { color:#b75606; text-transform:uppercase; letter-spacing:.04em; font-size:10px; flex:0 0 auto; padding-top:1px; }
+  .gate span { color:#3a3d42; }
+  .steps { padding:4px 18px 10px; }
+  .step { display:flex; gap:10px; padding:8px 0; border-bottom:1px solid #f0f1f3; align-items:baseline; }
+  .step:last-child { border-bottom:none; }
+  .step .chips { flex:0 0 116px; display:flex; gap:5px; flex-wrap:wrap; }
   .step .body { flex:1; }
-  .step .task { font-size:12.5px; font-weight:600; }
-  .step .why { font-size:11px; color:var(--sub); line-height:1.45; margin-top:2px; }
-  .tag { display:inline-block; font-size:9.5px; font-weight:700; padding:1px 7px; border-radius:20px; text-transform:uppercase; letter-spacing:.04em; }
-  .tag.gate { background:#fde7d2; color:#b75606; } .tag.found { background:#e8eaf0; color:#3a3d42; }
-  .tag.sem { background:#efe6fb; color:#6A3DB8; } .tag.cons { background:#e6f2ef; color:#0f7b53; } .tag.val { background:#e5eeff; color:#00359c; }
-  .stt { display:inline-block; font-size:9.5px; font-weight:700; padding:1px 6px; border-radius:5px; white-space:nowrap; }
+  .step .task { font-size:12.5px; }
+  .step .task b { font-weight:650; }
+  .step .why { font-size:11px; color:var(--sub); line-height:1.45; }
+  .stt, .own { display:inline-block; font-size:9px; font-weight:700; padding:1px 6px; border-radius:5px; white-space:nowrap; text-transform:uppercase; letter-spacing:.03em; height:fit-content; }
   .stt.done { background:#e6f2ef; color:#0f7b53; } .stt.next { background:#fde7d2; color:#b75606; }
   .stt.add { background:#efe6fb; color:#6A3DB8; } .stt.later { background:#eef0f2; color:#5e626a; }
+  .own { background:#fff; border:1px solid var(--bd); color:#5e626a; }
+  .planlink { font-size:11.5px; }
+  .planlink a { color:#6A3DB8; font-weight:600; text-decoration:none; } .planlink a:hover { text-decoration:underline; }
   footer { max-width:1320px; margin:0 auto; padding:24px; color:var(--sub); font-size:12px; line-height:1.5; }
   code { background:#eef0f2; padding:1px 5px; border-radius:4px; font-size:.9em; }
 </style>
@@ -378,57 +386,72 @@ for (const [f,n] of codeOnly) p+=`<tr><td class="tok">${f}</td><td class="note">
 p += `</tbody></table>`;
 document.getElementById('parity').innerHTML = p;
 
-// Order of operations — the dependency-ordered playbook
-const principles = [
-  ["Foundation → semantic → consumer","Fix the system bottom-up. Primitives define the palette, the semantic layer assigns meaning, components only consume. A wrong value at the bottom multiplies; a wrong consumer is local."],
-  ["Additive, then migrate, then delete","Never big-bang. Add new tokens + point old keys at them as deprecated aliases, migrate consumers, then remove aliases. Nothing breaks mid-flight and Figma bindings follow."],
-  ["Lock decisions & grammar before scaling","A name or hue choice multiplied across Figma + the whole app is the expensive mistake. Resolve the open decisions and ratify one naming grammar (group.role.prominence.state) up front."],
-  ["Lean by structure, not by hand","Scalability comes from fewer, better-shaped tokens: state layers instead of per-state solids, intent-named fills (no fill.secondary), component tokens co-located with components, ~40 dead tokens deleted."],
-  ["Figma & code in lockstep","Same tokens, two spellings today. Normalize with a token pipeline (Style Dictionary / Tokens Studio) so one source of truth feeds both — kills the naming drift permanently."],
+// Order of operations — a stage-gated plan. Approach in one line; each phase has a goal + an exit GATE + clear actions (owner + status).
+const DECISIONS_DOC = "https://github.com/samiflex82/color-token-audit/blob/ds/sami/uv-color-token-redesign/decisions-phase0.md";
+const flow = [["0 · Decide","now"],["1 · Primitives","now"],["2 · Semantic","todo"],["3 · Consumers + flag","todo"],["4 · Validate","todo"],["Cut over","todo"]];
+// phase: [num, name, flowActive, goal, gate, link, steps:[status, owner, task, why]]
+const phases = [
+  ["0","Decide",true,
+   "Settle the choices every later token inherits. A decision meeting, not a migration.",
+   "The 4 blocking decisions are ratified — #1 the black, #2 status text/icon color, #3 the status token name, #7 the naming grammar.",
+   DECISIONS_DOC,[
+    ["next","Design","Resolve the open decisions","6 total; #1 fill.primary black · #2 status color · #3 status token name block the build. #4–6 (Scheduled/Process/Inactive pills, decorative slots) can park to Phase 4."],
+    ["next","Both","Ratify naming grammar + add lint rule","group.role.prominence.state — ends camelCase / hyphen-in-segment / the bare 'pressed' key / the background.dark misnomer."],
+    ["done","Design","Sign off the Redesign/* primitive values","99 ramp vars already staged in Figma."],
+  ]],
+  ["1","Primitives",false,
+   "Make sure every primitive the new semantics will alias actually exists. Additive — live design work stays undisturbed.",
+   "Every primitive Phase 2 references exists in Figma + code, and shadows have a style.",
+   null,[
+    ["done","Design","Stage the new 50–950 ramps under Redesign/*","Brand Purple · Meadow/Tomato/Butter/Sky · decorative · True Black."],
+    ["done","Design","Create the gradient paint styles","8 styles (gradients can't be variables)."],
+    ["add","Design","Add shadow effect-styles","Hardcoded #000 / #0E0622 shadows have no token home today."],
+    ["later","Design","At cutover: promote Redesign/* + deprecate old ramps","→ DS-128."],
+  ]],
+  ["2","Semantic layer",false,
+   "Reshape the semantic layer — the heart of usability + scalability. All of it behind deprecated aliases in a Figma branch, so nothing breaks.",
+   "Every semantic aliases a primitive, the new tokens exist, and the dead tokens are gone — with aliases holding old keys.",
+   null,[
+    ["add","Both","Add the new tokens first","surface.status.* · surface.badge.* · intent fill.* · fill.selected + border.selected · border.focus + focus.default · surface.scrim."],
+    ["next","Both","Re-point existing semantics via aliases","To Stone + the new ramps, per the Token remap tab. Aliases, not renames."],
+    ["next","Both","Recategorize action.* → fill / text / border","Flatten text.action.*; merge the #6A3DB8 triplicate."],
+    ["next","Both","Delete the ~40 dead tokens","Figma-checked, zero-consumer — ~30% cut, the biggest leanness win."],
+  ]],
+  ["3","Consumers + flag",false,
+   "Migrate the library components + hardcoded colors, then flip the prototype flag to see the whole app re-skinned in context.",
+   "Library components + hardcoded clusters consume the new semantics, and the flag renders the app end-to-end.",
+   null,[
+    ["next","Eng","Route the 4 selection controls through fill.selected / border.selected","Retire the improvised border.pressed / action.primary.pressed mix."],
+    ["next","Eng","Fix the 28 role-mismatches","base.* · surface.*.dark→status · brand icons→black/accent · action.*→fill.* — see the Component usage tab."],
+    ["next","Eng","Replace the hardcoded clusters","scrims→surface.scrim · shadows→effect styles · MultiBill tints→decorative · the FA 'Flex Checking' card cluster."],
+    ["next","Both","Move decorative.* into component tokens","Out of the global semantic tier (three-tier discipline)."],
+    ["next","Eng","Ship behind the prototype flag","Re-skins the app in context — this is why the consumer groups don't need a per-component audit."],
+  ]],
+  ["4","Validate & cut over",false,
+   "Verify before deleting anything live. Deprecation is the last, irreversible step.",
+   "Contrast passes, Figma↔code parity is confirmed, and the flag is at 100% — then aliases + old ramps are removed.",
+   null,[
+    ["next","Design","Contrast / a11y QA on the new palette","Verifies the #2 status-color decision against real surfaces."],
+    ["later","Both","Value-level Figma ↔ code parity","Resolve aliases → hex; today's parity is name-level only."],
+    ["later","Eng","Widen the hardcoded scan","packages/* · SVGs · named colors — stragglers the flag won't surface."],
+    ["later","Both","Publish · flip flag on · remove aliases + old ramps","The only destructive step, and the last."],
+  ]],
 ];
-const roadmap = [
-  ["Phase 0 — Lock decisions & conventions","gate","Everything downstream multiplies these choices across Figma + code. Cheapest to settle before a single token is built. This phase is a meeting, not a migration.",[
-    ["next","Resolve the 6 open decisions","fill.primary = True Black vs Off Black (+ final hex) · status text/icon = black vs colored dark step · canonical status name (surface.status.* vs Figma status/*) · Scheduled pill primitive · Process/Inactive pills · decorative per-slot mapping."],
-    ["next","Ratify the naming grammar + add a lint rule","group.role.prominence.state. Fixes camelCase (text.criticalDisabled), hyphen-in-segment (action.progress-inactive.brand), the bare 'pressed' key, and the background.dark misnomer. The lint rule keeps it true."],
-    ["done","Sign off the Redesign/* primitive values","99 ramp vars staged in [UV] Global Colors — confirm hexes are final before semantics alias them."],
-  ]],
-  ["Phase 1 — Primitives (foundation)","found","Semantics can only alias primitives that exist. Mostly done — additive, so designers' live work is undisturbed.",[
-    ["done","New 50–950 ramps staged under Redesign/*","Brand Purple · Meadow/Tomato/Butter/Sky · Pop Yellow/Sea Glass/Bubblegum/Tangerine · True Black. Additive; nothing live points at them yet."],
-    ["done","8 gradient paint styles","Gradient/Brand 1–6, Gradient/System Success|Warning (gradients can't be variables)."],
-    ["add","Add shadow effect-styles","Uncovered by the hardcoded scan: #000 / #0E0622 / rgba(14,6,34,…) card + elevation shadows have no token home."],
-    ["later","At cutover: promote Redesign/* to final home + deprecate old ramps","Move out of the staging group; retire Brand Purple 01–05, Green/Red/Yellow/Blue, Gray Purple → DS-128."],
-  ]],
-  ["Phase 2 — Semantic layer","sem","Where usability + scalability are won or lost. Do it all behind deprecated aliases in a Figma branch so consumers keep working. Pre-req: every semantic must alias a primitive, never a raw hex.",[
-    ["add","Add the NEW tokens first (additive)","surface.status.* (pills/banners/cards) · surface.badge.* · intent-named fill.* · fill.selected + border.selected (the missing 'selected' layer) · border.focus + focus.default · surface.scrim."],
-    ["next","Re-point existing semantics to new primitives via aliases","background.dark→subdued, surface/text/border families to Stone + new ramps, per the Token remap tab. Deprecated aliases, not a rename."],
-    ["next","Recategorize action.* → fill / text / border","The big move: action.primary*→fill.primary, action.critical*→fill.critical, action.secondary.border→border.primary, action.onLight→text.accent. Flatten text.action.*; merge the #6A3DB8 triplicate."],
-    ["next","Delete the ~40 dead tokens","Zero-consumer tokens — risk-free once Figma-checked. ~30% cut; the single biggest leanness win."],
-  ]],
-  ["Phase 3 — Consumers (code) + prototype flag","cons","App-surface groups (Product · Pages · Partner · Multi-Bill · components/*) consume the semantic layer — re-pointing it + flipping the flag re-skins them at runtime. That's the validation vehicle; no per-component audit of those groups needed.",[
-    ["next","Route the 4 selection controls through fill.selected / border.selected","Retire the improvised mix: SelectorCard/Radio border.pressed, Checkbox action.primary.pressed, Chip action.primary.default. One selected layer for all."],
-    ["next","Fix the 28 role-mismatches from the component audit","base.*→text/fill · surface.*.dark→surface.status.* · brand icons (icon.primary/icon.brand/text.link)→black/accent · action.*→fill.* · border.pressed-as-focus→border.focus."],
-    ["next","Replace the hardcoded clusters","scrims→surface.scrim · shadows→effect styles · MultiBill category tints→decorative ramp · the FA 'Flex Checking' purple-card cluster (bespoke purples + white-opacity text + gradients)."],
-    ["next","Pull decorative.* out of the global semantic layer into component tokens","Three-tier discipline — component-specific values shouldn't live in the shared semantic tier."],
-    ["next","Ship behind the prototype flag","Re-skins the whole app to preview the new palette in context — replaces a manual audit of the consumer groups."],
-  ]],
-  ["Phase 4 — Validate & cut over","val","Deprecation is safe only after consumers are migrated and verified. This is the gate before deleting anything live.",[
-    ["next","Contrast / a11y QA on the new palette","The status text/icon black-vs-colored decision (Phase 0) is verified here against real surfaces."],
-    ["later","Value-level Figma ↔ code parity","Resolve aliases → hex on both sides; today's parity is name-level only."],
-    ["later","Widen the hardcoded scan","packages/*, SVG assets, named colors — catch stragglers the flag won't surface (current scan = genoa/src #hex + rgba)."],
-    ["later","Publish library · flip flag on · remove deprecated aliases + old ramps","The only destructive step, and the last one."],
-  ]],
-];
-let pl = `<h2>Order of operations — token remap, sequenced for a future-proof system</h2><p class="sub">A dependency-ordered playbook for the color-token remap, built from everything the audit uncovered and grounded in design-system best practice. Read top-to-bottom: each phase unblocks the next. Status: <span class="stt done">done</span> <span class="stt add">add</span> <span class="stt next">do</span> <span class="stt later">later/cutover</span>.</p>`;
-pl += `<div class="principles">`;
-for (const [t,d] of principles) pl += `<div class="principle"><b>${t}</b><span>${d}</span></div>`;
+const stLabel = {done:"done", add:"add", next:"do", later:"later"};
+let pl = `<h2>Order of operations</h2><p class="sub">A stage-gated plan. <b>Approach:</b> work bottom-up (primitives → semantic → consumers), keep every change additive behind deprecated aliases, and validate the whole app behind a prototype flag before deleting anything. Each phase below has a <b>goal</b>, an exit <b>gate</b> ("done when…"), and clear actions tagged by owner and status: <span class="stt done">done</span> <span class="stt add">add</span> <span class="stt next">do</span> <span class="stt later">later</span>.</p>`;
+pl += `<div class="flow">`;
+flow.forEach((f,i)=>{ pl += `<span class="fnode"><span class="dot ${f[1]}"></span>${f[0]}</span>`; if(i<flow.length-1) pl += `<span class="farrow">→</span>`; });
 pl += `</div>`;
-for (const [name,tag,why,steps] of roadmap){
-  pl += `<div class="phase"><div class="phase-head"><h3>${name}</h3><span class="tag ${tag}">${tag==='found'?'foundation':tag==='sem'?'semantic':tag==='cons'?'consumers':tag==='val'?'validate':'decisions'}</span></div><div class="phase-why">${why}</div>`;
-  for (const [st,task,w] of steps){
-    const label = st==='done'?'done':st==='add'?'add':st==='later'?'later':'do';
-    pl += `<div class="step"><div class="st"><span class="stt ${st}">${label}</span></div><div class="body"><div class="task">${task}</div><div class="why">${w}</div></div></div>`;
-  }
+for (const [num,name,active,goal,gate,link,steps] of phases){
+  pl += `<div class="phase${active?' now':''}"><div class="phase-top"><h3><span class="num">${num}</span>${name}${active?' <span class="stt next">start here</span>':''}</h3><p class="phase-goal">${goal}</p>`;
+  if(link) pl += `<p class="phase-goal planlink">📄 Decision brief: <a href="${link}">decisions-phase0.md</a> — each decision framed with options + a recommendation.</p>`;
   pl += `</div>`;
+  pl += `<div class="gate"><b>Done when</b><span>${gate}</span></div>`;
+  pl += `<div class="steps">`;
+  for (const [st,owner,task,w] of steps){
+    pl += `<div class="step"><div class="chips"><span class="stt ${st}">${stLabel[st]}</span><span class="own">${owner}</span></div><div class="body"><div class="task"><b>${task}</b></div><div class="why">${w}</div></div></div>`;
+  }
+  pl += `</div></div>`;
 }
 document.getElementById('plan').innerHTML = pl;
 
