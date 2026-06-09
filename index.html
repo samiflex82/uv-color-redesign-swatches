@@ -62,7 +62,7 @@
   <div class="view" id="hard"></div>
   <div class="view" id="parity"></div>
 </main>
-<footer>Staging preview — not for external distribution. Component audit v1 = core/primitive components. Parity = <code>UV Color Tokens</code> (137 color vars) vs code <code>colorTokens</code>. Rebuild: edit <code>index.html</code> + push.</footer>
+<footer>Staging preview — not for external distribution. Component audit v2 = by Storybook group (Ultraviolet - New · Core · Components; Product/Pages/Partner/Multi-Bill held). Parity = <code>UV Color Tokens</code> (137 color vars) vs code <code>colorTokens</code>. Rebuild: edit <code>index.html</code> + push.</footer>
 <script>
 const primitives = [
   ["brandPurple 01","#2C194D","brandPurple 950","#301C59","darkest"],
@@ -194,20 +194,61 @@ const semantics = {
     ["decorative.icon.1/3/5 · text.3 · border.1/2/4/5","various","#C0BACA","—","","","","del"],
   ],
 };
-const components = [
-  ["SelectorCard","components/core/SelectorCard","surface.default · surface.subdued · background.lighter · text.default/.disabled/.subdued · icon.default/.disabled · border.subdued",[["border.pressed","selected state → border.selected"]]],
-  ["TextField","components/core/TextField","background.lighter · surface.disabled · border.default/.critical/.disabled · text.default/.subdued/.critical · icon.subdued",[["border.pressed","focus → border.focus / border.primary"]]],
-  ["MoneyInputField","components/core/MoneyInputField","border.default/.critical/.critical.hover/.disabled/.hover · surface.default/.disabled · text.*",[["border.pressed","focus → border.focus / border.primary"]]],
-  ["LargeCurrencyInput","components/core/LargeCurrencyInput","border.default/.critical · text.default/.subdued/.critical",[["border.pressed","focus → border.focus / border.primary"]]],
-  ["Checkbox (Stateless)","components/core/Checkbox","surface.default/.disabled · border.default/.critical/.disabled · icon.brand.disabled · icon.onDark",[["action.primary.pressed","checked → fill.selected / fill.primary"]]],
-  ["Radio","components/core/Radio","border.default/.disabled · surface.disabled",[["(missing)","no selected token → add fill.selected"]]],
-  ["ToggleSwitch","components/core/ToggleSwitch","surface.default · surface.subdued",[["surface.brand.dark","on-track → fill.primary (black)"],["base.onSurface","→ text.default (retire base.*)"]]],
-  ["NudgeBanner","components/core/NudgeBanner","surface.default/.subdued · icon.brand/.dark/.critical/.success/.warning/.default/.subdued · text.default",[["surface.success/.critical/.warning/.highlight/.highlight.dark","→ status.* (migrate)"]]],
-  ["Surface","components/core/Surface","surface.default/.subdued/.brand/.brand.dark/.critical/.success/.warning/.highlight/.disabled · border.subdued",[["base.onSurface","→ text.default (retire base.*)"]]],
-  ["SelectField","components/core/SelectField","surface.default · border.default/.critical · text.default/.subdued/.critical",[]],
-  ["ListItem","components/core/ListItem","text.default/.disabled/.subdued",[]],
-  ["BottomSheet","components/core/BottomSheet","surface.default · icon.subdued",[]],
-];
+// Component usage v2 — organized BY STORYBOOK GROUP. Method: story title → component file →
+// rg "tokens(['|.)" → list tokens, flag role-mismatches vs the remap-plan.
+// Priority groups done: Ultraviolet - New, Core, Components. (Product · Pages · Partner · Multi-Bill held.)
+const compGroups = {
+  "Ultraviolet - New": [
+    ["BadgeLabel","components/BadgeLabel","—",[["decorative.surface.3","badge fill → surface.badge.* (new tier)"],["border.hover","static badge border uses a hover-state token → border.subdued / badge border"]]],
+    ["BottomSheet","components/core/BottomSheet","icon.subdued · surface.default",[["(hardcoded scrim)","rgba(0,0,0,·) backdrop → surface.scrim"]]],
+    ["CardDetailsInputField","components/CardDetailsInputField","text.critical · text.default",[]],
+    ["DateOfBirthField","components/DateOfBirthField","— composes TextField (no direct color)",[]],
+    ["FullScreenAlertContent","components/FullScreenAlertContent","text.default",[]],
+    ["LargeCurrencyInput","components/LargeCurrencyInput","border.critical · border.default · text.critical/.default/.subdued",[["border.pressed","focus → border.focus / border.primary"]]],
+    ["ListItem","components/core/ListItem","text.default/.disabled/.subdued",[]],
+    ["LoadingSpinner","components/LoadingSpinner","surface.default",[["action.progress.inactive","track → fill.neutral"],["icon.brand · icon.brand.subdued","brand spinner → icon.accent (rename)"]]],
+    ["FullScreenLoadingSpinner","components/LoadingSpinner","— composes LoadingSpinner",[]],
+    ["MoneyInputField","components/MoneyInputField","border.critical/.critical.hover/.default/.disabled/.hover · surface.default/.disabled · text.critical/.default/.disabled",[["border.pressed","focus → border.focus / border.primary"]]],
+    ["Page","components/Page","background.brand · background.lighter",[["background.dark","misnomer (it's light) → background.subdued"],["surface.brand.dark","brand section fill → fill.primary / brand"]]],
+    ["PhoneInputField","components/PhoneInputField","— composes TextField (no direct color)",[]],
+    ["Pill","components/Pill","text.onDark",[["surface.brand.dark","pill fill → surface.status.* / fill.primary"]]],
+    ["Select","components/SelectField","border.critical · border.default · surface.default · text.default/.subdued/.critical",[]],
+    ["Selection · CheckList","components/CheckList","— composes Checkbox",[["icon.brand.disabled","→ icon.disabled (rename)"]]],
+    ["Selection · Checkbox","components/Checkbox","border.critical/.default/.disabled · icon.onDark · surface.default/.disabled",[["action.primary.pressed","checked fill → fill.selected / fill.primary"],["icon.brand.disabled","→ icon.disabled"]]],
+    ["Selection · CheckboxGroup","components/Checkbox","— composes Checkbox",[]],
+    ["Selection · Radio","components/Radio","border.default · border.disabled · surface.disabled",[["border.pressed","selected ring → border.selected"],["surface.brand.subdued","selected fill → fill.selected"]]],
+    ["Selection · RadioIcon","components/Radio","border.default · border.disabled · surface.disabled",[["(missing)","no selected token → add fill.selected"]]],
+    ["Selection · SelectorCard","components/core/SelectorCard","background.lighter · surface.default/.subdued · text.default/.disabled/.subdued · border.subdued",[["border.pressed","selected → border.selected"],["icon.primary · icon.primary.disabled","brand icon → icon.default / icon.accent"]]],
+    ["Selection · SingleSelect","components/SingleSelect","— composes SelectorCard / Form",[]],
+    ["Selection · ToggleSwitch","components/ToggleSwitch","surface.default · surface.subdued",[["surface.brand.dark","on-track fill → fill.primary (black)"],["base.onSurface","→ text.default (retire base.*)"]]],
+    ["Surface","components/core/Surface","surface.default/.subdued/.brand/.critical/.success/.warning/.highlight/.disabled · border.subdued",[["base.onSurface","→ text.default (retire base.*)"],["surface.brand.dark","brand fill → fill.primary"]]],
+    ["TextField","components/TextField","background.lighter · border.critical/.default/.disabled · icon.subdued · surface.disabled · text.critical/.default/.subdued",[["border.pressed","focus → border.focus / border.primary"]]],
+  ],
+  "Core": [
+    ["Accordion","components/Accordion","background.lighter · text.default",[]],
+    ["Button","components/Button","border.critical · border.default · surface.default · text.onDark · text.subdued",[["action.primary* (×5)","→ fill.primary (+ states)"],["action.critical* (×3)","→ fill.critical (+ states)"],["action.secondary* / .stroke","→ border.primary / text.primary (outline)"],["base.interactive","→ fill.primary / text.accent (retire base.*)"],["surface.brand · surface.brand.dark","button fill → fill.primary / brand"],["text.action.default.disabled","→ text.disabled"],["text.link","→ text.primary / text.accent"]]],
+    ["Card","components/Card","border.disabled",[["base.onSurface","→ text.default (retire base.*)"]]],
+    ["Card · ToggleCard","components/Card","background.lighter · border.default · text.subdued",[]],
+    ["ContextualToast","components/ContextualToast","surface.brand · text.onDark",[["surface.brand.dark","toast fill → surface.status.* / fill.primary"],["text.action","→ text.primary"]]],
+    ["Divider","components/Divider","border.subdued",[]],
+    ["FeedbackScreen","components/FeedbackScreen","— composes (no direct color)",[]],
+    ["IconButton","components/CircleIconButton","—",[["text.link","brand icon-button color (a TEXT token on an icon) → icon.default / icon.accent"]]],
+    ["IconButton · CircleIcon","components/CircleIconButton","—",[["text.link","→ icon.default / icon.accent (recat text→icon)"]]],
+    ["NudgeBanner","components/core/NudgeBanner","background.lighter · surface.default/.subdued/.brand/.brand.subdued · icon.subdued · text.default",[["surface.success/.critical/.warning/.highlight/.highlight.dark","status banner → surface.status.*"],["icon.brand/.brand.dark/.primary/.critical/.success/.warning","status icons → icon.default (on status surface) / icon.accent"]]],
+    ["NudgeTooltip","components/NudgeTooltip","surface.brand · text.onDark",[["base.interactive","→ fill.primary / text.accent (retire base.*)"],["surface.brand.dark","tooltip fill → fill.primary"],["text.action","→ text.primary"]]],
+    ["Progress","components/ProgressBar","—",[["surface.brand.subdued","track → fill.neutral"],["action.onLight","progress fill → fill.primary / brand"],["surface.success.dark","complete → fill.success / status"]]],
+  ],
+  "Components": [
+    ["AccordionItem","components/AccordionItem","— composes (no direct color)",[]],
+    ["AnimatedTransition","components/AnimatedTransition","— animation (no color)",[]],
+    ["BigNumberInput","components/BigNumberInput","background.lighter · border.critical/.default · text.critical/.default/.subdued",[["border.pressed","focus → border.focus / border.primary"]]],
+    ["CollapsibleCard","components/CollapsibleCard","border.subdued · surface.default · text.default/.subdued",[["base.onSurface","→ text.default (retire base.*)"],["surface.warning.medium","warning callout → surface.status.warning (if status)"]]],
+    ["FullScreenModal","components/FullScreenModal","— composes (no direct color)",[["(hardcoded scrim)","backdrop → surface.scrim"]]],
+    ["Modals · FAPaymentSuccessModal","modals/FAPaymentSuccessModal","surface.brand · surface.callout · text.onDark",[["action.primary","→ fill.primary"],["icon.primary","brand icon → icon.default / icon.accent"],["text.action","→ text.primary"]]],
+    ["LargeHeading","components/LargeHeading","—",[["icon.brand","brand icon → icon.default / icon.accent"]]],
+    ["Skeleton","components/Skeleton","surface.disabled",[]],
+  ],
+};
 // parity: [figmaName, codeName, issue]
 const drift = [
   ["text/Critical","text.critical","capital C in Figma"],
@@ -253,14 +294,21 @@ for (const [group, rows] of Object.entries(semantics)){ h+=`<tr class="grp"><td 
 h += `</tbody></table>`;
 document.getElementById('remap').innerHTML = h;
 
-// Components — correct vs wrong split
-let c = `<h2>Component token usage — core/primitive components (v1)</h2><p class="sub">Each component's tokens split into <span class="okmark">✅ correct</span> and <span class="flag">⚠ wrong / to fix</span>. The wrong column is the fix list.</p><table><thead><tr><th>Component</th><th>✅ Correct tokens</th><th>⚠ Wrong / to fix</th></tr></thead><tbody>`;
-for (const [name,file,correct,wrong] of components){
-  const rowcls = wrong.length ? 'warn-row' : 'ok-row';
-  const wrongHtml = wrong.length ? wrong.map(([t,fix])=>`<div style="margin-bottom:3px"><span class="badtok">${t}</span> → ${fix}</div>`).join('') : '<span class="okmark">✅ all role-correct</span>';
-  c += `<tr class="${rowcls}"><td><b>${name}</b><br><span class="where">${file}</span></td><td class="tok" style="font-size:11px;color:#3a3d42">${correct}</td><td class="note">${wrongHtml}</td></tr>`;
+// Components — by Storybook group, correct vs wrong split
+let totalC=0, totalFlag=0;
+for (const rows of Object.values(compGroups)){ totalC+=rows.length; totalFlag+=rows.filter(r=>r[3].length).length; }
+let c = `<h2>Component token usage — by Storybook group (v2)</h2><p class="sub">Priority Storybook groups <b>Ultraviolet - New</b>, <b>Core</b>, <b>Components</b> audited (Product · Pages · Partner · Multi-Bill held for later). <b>${totalC}</b> components, <b>${totalFlag}</b> with role-mismatch fixes. Each component's tokens split into <span class="okmark">✅ correct</span> and <span class="flag">⚠ wrong / to fix</span> — the wrong column is the fix list. Recurring fixes: <code>border.pressed</code> reused for focus/selected, <code>surface.*.dark</code> reused for status fills, the retiring <code>base.*</code> + <code>action.*</code> groups, and brand icons (<code>icon.primary</code>/<code>icon.brand</code>/<code>text.link</code>) → black/accent.</p>`;
+for (const [group, rows] of Object.entries(compGroups)){
+  const flagged = rows.filter(r=>r[3].length).length;
+  c += `<h3 style="margin:22px 0 6px;font-size:15px">${group} <span class="note" style="font-weight:400">— ${rows.length} components, ${flagged} with fixes</span></h3>`;
+  c += `<table><thead><tr><th>Component</th><th>✅ Correct tokens</th><th>⚠ Wrong / to fix</th></tr></thead><tbody>`;
+  for (const [name,file,correct,wrong] of rows){
+    const rowcls = wrong.length ? 'warn-row' : 'ok-row';
+    const wrongHtml = wrong.length ? wrong.map(([t,fix])=>`<div style="margin-bottom:3px"><span class="badtok">${t}</span> → ${fix}</div>`).join('') : '<span class="okmark">✅ all role-correct</span>';
+    c += `<tr class="${rowcls}"><td><b>${name}</b><br><span class="where">${file}</span></td><td class="tok" style="font-size:11px;color:#3a3d42">${correct}</td><td class="note">${wrongHtml}</td></tr>`;
+  }
+  c += `</tbody></table>`;
 }
-c += `</tbody></table>`;
 document.getElementById('comp').innerHTML = c;
 
 // Hardcoded
