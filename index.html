@@ -8,62 +8,86 @@
   :root { --bd:#e6e8eb; --ink:#1d1d1d; --sub:#5e626a; --bg:#fafbfb; }
   * { box-sizing:border-box; }
   body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--ink); background:var(--bg); }
-  header { padding:32px 24px 8px; max-width:1280px; margin:0 auto; }
+  header { padding:30px 24px 0; max-width:1320px; margin:0 auto; }
   h1 { font-size:24px; margin:0 0 8px; letter-spacing:-.01em; }
-  .lede { color:var(--sub); font-size:13.5px; max-width:860px; line-height:1.55; }
+  .lede { color:var(--sub); font-size:13.5px; max-width:900px; line-height:1.55; }
   .legend { font-size:12px; color:var(--sub); margin-top:8px; }
   .legend b { color:var(--ink); }
-  main { max-width:1280px; margin:0 auto; padding:8px 24px 72px; }
-  h2 { font-size:18px; margin:36px 0 6px; letter-spacing:-.01em; }
+  .tabs { max-width:1320px; margin:18px auto 0; padding:0 24px; display:flex; gap:6px; border-bottom:1px solid var(--bd); }
+  .tab { padding:9px 16px; font-size:13px; font-weight:600; color:var(--sub); cursor:pointer; border:1px solid transparent; border-bottom:none; border-radius:8px 8px 0 0; }
+  .tab.active { color:var(--ink); background:#fff; border-color:var(--bd); }
+  main { max-width:1320px; margin:0 auto; padding:14px 24px 72px; }
+  .view { display:none; }
+  .view.active { display:block; }
+  h2 { font-size:17px; margin:30px 0 6px; letter-spacing:-.01em; }
   table { width:100%; border-collapse:collapse; font-size:12.5px; background:#fff; border:1px solid var(--bd); border-radius:10px; overflow:hidden; }
   thead th { position:sticky; top:0; background:#f6f7f8; text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--sub); padding:8px 10px; border-bottom:1px solid var(--bd); z-index:1; }
   td { padding:6px 10px; border-bottom:1px solid #f0f1f3; vertical-align:middle; }
   tr:last-child td { border-bottom:none; }
-  .grp td { background:#eef0f2; font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:#3a3d42; padding:7px 10px; }
+  .grp td { background:#eef0f2; font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:#3a3d42; }
   .tok { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11.5px; }
-  .prim { color:var(--sub); font-size:11px; }
-  .sw { display:inline-block; width:16px; height:16px; border-radius:3px; border:1px solid rgba(0,0,0,.12); vertical-align:middle; }
+  .prim { color:var(--sub); font-size:11px; white-space:nowrap; }
+  .sw { display:inline-block; width:16px; height:16px; border-radius:3px; border:1px solid rgba(0,0,0,.14); vertical-align:middle; }
   .hex { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:10.5px; color:var(--sub); text-transform:uppercase; }
   .arrow { color:#c7cad0; text-align:center; }
   .note { color:var(--sub); font-size:11px; }
-  .new td .tok { color:#0f7b53; }
-  .del td { opacity:.55; }
-  .flag { color:#b75606; }
-  footer { max-width:1280px; margin:0 auto; padding:24px; color:var(--sub); font-size:12px; line-height:1.5; }
+  tr.new .tok { color:#0f7b53; }
+  tr.del { opacity:.5; }
+  .flag { color:#b75606; font-weight:600; }
+  .where { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:10.5px; color:var(--sub); }
+  .pill { display:inline-block; font-size:10px; font-weight:700; padding:1px 7px; border-radius:20px; text-transform:uppercase; letter-spacing:.03em; }
+  .pill.leak { background:#fae8e8; color:#a01414; }
+  .pill.exempt { background:#eef0f2; color:#5e626a; }
+  .pill.newtok { background:#e6f2ef; color:#0f7b53; }
+  .callout { background:#fff; border:1px solid var(--bd); border-left:3px solid #b75606; border-radius:8px; padding:12px 16px; margin:14px 0; font-size:13px; line-height:1.5; }
+  footer { max-width:1320px; margin:0 auto; padding:24px; color:var(--sub); font-size:12px; line-height:1.5; }
   code { background:#eef0f2; padding:1px 5px; border-radius:4px; font-size:.9em; }
 </style>
 </head>
 <body>
 <header>
   <h1>UV Color Redesign — Token Remap Audit</h1>
-  <p class="lede">Every meaningful genoa color token, current → proposed, for primitives and semantics. Primary action → <strong>True Black</strong>; <code>action.*</code> → <code>fill.*</code>; purple → inline accent; status pills/badges → light tints (black text).</p>
-  <p class="legend"><b>Legend:</b> <span class="new"><span class="tok">green</span></span> = new token · <span class="del">faded</span> = delete (dead/0 consumers) · <span class="flag">⚠</span> = judgment call to confirm. Chips are 16×16.</p>
+  <p class="lede">Every genoa color token, current → proposed (primitives + semantics), plus a map of <strong>hardcoded colors</strong> that bypass the token system. Primary action → True Black; <code>action.*</code> → <code>fill.*</code>; purple → inline accent; status pills/badges → light tints (black text).</p>
+  <p class="legend"><b>Legend:</b> <span style="color:#0f7b53">green</span> = new token · <span style="opacity:.5">faded</span> = delete (0 consumers) · <span class="flag">⚠</span> = confirm. Chips 16×16.</p>
 </header>
-<main id="app"></main>
-<footer>Staging preview for the UV color-token redesign — not for external distribution. Values reflect the staged <code>Redesign/*</code> primitives. Rebuild: edit <code>index.html</code> + push.</footer>
+<div class="tabs">
+  <div class="tab active" data-view="remap">Token remap</div>
+  <div class="tab" data-view="hard">Hardcoded colors</div>
+</div>
+<main>
+  <div class="view active" id="remap"></div>
+  <div class="view" id="hard"></div>
+</main>
+<footer>Staging preview — not for external distribution. Reflects staged <code>Redesign/*</code> primitives. Hardcoded scan covers <code>#hex</code> (3/6/8-digit), <code>rgba()/rgb()</code> in <code>genoa/src</code> (excl. token defs, snapshots, tests, stories). Rebuild: edit <code>index.html</code> + push.</footer>
 <script>
-// ---- PRIMITIVE REMAP ---- [curTok, curHex, propTok, propHex, note]
 const primitives = [
   ["brandPurple 01","#2C194D","brandPurple 950","#301C59","darkest"],
   ["brandPurple 02","#6A3DB8","brandPurple 700","#6A3DB8","exact — inline accent"],
   ["brandPurple 03","#DDC6F9","brandPurple 200","#E0DCF8",""],
   ["brandPurple 04","#EEE2FC","brandPurple 100","#EEECFB",""],
   ["brandPurple 05","#E3E1E6","—","","drop (unused gray)"],
-  ["offBlack","#1D1D1D","trueBlack","#000000","Off Black usages → True Black (may revert)"],
+  ["offBlack","#1D1D1D","trueBlack","#000000","Off Black → True Black (may revert)"],
   ["white","#FFFFFF","white","#FFFFFF","unchanged"],
-  ["grayPurple 01–08","#EDEBF1","stone (deprecated)","#D9DCE0","Gray Purple deprecated → Stone (per-token below)"],
-  ["green 01–04 → meadow","#01795C","meadow 50–950","#51C787","role anchor green 01 → meadow 400"],
+  ["grayPurple 01–08","#EDEBF1","stone (deprecated)","#D9DCE0","→ Stone (per-token below)"],
+  ["green 01–04 → meadow","#01795C","meadow 50–950","#51C787","anchor green 01 → meadow 400"],
   ["red 01–04 → tomato","#CE1818","tomato 50–950","#FF7451","red 01 → tomato 400"],
   ["yellow 01–05 → butter","#F1A91B","butter 50–950","#FFD84C","yellow 03 → butter 300"],
   ["blue 01–05 → sky","#00359C","sky 50–950","#2BA7FF","blue 01 → sky 400"],
   ["stone 01–10","#E6E8EB","stone 01–10","#E6E8EB","unchanged"],
-  ["— (new)","","decorative popYellow 50–950","#CDFB5B","new decorative ramp"],
-  ["— (new)","","decorative seaGlass 50–950","#74E1DA","new decorative ramp"],
-  ["— (new)","","decorative bubblegum 50–950","#FFA8F9","new decorative ramp"],
-  ["— (new)","","decorative tangerine 50–950","#FFAE51","new decorative ramp"],
+  ["— (new)","","decorative popYellow 50–950","#CDFB5B","new"],
+  ["— (new)","","decorative seaGlass 50–950","#74E1DA","new"],
+  ["— (new)","","decorative bubblegum 50–950","#FFA8F9","new"],
+  ["— (new)","","decorative tangerine 50–950","#FFAE51","new"],
 ];
-// ---- SEMANTIC REMAP ---- group => [curTok, curPrim, curHex, propTok, futPrim, futHex, note, cls]
 const semantics = {
+  "base (consider retiring group)": [
+    ["base.onSurface","offBlack","#1D1D1D","text.default","trueBlack","#000000","",""],
+    ["base.primary","brandPurple 01","#2C194D","fill.primary","trueBlack","#000000","",""],
+    ["base.interactive","brandPurple 02","#6A3DB8","text.accent","brandPurple 700","#6A3DB8","",""],
+    ["base.secondary","grayPurple 02","#D5D1DB","—","stone 05","#D9DCE0","",""],
+    ["base.warning","yellow 01","#A16B00","—","butter 800","#94420C","",""],
+    ["base.success","green 01","#01795C","—","meadow 700","#106C41","",""],
+  ],
   "background": [
     ["background.lighter","white","#FFFFFF","background.lighter","white","#FFFFFF","",""],
     ["background.dark","stone 02","#F6F7F8","background.subdued","stone 02","#F6F7F8","rename (it's light)",""],
@@ -79,7 +103,6 @@ const semantics = {
     ["surface.brand.dark","brandPurple 02","#6A3DB8","surface.brand.dark","brandPurple 700","#6A3DB8","",""],
     ["surface.brand.darkest","brandPurple 01","#2C194D","surface.brand.darkest","brandPurple 950","#301C59","",""],
     ["surface.brand.muted","grayPurple 05","#958CA6","surface.brand.muted","stone 08","#8D9199","",""],
-    ["surface.pressed","brandPurple 01","#2C194D","—","—","","delete (dead)","del"],
     ["surface.critical","red 04","#FAE8E8","surface.critical","tomato 50","#FFF4F1","",""],
     ["surface.critical.dark","red 01","#CE1818","surface.critical.dark","tomato 600","#E5451D","",""],
     ["surface.success","green 04","#E6F2EF","surface.success","meadow 50","#EEFBF3","",""],
@@ -100,20 +123,35 @@ const semantics = {
     ["— (new)","—","","surface.badge.new","bubblegum 300","#FFA8F9","","new"],
     ["— (new)","—","","surface.badge.current","tangerine 400","#FFAE51","","new"],
     ["— (new)","—","","surface.badge.backup","stone 05","#D9DCE0","","new"],
+    ["— (new)","—","","surface.scrim","trueBlack @ ~50%","#000000","modal/sheet backdrop (replaces rgba leaks)","new"],
   ],
   "text": [
     ["text.default","offBlack","#1D1D1D","text.default","trueBlack","#000000","",""],
     ["text.subdued","stone 09","#5E626A","text.subdued","stone 09","#5E626A","",""],
     ["text.disabled","stone 07","#AEB2BA","text.disabled","stone 07","#AEB2BA","",""],
     ["text.onDark","white","#FFFFFF","text.onDark","white","#FFFFFF","",""],
-    ["text.link / text.link.inline / text.brand.expressive","brandPurple 02","#6A3DB8","text.accent (text.link)","brandPurple 700","#6A3DB8","merge triplicate → inline accent",""],
+    ["text.link / .link.inline / .brand.expressive","brandPurple 02","#6A3DB8","text.accent","brandPurple 700","#6A3DB8","merge triplicate","new"],
     ["text.link.pressed","brandPurple 02","#6A3DB8","text.accent.pressed","brandPurple 800","#5D36A1","",""],
     ["text.action","brandPurple 01","#2C194D","text.primary","trueBlack","#000000","",""],
     ["text.critical","red 01","#CE1818","text.critical","tomato 700","#C13714","⚠ black vs colored","flag"],
     ["text.success","green 01","#01795C","text.success","meadow 700","#106C41","⚠ black vs colored","flag"],
     ["text.warning","yellow 01","#A16B00","text.warning","butter 800","#94420C","⚠ black vs colored","flag"],
-    ["text.highlight","blue 01","#00359C","text.highlight","sky 700","#005AA7","⚠ black vs colored","flag"],
     ["text.criticalDisabled","red 03","#F0BABA","text.critical.disabled","tomato 200","#FFD2C7","fix camelCase",""],
+  ],
+  "icon": [
+    ["icon.default","offBlack","#1D1D1D","icon.default","trueBlack","#000000","",""],
+    ["icon.subdued","stone 09","#5E626A","icon.subdued","stone 09","#5E626A","",""],
+    ["icon.default.disabled","stone 07","#AEB2BA","icon.disabled","stone 07","#AEB2BA","",""],
+    ["icon.subdued.disabled","stone 05","#D9DCE0","icon.subdued.disabled","stone 05","#D9DCE0","",""],
+    ["icon.brand","brandPurple 02","#6A3DB8","icon.default","trueBlack","#000000","⚠ icons→black","flag"],
+    ["icon.brand.dark","brandPurple 01","#2C194D","icon.default","trueBlack","#000000","⚠","flag"],
+    ["icon.brand.subdued","grayPurple 05","#958CA6","icon.subdued","stone 08","#8D9199","",""],
+    ["icon.brand.disabled","stone 06","#C7CAD0","icon.disabled","stone 06","#C7CAD0","",""],
+    ["icon.link","brandPurple 01","#2C194D","icon.accent","brandPurple 700","#6A3DB8","⚠ keep accent?","flag"],
+    ["icon.onDark","white","#FFFFFF","icon.onDark","white","#FFFFFF","",""],
+    ["icon.critical","red 01","#CE1818","icon.critical","tomato 600","#E5451D","⚠","flag"],
+    ["icon.success","green 01","#01795C","icon.success","meadow 600","#14874F","⚠","flag"],
+    ["icon.warning","yellow 02","#C58301","icon.warning","butter 600","#DD7B02","⚠","flag"],
   ],
   "border": [
     ["border.default","stone 06","#C7CAD0","border.default","trueBlack","#000000","",""],
@@ -134,7 +172,6 @@ const semantics = {
     ["action.primary.inactive / .disabled","stone 03","#EEF0F2","fill.primary.disabled","stone 03","#EEF0F2","",""],
     ["action.secondary.border","brandPurple 02","#6A3DB8","border.primary","trueBlack","#000000","secondary = outline",""],
     ["action.secondary.default","brandPurple 02","#6A3DB8","text.primary","trueBlack","#000000","",""],
-    ["action.secondary (fill)","grayPurple 01","#EDEBF1","—","—","","retire (outline, no fill)","del"],
     ["action.onLight","brandPurple 02","#6A3DB8","text.accent","brandPurple 700","#6A3DB8","",""],
     ["action.onDark","white","#FFFFFF","text.onPrimary","white","#FFFFFF","",""],
     ["action.selection.default","grayPurple 01","#EDEBF1","fill.selected","stone 03","#EEF0F2","selection = neutral",""],
@@ -147,33 +184,125 @@ const semantics = {
     ["focus.default (missing in code)","—","","focus.default","brandPurple 700","#6A3DB8","add token","new"],
   ],
   "decorative": [
-    ["decorative.surface/icon/text/border.*","grayPurple/blue/yellow/brandPurple","#E5EEFF","→ new decorative ramps","popYellow/seaGlass/bubblegum/tangerine","#CDFB5B","⚠ per-slot mapping TBD with design","flag"],
+    ["decorative.surface/icon/text/border.* (live)","grayPurple/blue/yellow/brandPurple","#E5EEFF","→ new decorative ramps","popYellow/seaGlass/bubblegum/tangerine","#CDFB5B","⚠ per-slot mapping TBD","flag"],
+  ],
+  "DEAD — delete (0 consumers in code)": [
+    ["base.surface","white","#FFFFFF","—","","","","del"],
+    ["base.critical","red 01","#CE1818","—","","","","del"],
+    ["base.highlight","blue 02","#1C53BA","—","","","","del"],
+    ["text.link.disabled","stone 09","#5E626A","—","","","","del"],
+    ["text.link.onDark","white","#FFFFFF","—","","","","del"],
+    ["text.link.onDark.subdued","stone 02","#F6F7F8","—","","","","del"],
+    ["text.action.onDark","stone 02","#F6F7F8","—","","","","del"],
+    ["text.action.dark","offBlack","#1D1D1D","—","","","","del"],
+    ["text.criticalPressed","red 02","#E27474","—","","","camelCase","del"],
+    ["text.highlight","blue 01","#00359C","—","","","","del"],
+    ["surface.pressed","brandPurple 01","#2C194D","—","","","fill leak","del"],
+    ["action.secondary.default","brandPurple 02","#6A3DB8","—","","","","del"],
+    ["action.secondary.pressed","grayPurple 02","#D5D1DB","—","","","","del"],
+    ["action.secondary.disabled","stone 07","#AEB2BA","—","","","","del"],
+    ["action.secondary.pressed.inactive","grayPurple 03","#C0BACA","—","","","","del"],
+    ["action.selection.pressed","brandPurple 02","#6A3DB8","—","","","","del"],
+    ["action.selection.disabled","stone 05","#D9DCE0","—","","","Figma=Stone04 drift","del"],
+    ["action.onLight.pressed","brandPurple 01","#2C194D","—","","","","del"],
+    ["action.progress.inactive.onDark","grayPurple 01","#EDEBF1","—","","","","del"],
+    ["action.progress.active.onDark","white","#FFFFFF","—","","","","del"],
+    ["action.progress-inactive.brand","grayPurple 01","#EDEBF1","—","","","hyphen bug","del"],
+    ["pressed","brandPurple 02","#6A3DB8","—","","","bare key","del"],
+    ["icon.link.disabled","stone 06","#C7CAD0","—","","","","del"],
+    ["icon.critical.disabled","red 04","#FAE8E8","—","","","","del"],
+    ["icon.success.disabled","green 04","#E6F2EF","—","","","","del"],
+    ["icon.warning.disabled","yellow 05","#FFF4CB","—","","","","del"],
+    ["border.action.default","brandPurple 02","#6A3DB8","—","","","","del"],
+    ["border.action.pressed","brandPurple 01","#2C194D","—","","","","del"],
+    ["border.action.hover","brandPurple 01","#2C194D","—","","","","del"],
+    ["border.success","green 01","#01795C","—","","","","del"],
+    ["border.warning","yellow 01","#A16B00","—","","","","del"],
+    ["border.highlight","blue 01","#00359C","—","","","","del"],
+    ["decorative.icon.1","brandPurple 01","#2C194D","—","","","","del"],
+    ["decorative.icon.3","grayPurple 03","#C0BACA","—","","","","del"],
+    ["decorative.icon.5","brandPurple 01","#2C194D","—","","","","del"],
+    ["decorative.text.3","grayPurple 03","#C0BACA","—","","","","del"],
+    ["decorative.border.1","grayPurple 04","#ABA3B8","—","","","","del"],
+    ["decorative.border.2","blue 04","#B1D4FF","—","","","","del"],
+    ["decorative.border.4","yellow 04","#FFD789","—","","","","del"],
+    ["decorative.border.5","stone 05","#D9DCE0","—","","","","del"],
   ],
 };
+// hardcoded: [hex(for chip), label, what, where, type, proposed]
+const hardcoded = [
+  ["#F2F2F2","#F2F2F2","Tab header background","app/(tabs)/_layout.tsx:185","leak","surface.subdued (stone 02)"],
+  ["#222222","#222222","Markdown table border","rxp/pages/markdown/MarkdownStyles.ts:206","leak","border.default (True Black)"],
+  ["#808080","rgba(128,128,128,.1)","Markdown row stripe","MarkdownStyles.ts:25,220","leak","surface.subdued"],
+  ["#CCCCCC","#ccc","Markdown rule / border","MarkdownStyles.ts:103,157","leak","border.subdued (stone 05)"],
+  ["#926EEB","#6862E6 / #7A6CE8 / #926EEB","Approved-page gradient","rxp/pages/approved/ApprovedPagePricingV2GA.tsx:93–100","leak","Gradient/Brand paint style (new)"],
+  ["#0E0622","#0E0622","Shadow color","FlexBillPaymentDetailsPage:473 · navigation/utils:36","leak","shadow effect-style"],
+  ["#1F1442","#1F1442","FA card bg / text","FlexBillPaymentDetailsPage:515,525,565","leak","⚠ needs token (≈ brandPurple 950)"],
+  ["#EEDDFB","#EEDDFB","FA card bg","FlexBillPaymentDetailsPage:535","leak","brandPurple 100"],
+  ["#B98BEE","#B98BEE","FA card accent","FlexBillPaymentDetailsPage:544","leak","brandPurple 300/400"],
+  ["#2C194D","['#1F0F45','#2C194D','#3A2469']","Flex checking card gradient","FlexCheckingAccountCard:308","leak","Gradient/Brand style (#2C194D = brandPurple 01)"],
+  ["#4A2E8C","#4A2E8C","Card shadow","FlexCheckingAccountCard:364","leak","shadow effect-style"],
+  ["#000000","#000 / #000000","Card shadows","FlexCheckingAccountCard:347 · FlexBankAccountCard:114","leak","shadow effect-style"],
+  ["#FFFFFF","rgba(255,255,255,.1–.9)","White text/border on purple card","FlexCheckingAccountCard:387–474","leak","text.onDark / onPrimary @ opacity"],
+  ["#0E0622","rgba(14,6,34,.05)","Shadow / shadow gradient","navigation/utils:33 · AddressSearchShadowFlatList:50","leak","shadow effect-style"],
+  ["#E5E3F8","#E5E3F8 #F7F3CC #DBEAFE #D0F0EC #EDE0E3 #E8EDD0","MultiBill provider category tints (8)","components/MultiBill/SelectProvider:87–95","newtok","NEEDS NEW decorative category token set"],
+  ["#FFFFFF","#FFFFFF","Browser theme-color","BrowserThemeStatusBarProvider.web:4","leak","surface.default (white)"],
+  ["#6A3DB8","#6A3DB8","Browser controls color","rxp/utils/url.ts:98","leak","brandPurple 700 (primitive hardcoded)"],
+  ["#F4F7F9","#F4F7F9","Inline message background","components/partner/ExpandableInlineMessage:44","leak","surface.subdued (stone 02)"],
+  ["#000000","#000000","Animated dot default color","components/partner/ThreeDotsLoader/AnimatedDot:24","leak","text.default / trueBlack"],
+  ["#000000","rgba(0,0,0,.2–.55)","Modal / bottom-sheet scrim","BottomSheet.web:348 · BillerAutomationFlowModal:454","newtok","NEEDS NEW surface.scrim / overlay token"],
+  ["#000000","rgba(0,0,0,0.8)","FA text on card","FlexAccountReadyPage:716","leak","text.onDark @ opacity"],
+  ["#FFFFFF","#fff","Modal close icon / text","BillerAutomationFlowModal:435,465","leak","icon.onDark / text.onDark"],
+  ["#FFFFFF","rgba(255,255,255,0–1)","Gradient fade mask","PifLaunchAnnouncementModal:84","leak","white @ opacity (fade)"],
+];
+const exempt = [
+  ["app/dev/partner-embed-debug.tsx","Dev debug tool — VS-Code / Bootstrap palette (#007bff, #28a745, #ce9178, #ddd, #666, #333…)","~17 colors"],
+  ["app/partner-embed/bilt/agreements/tila.tsx","Bilt partner agreement page — partner styling (#fff ×3)","3 colors"],
+  ["AutomationScriptWebview.tsx:36","Inert iframe HTML (background:#fff) — not product UI","1 color"],
+];
 
 function chip(hex){ return hex ? `<span class="sw" style="background:${hex}"></span>` : ''; }
 function hx(hex){ return hex ? `<span class="hex">${hex}</span>` : ''; }
-const app = document.getElementById('app');
 
-// Primitives table
+// ---- Remap view ----
 let h = `<h2>Primitives</h2><table><thead><tr><th>Current</th><th>now</th><th></th><th></th><th>Proposed</th><th>future</th><th></th><th>Note</th></tr></thead><tbody>`;
 for (const [c,ch,p,ph,n] of primitives){
   const cls = p==="—" ? "del" : (c.startsWith("—") ? "new" : "");
   h += `<tr class="${cls}"><td class="tok">${c}</td><td>${chip(ch)}</td><td>${hx(ch)}</td><td class="arrow">→</td><td class="tok">${p}</td><td>${chip(ph)}</td><td>${hx(ph)}</td><td class="note">${n}</td></tr>`;
 }
-h += `</tbody></table>`;
-app.insertAdjacentHTML('beforeend', h);
-
-// Semantics tables
-let s = `<h2>Semantics</h2><table><thead><tr><th>Token (now)</th><th>now primitive</th><th></th><th></th><th>Proposed token</th><th>future primitive</th><th></th><th>Note</th></tr></thead><tbody>`;
+h += `</tbody></table><h2>Semantics</h2><table><thead><tr><th>Token (now)</th><th>now primitive</th><th></th><th>Proposed token</th><th>future primitive</th><th>Note</th></tr></thead><tbody>`;
 for (const [group, rows] of Object.entries(semantics)){
-  s += `<tr class="grp"><td colspan="8">${group}</td></tr>`;
+  h += `<tr class="grp"><td colspan="6">${group}</td></tr>`;
   for (const [tok,cp,chex,ptok,fp,fhex,note,cls] of rows){
-    s += `<tr class="${cls||''}"><td class="tok">${tok}</td><td class="prim">${cp} ${chip(chex)} ${hx(chex)}</td><td></td><td class="arrow">→</td><td class="tok">${ptok}</td><td class="prim">${fp} ${chip(fhex)} ${hx(fhex)}</td><td></td><td class="note">${note}</td></tr>`;
+    const noteCls = cls==='flag' ? 'note flag' : 'note';
+    h += `<tr class="${cls==='new'?'new':(cls==='del'?'del':'')}"><td class="tok">${tok}</td><td class="prim">${cp} ${chip(chex)} ${hx(chex)}</td><td class="arrow">→</td><td class="tok">${ptok}</td><td class="prim">${fp} ${chip(fhex)} ${hx(fhex)}</td><td class="${noteCls}">${note}</td></tr>`;
   }
 }
-s += `</tbody></table>`;
-app.insertAdjacentHTML('beforeend', s);
+h += `</tbody></table>`;
+document.getElementById('remap').innerHTML = h;
+
+// ---- Hardcoded view ----
+let hc = `<div class="callout"><b>4 gaps with no token today</b> — these need new tokens or paint/effect styles: <b>surface.scrim/overlay</b> (modal backdrops), <b>MultiBill category tints</b> (decorative set), <b>shadow effect-styles</b> (#000 / #0E0622), and <b>text.onDark @ opacity</b> (white-on-purple-card).</div>`;
+hc += `<h2>Hardcoded colors — leaks <span class="note" style="font-weight:400">(should pull from the token system)</span></h2><table><thead><tr><th>Color</th><th>Value</th><th>What it is</th><th>Where</th><th>Type</th><th>Proposed token / action</th></tr></thead><tbody>`;
+for (const [hex,label,what,where,type,prop] of hardcoded){
+  const pillcls = type==='newtok' ? 'newtok' : 'leak';
+  const plabel = type==='newtok' ? 'new token' : 'leak';
+  hc += `<tr><td>${chip(hex)}</td><td class="hex">${label}</td><td>${what}</td><td class="where">${where}</td><td><span class="pill ${pillcls}">${plabel}</span></td><td class="note">${prop}</td></tr>`;
+}
+hc += `</tbody></table><h2>Exempt <span class="note" style="font-weight:400">(intentional — partner / dev / inert)</span></h2><table><thead><tr><th>Where</th><th>What</th><th>Count</th></tr></thead><tbody>`;
+for (const [where,what,count] of exempt){
+  hc += `<tr><td class="where">${where}</td><td>${what}</td><td class="note">${count}</td></tr>`;
+}
+hc += `</tbody></table>`;
+document.getElementById('hard').innerHTML = hc;
+
+// ---- Tabs ----
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById(t.dataset.view).classList.add('active');
+}));
 </script>
 </body>
 </html>
