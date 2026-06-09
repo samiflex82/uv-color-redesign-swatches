@@ -10,19 +10,18 @@
   body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--ink); background:var(--bg); }
   header { padding:30px 24px 0; max-width:1320px; margin:0 auto; }
   h1 { font-size:24px; margin:0 0 8px; letter-spacing:-.01em; }
-  .lede { color:var(--sub); font-size:13.5px; max-width:900px; line-height:1.55; }
+  .lede { color:var(--sub); font-size:13.5px; max-width:920px; line-height:1.55; }
   .legend { font-size:12px; color:var(--sub); margin-top:8px; }
-  .legend b { color:var(--ink); }
-  .tabs { max-width:1320px; margin:18px auto 0; padding:0 24px; display:flex; gap:6px; border-bottom:1px solid var(--bd); }
+  .tabs { max-width:1320px; margin:18px auto 0; padding:0 24px; display:flex; gap:6px; border-bottom:1px solid var(--bd); flex-wrap:wrap; }
   .tab { padding:9px 16px; font-size:13px; font-weight:600; color:var(--sub); cursor:pointer; border:1px solid transparent; border-bottom:none; border-radius:8px 8px 0 0; }
   .tab.active { color:var(--ink); background:#fff; border-color:var(--bd); }
   main { max-width:1320px; margin:0 auto; padding:14px 24px 72px; }
-  .view { display:none; }
-  .view.active { display:block; }
-  h2 { font-size:17px; margin:30px 0 6px; letter-spacing:-.01em; }
-  table { width:100%; border-collapse:collapse; font-size:12.5px; background:#fff; border:1px solid var(--bd); border-radius:10px; overflow:hidden; }
+  .view { display:none; } .view.active { display:block; }
+  h2 { font-size:17px; margin:28px 0 6px; letter-spacing:-.01em; }
+  .sub { font-size:12px; color:var(--sub); margin:2px 0 10px; max-width:920px; line-height:1.5; }
+  table { width:100%; border-collapse:collapse; font-size:12.5px; background:#fff; border:1px solid var(--bd); border-radius:10px; overflow:hidden; margin-bottom:8px; }
   thead th { position:sticky; top:0; background:#f6f7f8; text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--sub); padding:8px 10px; border-bottom:1px solid var(--bd); z-index:1; }
-  td { padding:6px 10px; border-bottom:1px solid #f0f1f3; vertical-align:middle; }
+  td { padding:6px 10px; border-bottom:1px solid #f0f1f3; vertical-align:top; }
   tr:last-child td { border-bottom:none; }
   .grp td { background:#eef0f2; font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:#3a3d42; }
   .tok { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11.5px; }
@@ -34,12 +33,12 @@
   tr.new .tok { color:#0f7b53; }
   tr.del { opacity:.5; }
   .flag { color:#b75606; font-weight:600; }
+  .ok { color:#0f7b53; font-weight:600; }
   .where { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:10.5px; color:var(--sub); }
   .pill { display:inline-block; font-size:10px; font-weight:700; padding:1px 7px; border-radius:20px; text-transform:uppercase; letter-spacing:.03em; }
   .pill.leak { background:#fae8e8; color:#a01414; }
   .pill.exempt { background:#eef0f2; color:#5e626a; }
   .pill.newtok { background:#e6f2ef; color:#0f7b53; }
-  .callout { background:#fff; border:1px solid var(--bd); border-left:3px solid #b75606; border-radius:8px; padding:12px 16px; margin:14px 0; font-size:13px; line-height:1.5; }
   footer { max-width:1320px; margin:0 auto; padding:24px; color:var(--sub); font-size:12px; line-height:1.5; }
   code { background:#eef0f2; padding:1px 5px; border-radius:4px; font-size:.9em; }
 </style>
@@ -47,18 +46,20 @@
 <body>
 <header>
   <h1>UV Color Redesign — Token Remap Audit</h1>
-  <p class="lede">Every genoa color token, current → proposed (primitives + semantics), plus a map of <strong>hardcoded colors</strong> that bypass the token system. Primary action → True Black; <code>action.*</code> → <code>fill.*</code>; purple → inline accent; status pills/badges → light tints (black text).</p>
-  <p class="legend"><b>Legend:</b> <span style="color:#0f7b53">green</span> = new token · <span style="opacity:.5">faded</span> = delete (0 consumers) · <span class="flag">⚠</span> = confirm. Chips 16×16.</p>
+  <p class="lede">Every genoa color token current → proposed (primitives + semantics), a <strong>component</strong> token-usage audit (with wrong-token flags), and a map of <strong>hardcoded</strong> colors that bypass the system. Primary action → True Black; <code>action.*</code> → <code>fill.*</code>; purple → inline accent.</p>
+  <p class="legend"><span style="color:#0f7b53">green</span> = new token · <span style="opacity:.5">faded</span> = delete (0 consumers) · <span class="flag">⚠</span> = confirm/fix. Chips 16×16.</p>
 </header>
 <div class="tabs">
   <div class="tab active" data-view="remap">Token remap</div>
+  <div class="tab" data-view="comp">Component usage</div>
   <div class="tab" data-view="hard">Hardcoded colors</div>
 </div>
 <main>
   <div class="view active" id="remap"></div>
+  <div class="view" id="comp"></div>
   <div class="view" id="hard"></div>
 </main>
-<footer>Staging preview — not for external distribution. Reflects staged <code>Redesign/*</code> primitives. Hardcoded scan covers <code>#hex</code> (3/6/8-digit), <code>rgba()/rgb()</code> in <code>genoa/src</code> (excl. token defs, snapshots, tests, stories). Rebuild: edit <code>index.html</code> + push.</footer>
+<footer>Staging preview — not for external distribution. Hardcoded scan: <code>genoa/src</code> only, <code>#hex</code>+<code>rgba()</code> (excl. token defs/snapshots/tests/stories/packages/SVGs). Component audit v1 = core/primitive components. Rebuild: edit <code>index.html</code> + push.</footer>
 <script>
 const primitives = [
   ["brandPurple 01","#2C194D","brandPurple 950","#301C59","darkest"],
@@ -68,7 +69,7 @@ const primitives = [
   ["brandPurple 05","#E3E1E6","—","","drop (unused gray)"],
   ["offBlack","#1D1D1D","trueBlack","#000000","Off Black → True Black (may revert)"],
   ["white","#FFFFFF","white","#FFFFFF","unchanged"],
-  ["grayPurple 01–08","#EDEBF1","stone (deprecated)","#D9DCE0","→ Stone (per-token below)"],
+  ["grayPurple 01–08","#EDEBF1","stone (deprecated)","#D9DCE0","→ Stone"],
   ["green 01–04 → meadow","#01795C","meadow 50–950","#51C787","anchor green 01 → meadow 400"],
   ["red 01–04 → tomato","#CE1818","tomato 50–950","#FF7451","red 01 → tomato 400"],
   ["yellow 01–05 → butter","#F1A91B","butter 50–950","#FFD84C","yellow 03 → butter 300"],
@@ -123,7 +124,7 @@ const semantics = {
     ["— (new)","—","","surface.badge.new","bubblegum 300","#FFA8F9","","new"],
     ["— (new)","—","","surface.badge.current","tangerine 400","#FFAE51","","new"],
     ["— (new)","—","","surface.badge.backup","stone 05","#D9DCE0","","new"],
-    ["— (new)","—","","surface.scrim","trueBlack @ ~50%","#000000","modal/sheet backdrop (replaces rgba leaks)","new"],
+    ["— (new)","—","","surface.scrim","trueBlack @ ~50%","#000000","modal/sheet backdrop","new"],
   ],
   "text": [
     ["text.default","offBlack","#1D1D1D","text.default","trueBlack","#000000","",""],
@@ -159,6 +160,7 @@ const semantics = {
     ["border.hover","brandPurple 03","#DDC6F9","border.hover","brandPurple 200","#E0DCF8","",""],
     ["border.pressed","brandPurple 02","#6A3DB8","border.primary","brandPurple 700","#6A3DB8","",""],
     ["border.disabled","grayPurple 02","#D5D1DB","border.disabled","stone 05","#D9DCE0","",""],
+    ["— (new)","—","","border.selected","brandPurple 700","#6A3DB8","selection controls (replaces border.pressed misuse)","new"],
     ["border.critical","red 01","#CE1818","border.critical","tomato 600","#E5451D","",""],
     ["border.critical.hover","red 02","#E27474","border.critical.hover","tomato 500","#F8613B","",""],
     ["border.critical.subdued","red 03","#F0BABA","border.critical.subdued","tomato 200","#FFD2C7","",""],
@@ -175,10 +177,15 @@ const semantics = {
     ["action.onLight","brandPurple 02","#6A3DB8","text.accent","brandPurple 700","#6A3DB8","",""],
     ["action.onDark","white","#FFFFFF","text.onPrimary","white","#FFFFFF","",""],
     ["action.selection.default","grayPurple 01","#EDEBF1","fill.selected","stone 03","#EEF0F2","selection = neutral",""],
+    ["— (new)","—","","border.selected","brandPurple 700","#6A3DB8","the missing 'selected' layer","new"],
     ["action.progress.inactive","grayPurple 02","#D5D1DB","fill.neutral","stone 04","#E6E8EB","track/rail",""],
     ["action.critical.default","red 01","#CE1818","fill.critical","tomato 600","#E5451D","",""],
     ["action.critical.pressed","red 02","#E27474","fill.critical.pressed","tomato 700","#C13714","",""],
     ["action.critical.disabled","red 04","#FAE8E8","fill.critical.disabled","tomato 100","#FFE7E1","",""],
+  ],
+  "interaction states (NEW model)": [
+    ["hover","—","","(state layer)","rest + ~8% overlay","#000000","not a solid token — overlay","new"],
+    ["pressed","—","","(state layer)","rest + ~12% overlay","#000000","not a solid token — overlay","new"],
   ],
   "focus": [
     ["focus.default (missing in code)","—","","focus.default","brandPurple 700","#6A3DB8","add token","new"],
@@ -187,84 +194,35 @@ const semantics = {
     ["decorative.surface/icon/text/border.* (live)","grayPurple/blue/yellow/brandPurple","#E5EEFF","→ new decorative ramps","popYellow/seaGlass/bubblegum/tangerine","#CDFB5B","⚠ per-slot mapping TBD","flag"],
   ],
   "DEAD — delete (0 consumers in code)": [
-    ["base.surface","white","#FFFFFF","—","","","","del"],
-    ["base.critical","red 01","#CE1818","—","","","","del"],
-    ["base.highlight","blue 02","#1C53BA","—","","","","del"],
-    ["text.link.disabled","stone 09","#5E626A","—","","","","del"],
-    ["text.link.onDark","white","#FFFFFF","—","","","","del"],
-    ["text.link.onDark.subdued","stone 02","#F6F7F8","—","","","","del"],
-    ["text.action.onDark","stone 02","#F6F7F8","—","","","","del"],
-    ["text.action.dark","offBlack","#1D1D1D","—","","","","del"],
-    ["text.criticalPressed","red 02","#E27474","—","","","camelCase","del"],
-    ["text.highlight","blue 01","#00359C","—","","","","del"],
+    ["base.surface","white","#FFFFFF","—","","","","del"],["base.critical","red 01","#CE1818","—","","","","del"],["base.highlight","blue 02","#1C53BA","—","","","","del"],
+    ["text.link.disabled","stone 09","#5E626A","—","","","","del"],["text.link.onDark","white","#FFFFFF","—","","","","del"],["text.link.onDark.subdued","stone 02","#F6F7F8","—","","","","del"],["text.action.onDark","stone 02","#F6F7F8","—","","","","del"],["text.action.dark","offBlack","#1D1D1D","—","","","","del"],["text.criticalPressed","red 02","#E27474","—","","","camelCase","del"],["text.highlight","blue 01","#00359C","—","","","","del"],
     ["surface.pressed","brandPurple 01","#2C194D","—","","","fill leak","del"],
-    ["action.secondary.default","brandPurple 02","#6A3DB8","—","","","","del"],
-    ["action.secondary.pressed","grayPurple 02","#D5D1DB","—","","","","del"],
-    ["action.secondary.disabled","stone 07","#AEB2BA","—","","","","del"],
-    ["action.secondary.pressed.inactive","grayPurple 03","#C0BACA","—","","","","del"],
-    ["action.selection.pressed","brandPurple 02","#6A3DB8","—","","","","del"],
-    ["action.selection.disabled","stone 05","#D9DCE0","—","","","Figma=Stone04 drift","del"],
-    ["action.onLight.pressed","brandPurple 01","#2C194D","—","","","","del"],
-    ["action.progress.inactive.onDark","grayPurple 01","#EDEBF1","—","","","","del"],
-    ["action.progress.active.onDark","white","#FFFFFF","—","","","","del"],
-    ["action.progress-inactive.brand","grayPurple 01","#EDEBF1","—","","","hyphen bug","del"],
-    ["pressed","brandPurple 02","#6A3DB8","—","","","bare key","del"],
-    ["icon.link.disabled","stone 06","#C7CAD0","—","","","","del"],
-    ["icon.critical.disabled","red 04","#FAE8E8","—","","","","del"],
-    ["icon.success.disabled","green 04","#E6F2EF","—","","","","del"],
-    ["icon.warning.disabled","yellow 05","#FFF4CB","—","","","","del"],
-    ["border.action.default","brandPurple 02","#6A3DB8","—","","","","del"],
-    ["border.action.pressed","brandPurple 01","#2C194D","—","","","","del"],
-    ["border.action.hover","brandPurple 01","#2C194D","—","","","","del"],
-    ["border.success","green 01","#01795C","—","","","","del"],
-    ["border.warning","yellow 01","#A16B00","—","","","","del"],
-    ["border.highlight","blue 01","#00359C","—","","","","del"],
-    ["decorative.icon.1","brandPurple 01","#2C194D","—","","","","del"],
-    ["decorative.icon.3","grayPurple 03","#C0BACA","—","","","","del"],
-    ["decorative.icon.5","brandPurple 01","#2C194D","—","","","","del"],
-    ["decorative.text.3","grayPurple 03","#C0BACA","—","","","","del"],
-    ["decorative.border.1","grayPurple 04","#ABA3B8","—","","","","del"],
-    ["decorative.border.2","blue 04","#B1D4FF","—","","","","del"],
-    ["decorative.border.4","yellow 04","#FFD789","—","","","","del"],
-    ["decorative.border.5","stone 05","#D9DCE0","—","","","","del"],
+    ["action.secondary.default","brandPurple 02","#6A3DB8","—","","","","del"],["action.secondary.pressed","grayPurple 02","#D5D1DB","—","","","","del"],["action.secondary.disabled","stone 07","#AEB2BA","—","","","","del"],["action.secondary.pressed.inactive","grayPurple 03","#C0BACA","—","","","","del"],["action.selection.pressed","brandPurple 02","#6A3DB8","—","","","","del"],["action.selection.disabled","stone 05","#D9DCE0","—","","","Figma=Stone04 drift","del"],["action.onLight.pressed","brandPurple 01","#2C194D","—","","","","del"],["action.progress.inactive.onDark","grayPurple 01","#EDEBF1","—","","","","del"],["action.progress.active.onDark","white","#FFFFFF","—","","","","del"],["action.progress-inactive.brand","grayPurple 01","#EDEBF1","—","","","hyphen bug","del"],["pressed","brandPurple 02","#6A3DB8","—","","","bare key","del"],
+    ["icon.link.disabled","stone 06","#C7CAD0","—","","","","del"],["icon.critical.disabled","red 04","#FAE8E8","—","","","","del"],["icon.success.disabled","green 04","#E6F2EF","—","","","","del"],["icon.warning.disabled","yellow 05","#FFF4CB","—","","","","del"],
+    ["border.action.default","brandPurple 02","#6A3DB8","—","","","","del"],["border.action.pressed","brandPurple 01","#2C194D","—","","","","del"],["border.action.hover","brandPurple 01","#2C194D","—","","","","del"],["border.success","green 01","#01795C","—","","","","del"],["border.warning","yellow 01","#A16B00","—","","","","del"],["border.highlight","blue 01","#00359C","—","","","","del"],
+    ["decorative.icon.1","brandPurple 01","#2C194D","—","","","","del"],["decorative.icon.3","grayPurple 03","#C0BACA","—","","","","del"],["decorative.icon.5","brandPurple 01","#2C194D","—","","","","del"],["decorative.text.3","grayPurple 03","#C0BACA","—","","","","del"],["decorative.border.1","grayPurple 04","#ABA3B8","—","","","","del"],["decorative.border.2","blue 04","#B1D4FF","—","","","","del"],["decorative.border.4","yellow 04","#FFD789","—","","","","del"],["decorative.border.5","stone 05","#D9DCE0","—","","","","del"],
   ],
 };
-// hardcoded: [hex(for chip), label, what, where, type, proposed]
-const hardcoded = [
-  ["#F2F2F2","#F2F2F2","Tab header background","app/(tabs)/_layout.tsx:185","leak","surface.subdued (stone 02)"],
-  ["#222222","#222222","Markdown table border","rxp/pages/markdown/MarkdownStyles.ts:206","leak","border.default (True Black)"],
-  ["#808080","rgba(128,128,128,.1)","Markdown row stripe","MarkdownStyles.ts:25,220","leak","surface.subdued"],
-  ["#CCCCCC","#ccc","Markdown rule / border","MarkdownStyles.ts:103,157","leak","border.subdued (stone 05)"],
-  ["#926EEB","#6862E6 / #7A6CE8 / #926EEB","Approved-page gradient","rxp/pages/approved/ApprovedPagePricingV2GA.tsx:93–100","leak","Gradient/Brand paint style (new)"],
-  ["#0E0622","#0E0622","Shadow color","FlexBillPaymentDetailsPage:473 · navigation/utils:36","leak","shadow effect-style"],
-  ["#1F1442","#1F1442","FA card bg / text","FlexBillPaymentDetailsPage:515,525,565","leak","⚠ needs token (≈ brandPurple 950)"],
-  ["#EEDDFB","#EEDDFB","FA card bg","FlexBillPaymentDetailsPage:535","leak","brandPurple 100"],
-  ["#B98BEE","#B98BEE","FA card accent","FlexBillPaymentDetailsPage:544","leak","brandPurple 300/400"],
-  ["#2C194D","['#1F0F45','#2C194D','#3A2469']","Flex checking card gradient","FlexCheckingAccountCard:308","leak","Gradient/Brand style (#2C194D = brandPurple 01)"],
-  ["#4A2E8C","#4A2E8C","Card shadow","FlexCheckingAccountCard:364","leak","shadow effect-style"],
-  ["#000000","#000 / #000000","Card shadows","FlexCheckingAccountCard:347 · FlexBankAccountCard:114","leak","shadow effect-style"],
-  ["#FFFFFF","rgba(255,255,255,.1–.9)","White text/border on purple card","FlexCheckingAccountCard:387–474","leak","text.onDark / onPrimary @ opacity"],
-  ["#0E0622","rgba(14,6,34,.05)","Shadow / shadow gradient","navigation/utils:33 · AddressSearchShadowFlatList:50","leak","shadow effect-style"],
-  ["#E5E3F8","#E5E3F8 #F7F3CC #DBEAFE #D0F0EC #EDE0E3 #E8EDD0","MultiBill provider category tints (8)","components/MultiBill/SelectProvider:87–95","newtok","NEEDS NEW decorative category token set"],
-  ["#FFFFFF","#FFFFFF","Browser theme-color","BrowserThemeStatusBarProvider.web:4","leak","surface.default (white)"],
-  ["#6A3DB8","#6A3DB8","Browser controls color","rxp/utils/url.ts:98","leak","brandPurple 700 (primitive hardcoded)"],
-  ["#F4F7F9","#F4F7F9","Inline message background","components/partner/ExpandableInlineMessage:44","leak","surface.subdued (stone 02)"],
-  ["#000000","#000000","Animated dot default color","components/partner/ThreeDotsLoader/AnimatedDot:24","leak","text.default / trueBlack"],
-  ["#000000","rgba(0,0,0,.2–.55)","Modal / bottom-sheet scrim","BottomSheet.web:348 · BillerAutomationFlowModal:454","newtok","NEEDS NEW surface.scrim / overlay token"],
-  ["#000000","rgba(0,0,0,0.8)","FA text on card","FlexAccountReadyPage:716","leak","text.onDark @ opacity"],
-  ["#FFFFFF","#fff","Modal close icon / text","BillerAutomationFlowModal:435,465","leak","icon.onDark / text.onDark"],
-  ["#FFFFFF","rgba(255,255,255,0–1)","Gradient fade mask","PifLaunchAnnouncementModal:84","leak","white @ opacity (fade)"],
-];
-const exempt = [
-  ["app/dev/partner-embed-debug.tsx","Dev debug tool — VS-Code / Bootstrap palette (#007bff, #28a745, #ce9178, #ddd, #666, #333…)","~17 colors"],
-  ["app/partner-embed/bilt/agreements/tila.tsx","Bilt partner agreement page — partner styling (#fff ×3)","3 colors"],
-  ["AutomationScriptWebview.tsx:36","Inert iframe HTML (background:#fff) — not product UI","1 color"],
+// components: [name, file, tokensStr, status, issue]
+const components = [
+  ["SelectorCard","components/core/SelectorCard","surface.default · surface.subdued · background.lighter · text.default/.disabled/.subdued · icon.default/.disabled · border.subdued · border.pressed","warn","Selected border uses border.pressed → should be border.selected (pressed ≠ selected)"],
+  ["TextField","components/core/TextField","background.lighter · surface.disabled · border.default/.critical/.disabled/.pressed · text.default/.subdued/.critical · icon.subdued","warn","Focus border uses border.pressed → border.focus / border.primary"],
+  ["MoneyInputField","components/core/MoneyInputField","border.default/.critical/.critical.hover/.disabled/.hover/.pressed · surface.default/.disabled · text.*","warn","border.pressed used for focus → border.focus / border.primary"],
+  ["LargeCurrencyInput","components/core/LargeCurrencyInput","border.default/.critical/.pressed · text.default/.subdued/.critical","warn","border.pressed used for focus → border.focus / border.primary"],
+  ["Checkbox (Stateless)","components/core/Checkbox","surface.default/.disabled · border.default/.critical/.disabled · icon.brand.disabled · icon.onDark · action.primary.pressed","warn","Checked fill uses action.primary.pressed (a button-pressed token) → fill.selected / fill.primary"],
+  ["Radio","components/core/Radio","border.default/.disabled · surface.disabled","warn","No selected-state token — selected dot color has no semantic token (needs fill.selected)"],
+  ["ToggleSwitch","components/core/ToggleSwitch","surface.default/.subdued · surface.brand.dark · base.onSurface","warn","'On' track = surface.brand.dark (purple) → fill.primary (black) in redesign; base.onSurface (retiring base.*)"],
+  ["NudgeBanner","components/core/NudgeBanner","surface.success/.critical/.warning/.highlight/.highlight.dark/.brand/.brand.subdued/.subdued/.default · icon.brand/.dark/.critical/.success/.warning/.default/.subdued · text.default","warn","Pulls status surfaces directly → move to surface.status.* in redesign"],
+  ["Surface","components/core/Surface","surface.default/.subdued/.brand/.brand.dark/.critical/.success/.warning/.highlight/.disabled · border.subdued · base.onSurface","warn","base.onSurface → text.default (base.* group slated to retire)"],
+  ["SelectField","components/core/SelectField","surface.default · border.default/.critical · text.default/.subdued/.critical","ok","Role-correct"],
+  ["ListItem","components/core/ListItem","text.default/.disabled/.subdued","ok","Role-correct"],
+  ["BottomSheet","components/core/BottomSheet","surface.default · icon.subdued","ok","Role-correct (but scrim is hardcoded — see Hardcoded tab)"],
 ];
 
 function chip(hex){ return hex ? `<span class="sw" style="background:${hex}"></span>` : ''; }
 function hx(hex){ return hex ? `<span class="hex">${hex}</span>` : ''; }
 
-// ---- Remap view ----
+// Remap view
 let h = `<h2>Primitives</h2><table><thead><tr><th>Current</th><th>now</th><th></th><th></th><th>Proposed</th><th>future</th><th></th><th>Note</th></tr></thead><tbody>`;
 for (const [c,ch,p,ph,n] of primitives){
   const cls = p==="—" ? "del" : (c.startsWith("—") ? "new" : "");
@@ -274,34 +232,66 @@ h += `</tbody></table><h2>Semantics</h2><table><thead><tr><th>Token (now)</th><t
 for (const [group, rows] of Object.entries(semantics)){
   h += `<tr class="grp"><td colspan="6">${group}</td></tr>`;
   for (const [tok,cp,chex,ptok,fp,fhex,note,cls] of rows){
-    const noteCls = cls==='flag' ? 'note flag' : 'note';
-    h += `<tr class="${cls==='new'?'new':(cls==='del'?'del':'')}"><td class="tok">${tok}</td><td class="prim">${cp} ${chip(chex)} ${hx(chex)}</td><td class="arrow">→</td><td class="tok">${ptok}</td><td class="prim">${fp} ${chip(fhex)} ${hx(fhex)}</td><td class="${noteCls}">${note}</td></tr>`;
+    h += `<tr class="${cls==='new'?'new':(cls==='del'?'del':'')}"><td class="tok">${tok}</td><td class="prim">${cp} ${chip(chex)} ${hx(chex)}</td><td class="arrow">→</td><td class="tok">${ptok}</td><td class="prim">${fp} ${chip(fhex)} ${hx(fhex)}</td><td class="${cls==='flag'?'note flag':'note'}">${note}</td></tr>`;
   }
 }
 h += `</tbody></table>`;
 document.getElementById('remap').innerHTML = h;
 
-// ---- Hardcoded view ----
-let hc = `<div class="callout"><b>4 gaps with no token today</b> — these need new tokens or paint/effect styles: <b>surface.scrim/overlay</b> (modal backdrops), <b>MultiBill category tints</b> (decorative set), <b>shadow effect-styles</b> (#000 / #0E0622), and <b>text.onDark @ opacity</b> (white-on-purple-card).</div>`;
-hc += `<h2>Hardcoded colors — leaks <span class="note" style="font-weight:400">(should pull from the token system)</span></h2><table><thead><tr><th>Color</th><th>Value</th><th>What it is</th><th>Where</th><th>Type</th><th>Proposed token / action</th></tr></thead><tbody>`;
-for (const [hex,label,what,where,type,prop] of hardcoded){
-  const pillcls = type==='newtok' ? 'newtok' : 'leak';
-  const plabel = type==='newtok' ? 'new token' : 'leak';
-  hc += `<tr><td>${chip(hex)}</td><td class="hex">${label}</td><td>${what}</td><td class="where">${where}</td><td><span class="pill ${pillcls}">${plabel}</span></td><td class="note">${prop}</td></tr>`;
+// Component view
+let c = `<h2>Component token usage — core/primitive components (v1)</h2><p class="sub">Each component → the color tokens it pulls today, with a correctness flag. ⚠ = the token doesn't match the UI role (the "wrong token" problem). These are the fixes to make alongside the remap.</p><table><thead><tr><th>Component</th><th>Tokens used</th><th></th><th>Issue / fix</th></tr></thead><tbody>`;
+for (const [name,file,toks,status,issue] of components){
+  const mark = status==='ok' ? '<span class="ok">✅</span>' : '<span class="flag">⚠</span>';
+  c += `<tr><td><b>${name}</b><br><span class="where">${file}</span></td><td class="tok" style="font-size:11px">${toks}</td><td>${mark}</td><td class="note ${status==='warn'?'flag':''}">${issue}</td></tr>`;
+}
+c += `</tbody></table>`;
+document.getElementById('comp').innerHTML = c;
+
+// Hardcoded view (grouped by type)
+const hardcoded = [
+  ["#E5E3F8","#E5E3F8 #F7F3CC #DBEAFE #D0F0EC #EDE0E3 #E8EDD0","MultiBill provider category tints (8)","components/MultiBill/SelectProvider:87–95","newtok","NEEDS new decorative category token set"],
+  ["#000000","rgba(0,0,0,.2–.55)","Modal / bottom-sheet scrim","BottomSheet.web:348 · BillerAutomationFlowModal:454","newtok","NEEDS surface.scrim / overlay token"],
+  ["#0E0622","#0E0622 · rgba(14,6,34,.05)","Shadows / shadow gradients","FlexBillPaymentDetailsPage:473 · navigation/utils:33,36 · AddressSearchShadowFlatList:50","newtok","NEEDS shadow effect-styles"],
+  ["#000000","#000 / #000000","Card shadows","FlexCheckingAccountCard:347 · FlexBankAccountCard:114","newtok","shadow effect-style"],
+  ["#FFFFFF","rgba(255,255,255,.1–.9)","White text/border on purple card","FlexCheckingAccountCard:387–474","newtok","text.onDark / onPrimary @ opacity"],
+  ["#1F1442","#1F1442","FA 'Flex Checking' card bg/text","FlexBillPaymentDetailsPage:515,525,565","newtok","⚠ bespoke purple (≈ brandPurple 950) — part of FA card cluster"],
+  ["#926EEB","#6862E6 #7A6CE8 #926EEB","Approved-page gradient","ApprovedPagePricingV2GA:93–100","newtok","Gradient/Brand paint style"],
+  ["#2C194D","['#1F0F45','#2C194D','#3A2469']","Flex checking card gradient","FlexCheckingAccountCard:308","newtok","Gradient/Brand paint style (#2C194D=brandPurple 01)"],
+  ["#F2F2F2","#F2F2F2","Tab header background","app/(tabs)/_layout.tsx:185","leak","surface.subdued (stone 02)"],
+  ["#222222","#222222","Markdown table border","MarkdownStyles.ts:206","leak","border.default (True Black)"],
+  ["#808080","rgba(128,128,128,.1)","Markdown row stripe","MarkdownStyles.ts:25,220","leak","surface.subdued"],
+  ["#CCCCCC","#ccc","Markdown rule / border","MarkdownStyles.ts:103,157","leak","border.subdued (stone 05)"],
+  ["#EEDDFB","#EEDDFB","FA card bg","FlexBillPaymentDetailsPage:535","leak","brandPurple 100"],
+  ["#B98BEE","#B98BEE","FA card accent","FlexBillPaymentDetailsPage:544","leak","brandPurple 300/400"],
+  ["#FFFFFF","#FFFFFF","Browser theme-color","BrowserThemeStatusBarProvider.web:4","leak","surface.default (white)"],
+  ["#6A3DB8","#6A3DB8","Browser controls color","rxp/utils/url.ts:98","leak","brandPurple 700 (primitive hardcoded)"],
+  ["#F4F7F9","#F4F7F9","Inline message background","ExpandableInlineMessage:44","leak","surface.subdued (stone 02)"],
+  ["#000000","#000000","Animated dot default color","ThreeDotsLoader/AnimatedDot:24","leak","text.default / trueBlack"],
+  ["#FFFFFF","#fff","Modal close icon / text","BillerAutomationFlowModal:435,465","leak","icon.onDark / text.onDark"],
+];
+const exempt = [
+  ["app/dev/partner-embed-debug.tsx","Dev debug tool — VS-Code / Bootstrap palette","~17 colors"],
+  ["app/partner-embed/bilt/agreements/tila.tsx","Bilt partner agreement page — partner styling","3 colors (#fff)"],
+  ["AutomationScriptWebview.tsx:36","Inert iframe HTML (background:#fff) — not product UI","1 color"],
+];
+let hc = `<p class="sub"><b>Clusters:</b> the <b>MultiBill category tints</b> (8 off-palette pastels) and <b>modal/sheet scrims</b> are the clearest "needs a new token" findings — neither has a home today. The <b>FA "Flex Checking" purple card</b> (FlexBillPaymentDetailsPage + FlexCheckingAccountCard) is the single biggest leak cluster — bespoke purples + white-at-opacity text + gradients. Rows below are grouped by what they need.</p>`;
+hc += `<h2>Needs a new token / style</h2><table><thead><tr><th>Color</th><th>Value</th><th>What it is</th><th>Where</th><th>Action</th></tr></thead><tbody>`;
+for (const [hex,label,what,where,type,prop] of hardcoded.filter(r=>r[4]==='newtok')){
+  hc += `<tr><td>${chip(hex)}</td><td class="hex">${label}</td><td>${what}</td><td class="where">${where}</td><td class="note">${prop}</td></tr>`;
+}
+hc += `</tbody></table><h2>Leak — map to an existing token</h2><table><thead><tr><th>Color</th><th>Value</th><th>What it is</th><th>Where</th><th>Proposed token</th></tr></thead><tbody>`;
+for (const [hex,label,what,where,type,prop] of hardcoded.filter(r=>r[4]==='leak')){
+  hc += `<tr><td>${chip(hex)}</td><td class="hex">${label}</td><td>${what}</td><td class="where">${where}</td><td class="note">${prop}</td></tr>`;
 }
 hc += `</tbody></table><h2>Exempt <span class="note" style="font-weight:400">(intentional — partner / dev / inert)</span></h2><table><thead><tr><th>Where</th><th>What</th><th>Count</th></tr></thead><tbody>`;
-for (const [where,what,count] of exempt){
-  hc += `<tr><td class="where">${where}</td><td>${what}</td><td class="note">${count}</td></tr>`;
-}
+for (const [where,what,count] of exempt){ hc += `<tr><td class="where">${where}</td><td>${what}</td><td class="note">${count}</td></tr>`; }
 hc += `</tbody></table>`;
 document.getElementById('hard').innerHTML = hc;
 
-// ---- Tabs ----
 document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
-  t.classList.add('active');
-  document.getElementById(t.dataset.view).classList.add('active');
+  t.classList.add('active'); document.getElementById(t.dataset.view).classList.add('active');
 }));
 </script>
 </body>
