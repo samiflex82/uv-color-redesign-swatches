@@ -3,135 +3,177 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>UV Color Redesign — Before / After</title>
+<title>UV Color Redesign — Token Remap Audit</title>
 <style>
   :root { --bd:#e6e8eb; --ink:#1d1d1d; --sub:#5e626a; --bg:#fafbfb; }
   * { box-sizing:border-box; }
   body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--ink); background:var(--bg); }
-  header { padding:36px 24px 8px; max-width:1180px; margin:0 auto; }
-  h1 { font-size:26px; margin:0 0 8px; letter-spacing:-.01em; }
-  .lede { color:var(--sub); font-size:14px; max-width:780px; line-height:1.55; }
-  main { max-width:1180px; margin:0 auto; padding:8px 24px 72px; }
-  h2 { font-size:19px; margin:44px 0 2px; letter-spacing:-.01em; }
-  h2 .note { font-weight:400; color:var(--sub); font-size:13px; margin-left:8px; }
-  .card { background:#fff; border:1px solid var(--bd); border-radius:14px; padding:18px 20px; margin:16px 0; }
-  .fam-note { font-size:12px; color:var(--sub); margin:0 0 12px; }
-  .lab { font-size:10px; color:var(--sub); margin:10px 0 6px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
-  .row { display:flex; gap:6px; flex-wrap:wrap; }
-  .chip { width:78px; }
-  .chip .sw { height:46px; border-radius:7px; border:1px solid rgba(0,0,0,.08); }
-  .chip .step { font-size:10px; font-weight:700; margin-top:5px; }
-  .chip .hex { font-size:10px; color:var(--sub); font-variant-numeric:tabular-nums; text-transform:uppercase; }
-  .pairs { display:grid; grid-template-columns:200px 1fr 28px 1fr; gap:10px 14px; align-items:center; margin-top:6px; }
-  .pairs .head { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--sub); }
-  .role { font-size:13px; font-weight:600; }
-  .role small { display:block; font-weight:400; color:var(--sub); font-size:11px; margin-top:2px; }
-  .swatchline { display:flex; align-items:center; gap:10px; }
-  .swatchline .sw { width:46px; height:30px; border-radius:7px; border:1px solid rgba(0,0,0,.08); flex:none; }
-  .swatchline .meta b { font-size:12.5px; display:block; }
-  .swatchline .meta span { font-size:11px; color:var(--sub); font-variant-numeric:tabular-nums; text-transform:uppercase; }
-  .arrow { color:#c7cad0; text-align:center; font-size:16px; }
-  footer { max-width:1180px; margin:0 auto; padding:24px; color:var(--sub); font-size:12px; line-height:1.5; }
+  header { padding:32px 24px 8px; max-width:1280px; margin:0 auto; }
+  h1 { font-size:24px; margin:0 0 8px; letter-spacing:-.01em; }
+  .lede { color:var(--sub); font-size:13.5px; max-width:860px; line-height:1.55; }
+  .legend { font-size:12px; color:var(--sub); margin-top:8px; }
+  .legend b { color:var(--ink); }
+  main { max-width:1280px; margin:0 auto; padding:8px 24px 72px; }
+  h2 { font-size:18px; margin:36px 0 6px; letter-spacing:-.01em; }
+  table { width:100%; border-collapse:collapse; font-size:12.5px; background:#fff; border:1px solid var(--bd); border-radius:10px; overflow:hidden; }
+  thead th { position:sticky; top:0; background:#f6f7f8; text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--sub); padding:8px 10px; border-bottom:1px solid var(--bd); z-index:1; }
+  td { padding:6px 10px; border-bottom:1px solid #f0f1f3; vertical-align:middle; }
+  tr:last-child td { border-bottom:none; }
+  .grp td { background:#eef0f2; font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:#3a3d42; padding:7px 10px; }
+  .tok { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11.5px; }
+  .prim { color:var(--sub); font-size:11px; }
+  .sw { display:inline-block; width:16px; height:16px; border-radius:3px; border:1px solid rgba(0,0,0,.12); vertical-align:middle; }
+  .hex { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:10.5px; color:var(--sub); text-transform:uppercase; }
+  .arrow { color:#c7cad0; text-align:center; }
+  .note { color:var(--sub); font-size:11px; }
+  .new td .tok { color:#0f7b53; }
+  .del td { opacity:.55; }
+  .flag { color:#b75606; }
+  footer { max-width:1280px; margin:0 auto; padding:24px; color:var(--sub); font-size:12px; line-height:1.5; }
   code { background:#eef0f2; padding:1px 5px; border-radius:4px; font-size:.9em; }
 </style>
 </head>
 <body>
 <header>
-  <h1>UV Color Redesign — Before / After</h1>
-  <p class="lede">Preview of the color-token redesign: primitive ramps and key component colors, before vs after. The new primitives are staged as <code>Redesign/*</code> variables in <code>[UV] Global Colors</code> — not live yet. Primary action moves to <strong>True Black</strong>; purple becomes the inline-link accent; status pills/badges move to light tints with black text.</p>
+  <h1>UV Color Redesign — Token Remap Audit</h1>
+  <p class="lede">Every meaningful genoa color token, current → proposed, for primitives and semantics. Primary action → <strong>True Black</strong>; <code>action.*</code> → <code>fill.*</code>; purple → inline accent; status pills/badges → light tints (black text).</p>
+  <p class="legend"><b>Legend:</b> <span class="new"><span class="tok">green</span></span> = new token · <span class="del">faded</span> = delete (dead/0 consumers) · <span class="flag">⚠</span> = judgment call to confirm. Chips are 16×16.</p>
 </header>
 <main id="app"></main>
-<footer>
-  Generated for the UV color-token redesign (staging). Status text &amp; icons default to <code>text.default</code>/<code>icon.default</code> (black). “Scheduled” pill (Brand Purple 200) may change. Not for external distribution.
-</footer>
+<footer>Staging preview for the UV color-token redesign — not for external distribution. Values reflect the staged <code>Redesign/*</code> primitives. Rebuild: edit <code>index.html</code> + push.</footer>
 <script>
-const families = [
-  { name:"Brand Purple", note:"700 = the old 02 (#6A3DB8), now the inline-link accent. Primary action uses True Black, not purple.",
-    before:[["01","#2C194D"],["02","#6A3DB8"],["03","#DDC6F9"],["04","#EEE2FC"],["05","#E3E1E6"]],
-    after:[["50","#F6F5FD"],["100","#EEECFB"],["200","#E0DCF8"],["300","#C9BFF3"],["400","#AD9BEA"],["500","#9172E0"],["600","#7F53D4"],["700","#6A3DB8"],["800","#5D36A1"],["900","#4E2E84"],["950","#301C59"]] },
-  { name:"Green → Meadow", note:"Role anchor: Green 01 → Meadow 400. Text/border use darker steps for contrast.",
-    before:[["01","#01795C"],["02","#67AF9D"],["03","#B3D7CE"],["04","#E6F2EF"]],
-    after:[["50","#EEFBF3"],["100","#D5F6DF"],["200","#AFEBC5"],["300","#7ADBA3"],["400","#51C787"],["500","#21A863"],["600","#14874F"],["700","#106C41"],["800","#0F5635"],["900","#0D472D"],["950","#06281A"]] },
-  { name:"Red → Tomato", note:"Role anchor: Red 01 → Tomato 400 (coral). Error text → Tomato 700 for contrast.",
-    before:[["01","#CE1818"],["02","#E27474"],["03","#F0BABA"],["04","#FAE8E8"]],
-    after:[["50","#FFF4F1"],["100","#FFE7E1"],["200","#FFD2C7"],["300","#FFB3A0"],["400","#FF7451"],["500","#F8613B"],["600","#E5451D"],["700","#C13714"],["800","#A03014"],["900","#842E18"],["950","#481407"]] },
-  { name:"Yellow → Butter", note:"Role anchor: Yellow 03 → Butter 300.",
-    before:[["01","#A16B00"],["02","#C58301"],["03","#F1A91B"],["04","#FFD789"],["05","#FFF4CB"]],
-    after:[["50","#FFFBEB"],["100","#FFF5C6"],["200","#FFE988"],["300","#FFD84C"],["400","#FFC420"],["500","#F9A307"],["600","#DD7B02"],["700","#B75606"],["800","#94420C"],["900","#7A360D"],["950","#461B02"]] },
-  { name:"Blue → Sky", note:"Role anchor: Blue 01 → Sky 400.",
-    before:[["01","#00359C"],["02","#1C53BA"],["03","#6CA3EB"],["04","#B1D4FF"],["05","#E5EEFF"]],
-    after:[["50","#EFF7FF"],["100","#DFEFFF"],["200","#B8DFFF"],["300","#78C5FF"],["400","#2BA7FF"],["500","#068FF1"],["600","#0072CE"],["700","#005AA7"],["800","#024C8A"],["900","#084072"],["950","#06284B"]] },
-  { name:"Gray Purple → Stone (deprecated)", note:"Gray Purple is deprecated; all grays use Stone.",
-    before:[["01","#EDEBF1"],["02","#D5D1DB"],["03","#C0BACA"],["04","#ABA3B8"],["05","#958CA6"],["06","#807594"],["07","#6B5E82"],["08","#564771"]],
-    after:[["01","#FAFBFB"],["02","#F6F7F8"],["03","#EEF0F2"],["04","#E6E8EB"],["05","#D9DCE0"],["06","#C7CAD0"],["07","#AEB2BA"],["08","#8D9199"],["09","#5E626A"],["10","#2F3237"]] },
-  { name:"Stone", note:"Unchanged — stays the neutral scale.",
-    before:null,
-    after:[["01","#FAFBFB"],["02","#F6F7F8"],["03","#EEF0F2"],["04","#E6E8EB"],["05","#D9DCE0"],["06","#C7CAD0"],["07","#AEB2BA"],["08","#8D9199"],["09","#5E626A"],["10","#2F3237"]] },
-  { name:"Neutral / Black", note:"Off Black usages → True Black (caveat: may revert / change hex).",
-    before:[["Off Black","#1D1D1D"]],
-    after:[["True Black","#000000"]] },
+// ---- PRIMITIVE REMAP ---- [curTok, curHex, propTok, propHex, note]
+const primitives = [
+  ["brandPurple 01","#2C194D","brandPurple 950","#301C59","darkest"],
+  ["brandPurple 02","#6A3DB8","brandPurple 700","#6A3DB8","exact — inline accent"],
+  ["brandPurple 03","#DDC6F9","brandPurple 200","#E0DCF8",""],
+  ["brandPurple 04","#EEE2FC","brandPurple 100","#EEECFB",""],
+  ["brandPurple 05","#E3E1E6","—","","drop (unused gray)"],
+  ["offBlack","#1D1D1D","trueBlack","#000000","Off Black usages → True Black (may revert)"],
+  ["white","#FFFFFF","white","#FFFFFF","unchanged"],
+  ["grayPurple 01–08","#EDEBF1","stone (deprecated)","#D9DCE0","Gray Purple deprecated → Stone (per-token below)"],
+  ["green 01–04 → meadow","#01795C","meadow 50–950","#51C787","role anchor green 01 → meadow 400"],
+  ["red 01–04 → tomato","#CE1818","tomato 50–950","#FF7451","red 01 → tomato 400"],
+  ["yellow 01–05 → butter","#F1A91B","butter 50–950","#FFD84C","yellow 03 → butter 300"],
+  ["blue 01–05 → sky","#00359C","sky 50–950","#2BA7FF","blue 01 → sky 400"],
+  ["stone 01–10","#E6E8EB","stone 01–10","#E6E8EB","unchanged"],
+  ["— (new)","","decorative popYellow 50–950","#CDFB5B","new decorative ramp"],
+  ["— (new)","","decorative seaGlass 50–950","#74E1DA","new decorative ramp"],
+  ["— (new)","","decorative bubblegum 50–950","#FFA8F9","new decorative ramp"],
+  ["— (new)","","decorative tangerine 50–950","#FFAE51","new decorative ramp"],
 ];
-const decoratives = [
-  { name:"Pop Yellow", after:[["50","#F9FFE5"],["100","#F1FFC8"],["200","#E2FF93"],["300","#CDFB5B"],["400","#B6F229"],["500","#97D80A"],["600","#74AD03"],["700","#588308"],["800","#47670D"],["900","#3C5710"],["950","#1E3102"]] },
-  { name:"Sea Glass", after:[["50","#F1FCFA"],["100","#D0F7F2"],["200","#A1EEE6"],["300","#74E1DA"],["400","#3AC7C2"],["500","#21ABA9"],["600","#188989"],["700","#176D6E"],["800","#175658"],["900","#184849"],["950","#07292C"]] },
-  { name:"Bubblegum", after:[["50","#FFF4FF"],["100","#FFE7FF"],["200","#FFCEFE"],["300","#FFA8F9"],["400","#FE76F2"],["500","#F63FE5"],["600","#DA1FC5"],["700","#B516A0"],["800","#941481"],["900","#791669"],["950","#510144"]] },
-  { name:"Tangerine", after:[["50","#FFF9ED"],["100","#FFF0D4"],["200","#FFDEA8"],["300","#FFC671"],["400","#FFAE51"],["500","#FE8611"],["600","#EF6A07"],["700","#C64F08"],["800","#9D3E0F"],["900","#7E3510"],["950","#441906"]] },
-];
-const pills = [
-  ["Success","surface/success/dark","#01795C","Meadow 200","#AFEBC5"],
-  ["Highlight","surface/highlight/dark","#00359C","Sky 200","#B8DFFF"],
-  ["Warning","surface/warning/medium","#FFD789","Butter 200","#FFE988"],
-  ["Error","surface/critical/dark","#CE1818","Tomato 200","#FFD2C7"],
-  ["Scheduled","surface/brand/dark","#6A3DB8","Brand Purple 200","#E0DCF8"],
-  ["Info","surface/disabled","#EDEBF1","Stone 05","#D9DCE0"],
-];
-const badges = [
-  ["Default","surface/success/default","#E6F2EF","Pop Yellow 300","#CDFB5B"],
-  ["Recommended","decorative/surface/2","#E5EEFF","Sea Glass 300","#74E1DA"],
-  ["New","decorative/surface/4","#FFF4CB","Bubblegum 300","#FFA8F9"],
-  ["Current Plan","decorative/surface/3","#EEE2FC","Tangerine 400","#FFAE51"],
-  ["Back up","decorative/surface/5","#EEF0F2","Stone 05","#D9DCE0"],
-];
-const semantics = [
-  ["text.default","Off Black","#1D1D1D","True Black","#000000"],
-  ["border.default","Stone 06","#C7CAD0","True Black","#000000"],
-  ["border.subdued","Stone 05","#D9DCE0","Stone 06","#C7CAD0"],
-  ["fill.primary","Brand Purple (action.primary)","#6A3DB8","True Black","#000000"],
-  ["text.link / text.accent","Brand Purple 02","#6A3DB8","Brand Purple 700","#6A3DB8"],
-];
+// ---- SEMANTIC REMAP ---- group => [curTok, curPrim, curHex, propTok, futPrim, futHex, note, cls]
+const semantics = {
+  "background": [
+    ["background.lighter","white","#FFFFFF","background.lighter","white","#FFFFFF","",""],
+    ["background.dark","stone 02","#F6F7F8","background.subdued","stone 02","#F6F7F8","rename (it's light)",""],
+    ["background.brand","brandPurple 04","#EEE2FC","background.brand","brandPurple 100","#EEECFB","",""],
+  ],
+  "surface": [
+    ["surface.default","white","#FFFFFF","surface.default","white","#FFFFFF","",""],
+    ["surface.subdued","stone 02","#F6F7F8","surface.subdued","stone 02","#F6F7F8","",""],
+    ["surface.callout","stone 03","#EEF0F2","surface.callout","stone 03","#EEF0F2","",""],
+    ["surface.disabled","grayPurple 01","#EDEBF1","surface.disabled","stone 03","#EEF0F2","",""],
+    ["surface.brand","brandPurple 04","#EEE2FC","surface.brand","brandPurple 100","#EEECFB","",""],
+    ["surface.brand.subdued","grayPurple 01","#EDEBF1","surface.brand.subdued","stone 03","#EEF0F2","",""],
+    ["surface.brand.dark","brandPurple 02","#6A3DB8","surface.brand.dark","brandPurple 700","#6A3DB8","",""],
+    ["surface.brand.darkest","brandPurple 01","#2C194D","surface.brand.darkest","brandPurple 950","#301C59","",""],
+    ["surface.brand.muted","grayPurple 05","#958CA6","surface.brand.muted","stone 08","#8D9199","",""],
+    ["surface.pressed","brandPurple 01","#2C194D","—","—","","delete (dead)","del"],
+    ["surface.critical","red 04","#FAE8E8","surface.critical","tomato 50","#FFF4F1","",""],
+    ["surface.critical.dark","red 01","#CE1818","surface.critical.dark","tomato 600","#E5451D","",""],
+    ["surface.success","green 04","#E6F2EF","surface.success","meadow 50","#EEFBF3","",""],
+    ["surface.success.dark","green 01","#01795C","surface.success.dark","meadow 600","#14874F","",""],
+    ["surface.warning","yellow 05","#FFF4CB","surface.warning","butter 50","#FFFBEB","",""],
+    ["surface.warning.medium","yellow 04","#FFD789","surface.warning.medium","butter 200","#FFE988","",""],
+    ["surface.warning.dark","yellow 01","#A16B00","surface.warning.dark","butter 800","#94420C","",""],
+    ["surface.highlight","blue 05","#E5EEFF","surface.highlight","sky 50","#EFF7FF","",""],
+    ["surface.highlight.dark","blue 01","#00359C","surface.highlight.dark","sky 700","#005AA7","",""],
+    ["— (new)","—","","surface.status.success","meadow 200","#AFEBC5","pill / banner / card","new"],
+    ["— (new)","—","","surface.status.highlight","sky 200","#B8DFFF","","new"],
+    ["— (new)","—","","surface.status.warning","butter 200","#FFE988","","new"],
+    ["— (new)","—","","surface.status.critical","tomato 200","#FFD2C7","","new"],
+    ["— (new)","—","","surface.status.scheduled","brandPurple 200","#E0DCF8","⚠ may change","new"],
+    ["— (new)","—","","surface.status.info","stone 05","#D9DCE0","","new"],
+    ["— (new)","—","","surface.badge.default","popYellow 300","#CDFB5B","","new"],
+    ["— (new)","—","","surface.badge.recommended","seaGlass 300","#74E1DA","","new"],
+    ["— (new)","—","","surface.badge.new","bubblegum 300","#FFA8F9","","new"],
+    ["— (new)","—","","surface.badge.current","tangerine 400","#FFAE51","","new"],
+    ["— (new)","—","","surface.badge.backup","stone 05","#D9DCE0","","new"],
+  ],
+  "text": [
+    ["text.default","offBlack","#1D1D1D","text.default","trueBlack","#000000","",""],
+    ["text.subdued","stone 09","#5E626A","text.subdued","stone 09","#5E626A","",""],
+    ["text.disabled","stone 07","#AEB2BA","text.disabled","stone 07","#AEB2BA","",""],
+    ["text.onDark","white","#FFFFFF","text.onDark","white","#FFFFFF","",""],
+    ["text.link / text.link.inline / text.brand.expressive","brandPurple 02","#6A3DB8","text.accent (text.link)","brandPurple 700","#6A3DB8","merge triplicate → inline accent",""],
+    ["text.link.pressed","brandPurple 02","#6A3DB8","text.accent.pressed","brandPurple 800","#5D36A1","",""],
+    ["text.action","brandPurple 01","#2C194D","text.primary","trueBlack","#000000","",""],
+    ["text.critical","red 01","#CE1818","text.critical","tomato 700","#C13714","⚠ black vs colored","flag"],
+    ["text.success","green 01","#01795C","text.success","meadow 700","#106C41","⚠ black vs colored","flag"],
+    ["text.warning","yellow 01","#A16B00","text.warning","butter 800","#94420C","⚠ black vs colored","flag"],
+    ["text.highlight","blue 01","#00359C","text.highlight","sky 700","#005AA7","⚠ black vs colored","flag"],
+    ["text.criticalDisabled","red 03","#F0BABA","text.critical.disabled","tomato 200","#FFD2C7","fix camelCase",""],
+  ],
+  "border": [
+    ["border.default","stone 06","#C7CAD0","border.default","trueBlack","#000000","",""],
+    ["border.subdued","stone 05","#D9DCE0","border.subdued","stone 06","#C7CAD0","",""],
+    ["border.hover","brandPurple 03","#DDC6F9","border.hover","brandPurple 200","#E0DCF8","",""],
+    ["border.pressed","brandPurple 02","#6A3DB8","border.primary","brandPurple 700","#6A3DB8","",""],
+    ["border.disabled","grayPurple 02","#D5D1DB","border.disabled","stone 05","#D9DCE0","",""],
+    ["border.critical","red 01","#CE1818","border.critical","tomato 600","#E5451D","",""],
+    ["border.critical.hover","red 02","#E27474","border.critical.hover","tomato 500","#F8613B","",""],
+    ["border.critical.subdued","red 03","#F0BABA","border.critical.subdued","tomato 200","#FFD2C7","",""],
+    ["border.success.subdued","green 03","#B3D7CE","border.success.subdued","meadow 200","#AFEBC5","",""],
+    ["border.warning.subdued","yellow 04","#FFD789","border.warning.subdued","butter 200","#FFE988","",""],
+    ["border.highlight.subdued","blue 04","#B1D4FF","border.highlight.subdued","sky 200","#B8DFFF","",""],
+  ],
+  "action → fill": [
+    ["action.primary / .default","brandPurple 01/02","#6A3DB8","fill.primary","trueBlack","#000000","",""],
+    ["action.primary.pressed","brandPurple 02","#6A3DB8","fill.primary.pressed","trueBlack +overlay","#000000","state layer",""],
+    ["action.primary.inactive / .disabled","stone 03","#EEF0F2","fill.primary.disabled","stone 03","#EEF0F2","",""],
+    ["action.secondary.border","brandPurple 02","#6A3DB8","border.primary","trueBlack","#000000","secondary = outline",""],
+    ["action.secondary.default","brandPurple 02","#6A3DB8","text.primary","trueBlack","#000000","",""],
+    ["action.secondary (fill)","grayPurple 01","#EDEBF1","—","—","","retire (outline, no fill)","del"],
+    ["action.onLight","brandPurple 02","#6A3DB8","text.accent","brandPurple 700","#6A3DB8","",""],
+    ["action.onDark","white","#FFFFFF","text.onPrimary","white","#FFFFFF","",""],
+    ["action.selection.default","grayPurple 01","#EDEBF1","fill.selected","stone 03","#EEF0F2","selection = neutral",""],
+    ["action.progress.inactive","grayPurple 02","#D5D1DB","fill.neutral","stone 04","#E6E8EB","track/rail",""],
+    ["action.critical.default","red 01","#CE1818","fill.critical","tomato 600","#E5451D","",""],
+    ["action.critical.pressed","red 02","#E27474","fill.critical.pressed","tomato 700","#C13714","",""],
+    ["action.critical.disabled","red 04","#FAE8E8","fill.critical.disabled","tomato 100","#FFE7E1","",""],
+  ],
+  "focus": [
+    ["focus.default (missing in code)","—","","focus.default","brandPurple 700","#6A3DB8","add token","new"],
+  ],
+  "decorative": [
+    ["decorative.surface/icon/text/border.*","grayPurple/blue/yellow/brandPurple","#E5EEFF","→ new decorative ramps","popYellow/seaGlass/bubblegum/tangerine","#CDFB5B","⚠ per-slot mapping TBD with design","flag"],
+  ],
+};
 
-const el = (h) => { const d=document.createElement('div'); d.innerHTML=h.trim(); return d.firstChild; };
-function chips(arr){ return '<div class="row">'+arr.map(([s,hex])=>
-  `<div class="chip"><div class="sw" style="background:${hex}"></div><div class="step">${s}</div><div class="hex">${hex}</div></div>`).join('')+'</div>'; }
-function rampCard(f){
-  let h = `<div class="card"><h2 style="margin:0 0 2px;font-size:16px">${f.name}</h2><p class="fam-note">${f.note||''}</p>`;
-  if(f.before){ h += `<div class="lab">Before</div>${chips(f.before)}`; }
-  h += `<div class="lab">${f.before?'After':'New'}</div>${chips(f.after)}</div>`;
-  return h;
-}
-function pairTable(rows, roleHead){
-  let h = `<div class="card"><div class="pairs"><div class="head">${roleHead}</div><div class="head">Before</div><div></div><div class="head">After</div>`;
-  for(const r of rows){
-    const [role,bName,bHex,aName,aHex] = r;
-    h += `<div class="role">${role}</div>`+
-      `<div class="swatchline"><div class="sw" style="background:${bHex}"></div><div class="meta"><b>${bName}</b><span>${bHex}</span></div></div>`+
-      `<div class="arrow">→</div>`+
-      `<div class="swatchline"><div class="sw" style="background:${aHex}"></div><div class="meta"><b>${aName}</b><span>${aHex}</span></div></div>`;
-  }
-  h += `</div></div>`;
-  return h;
-}
+function chip(hex){ return hex ? `<span class="sw" style="background:${hex}"></span>` : ''; }
+function hx(hex){ return hex ? `<span class="hex">${hex}</span>` : ''; }
 const app = document.getElementById('app');
-app.appendChild(el(`<section><h2>Primitive ramps <span class="note">old scale → new 50–950 scale</span></h2></section>`));
-families.forEach(f => app.appendChild(el(rampCard(f))));
-app.appendChild(el(`<section><h2>New decorative ramps <span class="note">badges, labels, illustrations</span></h2></section>`));
-decoratives.forEach(f => app.appendChild(el(rampCard({name:f.name, note:'', before:null, after:f.after}))));
-app.appendChild(el(`<section><h2>Status pills <span class="note">surface only — text/icon stay black</span></h2></section>`));
-app.appendChild(el(pairTable(pills,'surface.status.*')));
-app.appendChild(el(`<section><h2>Badge labels</h2></section>`));
-app.appendChild(el(pairTable(badges,'surface.badge.*')));
-app.appendChild(el(`<section><h2>Key semantic shifts</h2></section>`));
-app.appendChild(el(pairTable(semantics,'token')));
+
+// Primitives table
+let h = `<h2>Primitives</h2><table><thead><tr><th>Current</th><th>now</th><th></th><th></th><th>Proposed</th><th>future</th><th></th><th>Note</th></tr></thead><tbody>`;
+for (const [c,ch,p,ph,n] of primitives){
+  const cls = p==="—" ? "del" : (c.startsWith("—") ? "new" : "");
+  h += `<tr class="${cls}"><td class="tok">${c}</td><td>${chip(ch)}</td><td>${hx(ch)}</td><td class="arrow">→</td><td class="tok">${p}</td><td>${chip(ph)}</td><td>${hx(ph)}</td><td class="note">${n}</td></tr>`;
+}
+h += `</tbody></table>`;
+app.insertAdjacentHTML('beforeend', h);
+
+// Semantics tables
+let s = `<h2>Semantics</h2><table><thead><tr><th>Token (now)</th><th>now primitive</th><th></th><th></th><th>Proposed token</th><th>future primitive</th><th></th><th>Note</th></tr></thead><tbody>`;
+for (const [group, rows] of Object.entries(semantics)){
+  s += `<tr class="grp"><td colspan="8">${group}</td></tr>`;
+  for (const [tok,cp,chex,ptok,fp,fhex,note,cls] of rows){
+    s += `<tr class="${cls||''}"><td class="tok">${tok}</td><td class="prim">${cp} ${chip(chex)} ${hx(chex)}</td><td></td><td class="arrow">→</td><td class="tok">${ptok}</td><td class="prim">${fp} ${chip(fhex)} ${hx(fhex)}</td><td></td><td class="note">${note}</td></tr>`;
+  }
+}
+s += `</tbody></table>`;
+app.insertAdjacentHTML('beforeend', s);
 </script>
 </body>
 </html>
