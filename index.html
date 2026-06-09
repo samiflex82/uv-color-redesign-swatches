@@ -40,35 +40,17 @@
   .pill.leak { background:#fae8e8; color:#a01414; } .pill.exempt { background:#eef0f2; color:#5e626a; } .pill.newtok { background:#e6f2ef; color:#0f7b53; }
   .ok-row td:first-child { border-left:3px solid #51c787; }
   .warn-row td:first-child { border-left:3px solid #ffae51; }
-  /* roadmap tab */
-  .flow { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:10px 0 22px; }
-  .fnode { display:inline-flex; align-items:center; gap:6px; background:#fff; border:1px solid var(--bd); border-radius:20px; padding:5px 12px; font-size:12px; font-weight:600; }
-  .fnode .dot { width:8px; height:8px; border-radius:50%; }
-  .fnode .dot.done { background:#51c787; } .fnode .dot.now { background:#ffae51; } .fnode .dot.todo { background:#c7cad0; }
-  .farrow { color:#c7cad0; font-weight:700; }
-  .phase { background:#fff; border:1px solid var(--bd); border-radius:12px; padding:0; margin-bottom:14px; overflow:hidden; }
-  .phase.now { border-color:#ffae51; box-shadow:0 0 0 1px #ffae51; }
-  .phase-top { padding:14px 18px 12px; }
-  .phase-top h3 { font-size:15.5px; margin:0; letter-spacing:-.01em; }
-  .phase-top h3 .num { color:#c7cad0; font-weight:800; margin-right:8px; }
-  .phase-goal { font-size:12px; color:var(--sub); line-height:1.5; margin:5px 0 0; max-width:880px; }
-  .gate { display:flex; gap:8px; align-items:baseline; background:#f6f7f8; border-top:1px solid var(--bd); border-bottom:1px solid var(--bd); padding:8px 18px; font-size:11.5px; }
-  .gate b { color:#b75606; text-transform:uppercase; letter-spacing:.04em; font-size:10px; flex:0 0 auto; padding-top:1px; }
-  .gate span { color:#3a3d42; }
-  .steps { padding:4px 18px 10px; }
-  .step { display:flex; gap:10px; padding:8px 0; border-bottom:1px solid #f0f1f3; align-items:baseline; }
-  .step:last-child { border-bottom:none; }
-  .step .chips { flex:0 0 116px; display:flex; gap:5px; flex-wrap:wrap; }
-  .step .body { flex:1; }
-  .step .task { font-size:12.5px; }
-  .step .task b { font-weight:650; }
-  .step .why { font-size:11px; color:var(--sub); line-height:1.45; }
-  .stt, .own { display:inline-block; font-size:9px; font-weight:700; padding:1px 6px; border-radius:5px; white-space:nowrap; text-transform:uppercase; letter-spacing:.03em; height:fit-content; }
-  .stt.done { background:#e6f2ef; color:#0f7b53; } .stt.next { background:#fde7d2; color:#b75606; }
-  .stt.add { background:#efe6fb; color:#6A3DB8; } .stt.later { background:#eef0f2; color:#5e626a; }
-  .own { background:#fff; border:1px solid var(--bd); color:#5e626a; }
-  .planlink { font-size:11.5px; }
-  .planlink a { color:#6A3DB8; font-weight:600; text-decoration:none; } .planlink a:hover { text-decoration:underline; }
+  /* primitive ramp strips */
+  .ramp { background:#fff; border:1px solid var(--bd); border-radius:12px; padding:14px 16px; margin-bottom:12px; }
+  .ramp-head { font-size:13.5px; margin-bottom:9px; }
+  .ramp-head b { font-size:14px; }
+  .strip { display:flex; gap:3px; }
+  .sstep { flex:1; min-width:0; border-radius:6px; padding:8px 4px 7px; display:flex; flex-direction:column; gap:2px; align-items:center; border:1px solid rgba(0,0,0,.08); }
+  .sstep .ss-n { font-size:11px; font-weight:700; }
+  .sstep .ss-h { font-family:ui-monospace,Menlo,monospace; font-size:8.5px; opacity:.8; }
+  .maptbl { margin-top:10px; border:none; background:transparent; }
+  .maptbl td { padding:3px 8px 3px 0; border:none; }
+  .maptbl tr:first-child td { padding-top:8px; }
   footer { max-width:1320px; margin:0 auto; padding:24px; color:var(--sub); font-size:12px; line-height:1.5; }
   code { background:#eef0f2; padding:1px 5px; border-radius:4px; font-size:.9em; }
 </style>
@@ -76,7 +58,7 @@
 <body>
 <header>
   <h1>UV Color Redesign — Token Remap Audit</h1>
-  <p class="lede">Token remap (primitives + semantics), a <strong>component</strong> usage audit (correct vs wrong tokens), <strong>hardcoded</strong> colors, <strong>Figma ↔ code</strong> parity, and the <strong>order of operations</strong> for the migration. Primary action → True Black; <code>action.*</code> → <code>fill.*</code>.</p>
+  <p class="lede">Token remap (primitives + semantics), a <strong>component</strong> usage audit (correct vs wrong tokens), <strong>hardcoded</strong> colors, <strong>Figma ↔ code</strong> parity. Primary action → True Black; <code>action.*</code> → <code>fill.*</code>.</p>
   <p class="legend"><span style="color:#0f7b53">green</span> = new token · <span style="opacity:.5">faded</span> = delete · <span class="flag">⚠</span> = fix · chips 16×16.</p>
 </header>
 <div class="tabs">
@@ -84,35 +66,49 @@
   <div class="tab" data-view="comp">Component usage</div>
   <div class="tab" data-view="hard">Hardcoded colors</div>
   <div class="tab" data-view="parity">Figma ↔ code</div>
-  <div class="tab" data-view="plan">Order of operations</div>
 </div>
 <main>
   <div class="view active" id="remap"></div>
   <div class="view" id="comp"></div>
   <div class="view" id="hard"></div>
   <div class="view" id="parity"></div>
-  <div class="view" id="plan"></div>
 </main>
 <footer>Staging preview — not for external distribution. Component audit v2 = by Storybook group (Ultraviolet - New · Core · Components; Product/Pages/Partner/Multi-Bill held). Parity = <code>UV Color Tokens</code> (137 color vars) vs code <code>colorTokens</code>. Rebuild: edit <code>index.html</code> + push.</footer>
 <script>
-const primitives = [
-  ["brandPurple 01","#2C194D","brandPurple 950","#301C59","darkest"],
-  ["brandPurple 02","#6A3DB8","brandPurple 700","#6A3DB8","exact — inline accent"],
-  ["brandPurple 03","#DDC6F9","brandPurple 200","#E0DCF8",""],
-  ["brandPurple 04","#EEE2FC","brandPurple 100","#EEECFB",""],
-  ["brandPurple 05","#E3E1E6","—","","drop (unused gray)"],
-  ["offBlack","#1D1D1D","trueBlack","#000000","Off Black → True Black (may revert)"],
+// Full new ramps (50–950) pulled from Figma [UV] Global Colors → Redesign/*, with the old
+// token → new step mapping. Each ramp: {name, group, replaces, steps:[[step,hex]…], map:[[oldTok,oldHex,newStep]…]}
+const STEPS = ["50","100","200","300","400","500","600","700","800","900","950"];
+const ramps = [
+  {name:"Brand Purple", group:"Primary", replaces:"replaces Brand Purple 01–05",
+   hexes:["#F6F5FD","#EEECFB","#E0DCF8","#C9BFF3","#AD9BEA","#9172E0","#7F53D4","#6A3DB8","#5D36A1","#4E2E84","#301C59"],
+   map:[["brandPurple 01","#2C194D","950"],["brandPurple 02","#6A3DB8","700","exact"],["brandPurple 03","#DDC6F9","200"],["brandPurple 04","#EEE2FC","100"],["brandPurple 05","#E3E1E6","—","drop (gray, unused)"]]},
+  {name:"Meadow", group:"System (success)", replaces:"replaces Green 01–04",
+   hexes:["#EEFBF3","#D5F6DF","#AFEBC5","#7ADBA3","#51C787","#21A863","#14874F","#106C41","#0F5635","#0D472D","#06281A"],
+   map:[["green 01","#01795C","600"],["green 02","#67AF9D","400"],["green 03","#B3D7CE","200"],["green 04","#E6F2EF","50"]]},
+  {name:"Tomato", group:"System (critical)", replaces:"replaces Red 01–04",
+   hexes:["#FFF4F1","#FFE7E1","#FFD2C7","#FFB3A0","#FF7451","#F8613B","#E5451D","#C13714","#A03014","#842E18","#481407"],
+   map:[["red 01","#CE1818","600"],["red 02","#E27474","400"],["red 03","#F0BABA","200"],["red 04","#FAE8E8","50"]]},
+  {name:"Butter", group:"System (warning)", replaces:"replaces Yellow 01–05",
+   hexes:["#FFFBEB","#FFF5C6","#FFE988","#FFD84C","#FFC420","#F9A307","#DD7B02","#B75606","#94420C","#7A360D","#461B02"],
+   map:[["yellow 01","#A16B00","800"],["yellow 02","#C58301","600"],["yellow 03","#F1A91B","300"],["yellow 04","#FFD789","200"],["yellow 05","#FFF4CB","50"]]},
+  {name:"Sky", group:"System (highlight)", replaces:"replaces Blue 01–05",
+   hexes:["#EFF7FF","#DFEFFF","#B8DFFF","#78C5FF","#2BA7FF","#068FF1","#0072CE","#005AA7","#024C8A","#084072","#06284B"],
+   map:[["blue 01","#00359C","700"],["blue 02","#1C53BA","600"],["blue 03","#6CA3EB","400"],["blue 04","#B1D4FF","200"],["blue 05","#E5EEFF","50"]]},
+  {name:"Pop Yellow", group:"Decorative (new)", replaces:"new ramp — no old equivalent → badge.default / decorative slots",
+   hexes:["#F9FFE5","#F1FFC8","#E2FF93","#CDFB5B","#B6F229","#97D80A","#74AD03","#588308","#47670D","#3C5710","#1E3102"], map:[]},
+  {name:"Sea Glass", group:"Decorative (new)", replaces:"new ramp — no old equivalent → badge.recommended / decorative slots",
+   hexes:["#F1FCFA","#D0F7F2","#A1EEE6","#74E1DA","#3AC7C2","#21ABA9","#188989","#176D6E","#175658","#184849","#07292C"], map:[]},
+  {name:"Bubblegum", group:"Decorative (new)", replaces:"new ramp — no old equivalent → badge.new / decorative slots",
+   hexes:["#FFF4FF","#FFE7FF","#FFCEFE","#FFA8F9","#FE76F2","#F63FE5","#DA1FC5","#B516A0","#941481","#791669","#510144"], map:[]},
+  {name:"Tangerine", group:"Decorative (new)", replaces:"new ramp — no old equivalent → badge.current / decorative slots",
+   hexes:["#FFF9ED","#FFF0D4","#FFDEA8","#FFC671","#FFAE51","#FE8611","#EF6A07","#C64F08","#9D3E0F","#7E3510","#441906"], map:[]},
+];
+// Neutrals — not new scales; summarized separately
+const neutrals = [
+  ["offBlack","#1D1D1D","True Black","#000000","Off Black → True Black (may revert; new primitive added)"],
   ["white","#FFFFFF","white","#FFFFFF","unchanged"],
-  ["grayPurple 01–08","#EDEBF1","stone (deprecated)","#D9DCE0","→ Stone"],
-  ["green 01–04 → meadow","#01795C","meadow 50–950","#51C787","anchor green 01 → meadow 400"],
-  ["red 01–04 → tomato","#CE1818","tomato 50–950","#FF7451","red 01 → tomato 400"],
-  ["yellow 01–05 → butter","#F1A91B","butter 50–950","#FFD84C","yellow 03 → butter 300"],
-  ["blue 01–05 → sky","#00359C","sky 50–950","#2BA7FF","blue 01 → sky 400"],
-  ["stone 01–10","#E6E8EB","stone 01–10","#E6E8EB","unchanged"],
-  ["— (new)","","decorative popYellow 50–950","#CDFB5B","new"],
-  ["— (new)","","decorative seaGlass 50–950","#74E1DA","new"],
-  ["— (new)","","decorative bubblegum 50–950","#FFA8F9","new"],
-  ["— (new)","","decorative tangerine 50–950","#FFAE51","new"],
+  ["stone 01–10","#FAFBFB–#2F3237","stone 01–10","#FAFBFB–#2F3237","unchanged — the neutral scale stays"],
+  ["grayPurple 01–08","#EDEBF1–#564771","stone (deprecated)","→ stone","Gray Purple deprecated → mapped onto Stone by lightness"],
 ];
 const semantics = {
   "base (code-only — retire; no Figma equivalent)": [
@@ -318,9 +314,24 @@ function chip(hex){ return hex ? `<span class="sw" style="background:${hex}"></s
 function hx(hex){ return hex ? `<span class="hex">${hex}</span>` : ''; }
 
 // Remap
-let h = `<h2>Primitives</h2><table><thead><tr><th>Current</th><th>now</th><th></th><th></th><th>Proposed</th><th>future</th><th></th><th>Note</th></tr></thead><tbody>`;
-for (const [c,ch,p,ph,n] of primitives){ const cls=p==="—"?"del":(c.startsWith("—")?"new":""); h+=`<tr class="${cls}"><td class="tok">${c}</td><td>${chip(ch)}</td><td>${hx(ch)}</td><td class="arrow">→</td><td class="tok">${p}</td><td>${chip(ph)}</td><td>${hx(ph)}</td><td class="note">${n}</td></tr>`; }
-h += `</tbody></table><h2>Semantics</h2><table><thead><tr><th>Token (now)</th><th>now primitive</th><th></th><th>Proposed token</th><th>future primitive</th><th>Note</th></tr></thead><tbody>`;
+let h = `<h2>Primitives — full new color scales</h2><p class="sub">Every color family gets a complete <b>50–950</b> ramp (pulled from Figma <code>[UV] Global Colors → Redesign/*</code>). The strip shows all 11 new steps; the table under each maps the <b>old</b> token to the <b>new step</b> it becomes. Old ramps are deprecated once consumers move over (DS-128).</p>`;
+for (const r of ramps){
+  h += `<div class="ramp"><div class="ramp-head"><b>${r.name}</b> <span class="note">${r.group} · ${r.replaces}</span></div><div class="strip">`;
+  r.hexes.forEach((hex,i)=>{ h += `<div class="sstep" style="background:${hex};color:${i>=6?'#fff':'#1d1d1d'}"><span class="ss-n">${STEPS[i]}</span><span class="ss-h">${hex}</span></div>`; });
+  h += `</div>`;
+  if(r.map.length){
+    h += `<table class="maptbl"><tbody>`;
+    for(const m of r.map){ const ns=m[2]; const ni=STEPS.indexOf(ns); const nh=ni>=0?r.hexes[ni]:''; const note=m[3];
+      h += `<tr class="${ns==='—'?'del':''}"><td class="tok">${m[0]}</td><td>${chip(m[1])}</td><td>${hx(m[1])}</td><td class="arrow">→</td><td class="tok">${r.name} ${ns}${note?` <span class="note">(${note})</span>`:''}</td><td>${chip(nh)} ${hx(nh)}</td></tr>`;
+    }
+    h += `</tbody></table>`;
+  }
+  h += `</div>`;
+}
+h += `<h2>Neutrals <span class="note" style="font-weight:400">(not new scales)</span></h2><table><thead><tr><th>Current</th><th>now</th><th></th><th>Proposed</th><th>future</th><th>Note</th></tr></thead><tbody>`;
+for (const [c,ch,p,ph,n] of neutrals){ h+=`<tr><td class="tok">${c}</td><td>${ch.startsWith('#')?chip(ch):''} ${hx(ch)}</td><td class="arrow">→</td><td class="tok">${p}</td><td>${ph.startsWith('#')?chip(ph):''} ${hx(ph)}</td><td class="note">${n}</td></tr>`; }
+h += `</tbody></table>`;
+h += `<h2>Semantics</h2><table><thead><tr><th>Token (now)</th><th>now primitive</th><th></th><th>Proposed token</th><th>future primitive</th><th>Note</th></tr></thead><tbody>`;
 for (const [group, rows] of Object.entries(semantics)){ h+=`<tr class="grp"><td colspan="6">${group}</td></tr>`; for (const [tok,cp,chex,ptok,fp,fhex,note,cls] of rows){ h+=`<tr class="${cls==='new'?'new':(cls==='del'?'del':'')}"><td class="tok">${tok}</td><td class="prim">${cp} ${chip(chex)} ${hx(chex)}</td><td class="arrow">→</td><td class="tok">${ptok}</td><td class="prim">${fp} ${chip(fhex)} ${hx(fhex)}</td><td class="${cls==='flag'?'note flag':'note'}">${note}</td></tr>`; } }
 h += `</tbody></table>`;
 document.getElementById('remap').innerHTML = h;
@@ -386,74 +397,6 @@ for (const [f,n] of codeOnly) p+=`<tr><td class="tok">${f}</td><td class="note">
 p += `</tbody></table>`;
 document.getElementById('parity').innerHTML = p;
 
-// Order of operations — a stage-gated plan. Approach in one line; each phase has a goal + an exit GATE + clear actions (owner + status).
-const DECISIONS_DOC = "https://github.com/samiflex82/color-token-audit/blob/ds/sami/uv-color-token-redesign/decisions-phase0.md";
-const flow = [["0 · Decide","now"],["1 · Primitives","now"],["2 · Semantic","todo"],["3 · Consumers + flag","todo"],["4 · Validate","todo"],["Cut over","todo"]];
-// phase: [num, name, flowActive, goal, gate, link, steps:[status, owner, task, why]]
-const phases = [
-  ["0","Decide",true,
-   "Settle the choices every later token inherits. A decision meeting, not a migration.",
-   "The 4 blocking decisions are ratified — #1 the black, #2 status text/icon color, #3 the status token name, #7 the naming grammar.",
-   DECISIONS_DOC,[
-    ["next","Design","Resolve the open decisions","6 total; #1 fill.primary black · #2 status color · #3 status token name block the build. #4–6 (Scheduled/Process/Inactive pills, decorative slots) can park to Phase 4."],
-    ["next","Both","Ratify naming grammar + add lint rule","group.role.prominence.state — ends camelCase / hyphen-in-segment / the bare 'pressed' key / the background.dark misnomer."],
-    ["done","Design","Sign off the Redesign/* primitive values","99 ramp vars already staged in Figma."],
-  ]],
-  ["1","Primitives",false,
-   "Make sure every primitive the new semantics will alias actually exists. Additive — live design work stays undisturbed.",
-   "Every primitive Phase 2 references exists in Figma + code, and shadows have a style.",
-   null,[
-    ["done","Design","Stage the new 50–950 ramps under Redesign/*","Brand Purple · Meadow/Tomato/Butter/Sky · decorative · True Black."],
-    ["done","Design","Create the gradient paint styles","8 styles (gradients can't be variables)."],
-    ["add","Design","Add shadow effect-styles","Hardcoded #000 / #0E0622 shadows have no token home today."],
-    ["later","Design","At cutover: promote Redesign/* + deprecate old ramps","→ DS-128."],
-  ]],
-  ["2","Semantic layer",false,
-   "Reshape the semantic layer — the heart of usability + scalability. All of it behind deprecated aliases in a Figma branch, so nothing breaks.",
-   "Every semantic aliases a primitive, the new tokens exist, and the dead tokens are gone — with aliases holding old keys.",
-   null,[
-    ["add","Both","Add the new tokens first","surface.status.* · surface.badge.* · intent fill.* · fill.selected + border.selected · border.focus + focus.default · surface.scrim."],
-    ["next","Both","Re-point existing semantics via aliases","To Stone + the new ramps, per the Token remap tab. Aliases, not renames."],
-    ["next","Both","Recategorize action.* → fill / text / border","Flatten text.action.*; merge the #6A3DB8 triplicate."],
-    ["next","Both","Delete the ~40 dead tokens","Figma-checked, zero-consumer — ~30% cut, the biggest leanness win."],
-  ]],
-  ["3","Consumers + flag",false,
-   "Migrate the library components + hardcoded colors, then flip the prototype flag to see the whole app re-skinned in context.",
-   "Library components + hardcoded clusters consume the new semantics, and the flag renders the app end-to-end.",
-   null,[
-    ["next","Eng","Route the 4 selection controls through fill.selected / border.selected","Retire the improvised border.pressed / action.primary.pressed mix."],
-    ["next","Eng","Fix the 28 role-mismatches","base.* · surface.*.dark→status · brand icons→black/accent · action.*→fill.* — see the Component usage tab."],
-    ["next","Eng","Replace the hardcoded clusters","scrims→surface.scrim · shadows→effect styles · MultiBill tints→decorative · the FA 'Flex Checking' card cluster."],
-    ["next","Both","Move decorative.* into component tokens","Out of the global semantic tier (three-tier discipline)."],
-    ["next","Eng","Ship behind the prototype flag","Re-skins the app in context — this is why the consumer groups don't need a per-component audit."],
-  ]],
-  ["4","Validate & cut over",false,
-   "Verify before deleting anything live. Deprecation is the last, irreversible step.",
-   "Contrast passes, Figma↔code parity is confirmed, and the flag is at 100% — then aliases + old ramps are removed.",
-   null,[
-    ["next","Design","Contrast / a11y QA on the new palette","Verifies the #2 status-color decision against real surfaces."],
-    ["later","Both","Value-level Figma ↔ code parity","Resolve aliases → hex; today's parity is name-level only."],
-    ["later","Eng","Widen the hardcoded scan","packages/* · SVGs · named colors — stragglers the flag won't surface."],
-    ["later","Both","Publish · flip flag on · remove aliases + old ramps","The only destructive step, and the last."],
-  ]],
-];
-const stLabel = {done:"done", add:"add", next:"do", later:"later"};
-let pl = `<h2>Order of operations</h2><p class="sub">A stage-gated plan. <b>Approach:</b> work bottom-up (primitives → semantic → consumers), keep every change additive behind deprecated aliases, and validate the whole app behind a prototype flag before deleting anything. Each phase below has a <b>goal</b>, an exit <b>gate</b> ("done when…"), and clear actions tagged by owner and status: <span class="stt done">done</span> <span class="stt add">add</span> <span class="stt next">do</span> <span class="stt later">later</span>.</p>`;
-pl += `<div class="flow">`;
-flow.forEach((f,i)=>{ pl += `<span class="fnode"><span class="dot ${f[1]}"></span>${f[0]}</span>`; if(i<flow.length-1) pl += `<span class="farrow">→</span>`; });
-pl += `</div>`;
-for (const [num,name,active,goal,gate,link,steps] of phases){
-  pl += `<div class="phase${active?' now':''}"><div class="phase-top"><h3><span class="num">${num}</span>${name}${active?' <span class="stt next">start here</span>':''}</h3><p class="phase-goal">${goal}</p>`;
-  if(link) pl += `<p class="phase-goal planlink">📄 Decision brief: <a href="${link}">decisions-phase0.md</a> — each decision framed with options + a recommendation.</p>`;
-  pl += `</div>`;
-  pl += `<div class="gate"><b>Done when</b><span>${gate}</span></div>`;
-  pl += `<div class="steps">`;
-  for (const [st,owner,task,w] of steps){
-    pl += `<div class="step"><div class="chips"><span class="stt ${st}">${stLabel[st]}</span><span class="own">${owner}</span></div><div class="body"><div class="task"><b>${task}</b></div><div class="why">${w}</div></div></div>`;
-  }
-  pl += `</div></div>`;
-}
-document.getElementById('plan').innerHTML = pl;
 
 document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
