@@ -341,7 +341,7 @@ for (const [gkey, glabel] of GROUPS){
     h += `</tbody></table>`;
     h += `<div style="font-weight:600;font-size:13px;margin:12px 0 4px">Gray Purple — deprecated → Stone <span class="note" style="font-weight:400">re-point the 18 semantic aliases onto Stone by lightness; no component edits (zero direct refs)</span></div>`;
     h += `<table><thead><tr><th>Gray Purple (old)</th><th></th><th></th><th>→ Stone step</th><th>future</th></tr></thead><tbody>`;
-    for (const [gp,gph,ss,sh] of grayPurpleDep){ h+=`<tr class="del"><td class="tok">${gp}</td><td>${chip(gph)} ${hx(gph)}</td><td class="arrow">→</td><td class="tok">stone ${ss}</td><td>${chip(sh)} ${hx(sh)}</td></tr>`; }
+    for (const [gp,gph,ss,sh] of grayPurpleDep){ h+=`<tr><td class="tok" style="text-decoration:line-through;text-decoration-color:#c7cad0">${gp}</td><td>${chip(gph)} ${hx(gph)}</td><td class="arrow">→</td><td class="tok">stone ${ss}</td><td>${chip(sh)} ${hx(sh)}</td></tr>`; }
     h += `</tbody></table>`;
   }
 }
