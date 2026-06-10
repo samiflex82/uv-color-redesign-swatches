@@ -47,17 +47,19 @@
 <body>
 <header>
   <h1>UV Color Redesign — Token Remap Audit</h1>
-  <p class="lede">Token remap (primitives + semantics), a <strong>component</strong> usage audit (correct vs wrong tokens), <strong>hardcoded</strong> colors, <strong>Figma ↔ code</strong> parity. Primary action → True Black; <code>action.*</code> → <code>fill.*</code>.</p>
+  <p class="lede"><strong>Primitives</strong> (full 50–950 scales, grouped brand/system/decorative/neutral) and <strong>semantic colors</strong> on their own tabs, a <strong>component</strong> usage audit (correct vs wrong tokens), <strong>hardcoded</strong> colors, and <strong>Figma ↔ code</strong> parity. Primary action → True Black; <code>action.*</code> → <code>fill.*</code>.</p>
   <p class="legend"><span style="color:#0f7b53">green</span> = new token · <span style="opacity:.5">faded</span> = delete · <span class="flag">⚠</span> = fix · chips 16×16.</p>
 </header>
 <div class="tabs">
-  <div class="tab active" data-view="remap">Token remap</div>
+  <div class="tab active" data-view="remap">Primitives</div>
+  <div class="tab" data-view="sem">Semantic colors</div>
   <div class="tab" data-view="comp">Component usage</div>
   <div class="tab" data-view="hard">Hardcoded colors</div>
   <div class="tab" data-view="parity">Figma ↔ code</div>
 </div>
 <main>
   <div class="view active" id="remap"></div>
+  <div class="view" id="sem"></div>
   <div class="view" id="comp"></div>
   <div class="view" id="hard"></div>
   <div class="view" id="parity"></div>
@@ -67,37 +69,49 @@
 // Full new ramps (50–950) pulled from Figma [UV] Global Colors → Redesign/*, with the old
 // token → new step mapping. Each ramp: {name, group, replaces, steps:[[step,hex]…], map:[[oldTok,oldHex,newStep]…]}
 const STEPS = ["50","100","200","300","400","500","600","700","800","900","950"];
+// Primitives grouped: brand / system (status/feedback) / decorative / neutral.
+// Path = primitive.<group>.<family>.<step>. Each ramp: {name, g, path, replaces, hexes[11], map:[[oldTok,oldHex,newStep,note?]]}
 const ramps = [
-  {name:"Brand Purple", group:"Primary", replaces:"replaces Brand Purple 01–05",
+  {name:"Brand Purple", g:"brand", path:"primitive.brand.purple", replaces:"replaces Brand Purple 01–05",
    hexes:["#F6F5FD","#EEECFB","#E0DCF8","#C9BFF3","#AD9BEA","#9172E0","#7F53D4","#6A3DB8","#5D36A1","#4E2E84","#301C59"],
    map:[["brandPurple 01","#2C194D","950"],["brandPurple 02","#6A3DB8","700","exact"],["brandPurple 03","#DDC6F9","200"],["brandPurple 04","#EEE2FC","100"],["brandPurple 05","#E3E1E6","—","drop (gray, unused)"]]},
-  {name:"Meadow", group:"System (success)", replaces:"replaces Green 01–04",
+  {name:"Meadow", g:"system", path:"primitive.system.meadow", replaces:"replaces Green 01–04 (success)",
    hexes:["#EEFBF3","#D5F6DF","#AFEBC5","#7ADBA3","#51C787","#21A863","#14874F","#106C41","#0F5635","#0D472D","#06281A"],
    map:[["green 01","#01795C","600"],["green 02","#67AF9D","400"],["green 03","#B3D7CE","200"],["green 04","#E6F2EF","50"]]},
-  {name:"Tomato", group:"System (critical)", replaces:"replaces Red 01–04",
+  {name:"Tomato", g:"system", path:"primitive.system.tomato", replaces:"replaces Red 01–04 (critical)",
    hexes:["#FFF4F1","#FFE7E1","#FFD2C7","#FFB3A0","#FF7451","#F8613B","#E5451D","#C13714","#A03014","#842E18","#481407"],
    map:[["red 01","#CE1818","600"],["red 02","#E27474","400"],["red 03","#F0BABA","200"],["red 04","#FAE8E8","50"]]},
-  {name:"Butter", group:"System (warning)", replaces:"replaces Yellow 01–05",
+  {name:"Butter", g:"system", path:"primitive.system.butter", replaces:"replaces Yellow 01–05 (warning)",
    hexes:["#FFFBEB","#FFF5C6","#FFE988","#FFD84C","#FFC420","#F9A307","#DD7B02","#B75606","#94420C","#7A360D","#461B02"],
    map:[["yellow 01","#A16B00","800"],["yellow 02","#C58301","600"],["yellow 03","#F1A91B","300"],["yellow 04","#FFD789","200"],["yellow 05","#FFF4CB","50"]]},
-  {name:"Sky", group:"System (highlight)", replaces:"replaces Blue 01–05",
+  {name:"Sky", g:"system", path:"primitive.system.sky", replaces:"replaces Blue 01–05 (highlight)",
    hexes:["#EFF7FF","#DFEFFF","#B8DFFF","#78C5FF","#2BA7FF","#068FF1","#0072CE","#005AA7","#024C8A","#084072","#06284B"],
    map:[["blue 01","#00359C","700"],["blue 02","#1C53BA","600"],["blue 03","#6CA3EB","400"],["blue 04","#B1D4FF","200"],["blue 05","#E5EEFF","50"]]},
-  {name:"Pop Yellow", group:"Decorative (new)", replaces:"new ramp — no old equivalent → badge.default / decorative slots",
+  {name:"Pop Yellow", g:"decorative", path:"primitive.decorative.popYellow", replaces:"new — no old equivalent → badge.default / decorative",
    hexes:["#F9FFE5","#F1FFC8","#E2FF93","#CDFB5B","#B6F229","#97D80A","#74AD03","#588308","#47670D","#3C5710","#1E3102"], map:[]},
-  {name:"Sea Glass", group:"Decorative (new)", replaces:"new ramp — no old equivalent → badge.recommended / decorative slots",
+  {name:"Sea Glass", g:"decorative", path:"primitive.decorative.seaGlass", replaces:"new — no old equivalent → badge.recommended / decorative",
    hexes:["#F1FCFA","#D0F7F2","#A1EEE6","#74E1DA","#3AC7C2","#21ABA9","#188989","#176D6E","#175658","#184849","#07292C"], map:[]},
-  {name:"Bubblegum", group:"Decorative (new)", replaces:"new ramp — no old equivalent → badge.new / decorative slots",
+  {name:"Bubblegum", g:"decorative", path:"primitive.decorative.bubblegum", replaces:"new — no old equivalent → badge.new / decorative",
    hexes:["#FFF4FF","#FFE7FF","#FFCEFE","#FFA8F9","#FE76F2","#F63FE5","#DA1FC5","#B516A0","#941481","#791669","#510144"], map:[]},
-  {name:"Tangerine", group:"Decorative (new)", replaces:"new ramp — no old equivalent → badge.current / decorative slots",
+  {name:"Tangerine", g:"decorative", path:"primitive.decorative.tangerine", replaces:"new — no old equivalent → badge.current / decorative",
    hexes:["#FFF9ED","#FFF0D4","#FFDEA8","#FFC671","#FFAE51","#FE8611","#EF6A07","#C64F08","#9D3E0F","#7E3510","#441906"], map:[]},
+  {name:"Stone", g:"neutral", path:"primitive.neutral.stone", replaces:"renumber 01–10 → 50–950, re-based on Tailwind gray (⚠ confirm scale + anchors)",
+   hexes:["#F9FAFB","#F3F4F6","#E5E7EB","#D1D5DB","#9CA3AF","#6B7280","#4B5563","#374151","#1F2937","#111827","#030712"],
+   map:[["stone 01","#FAFBFB","50"],["stone 02","#F6F7F8","100"],["stone 03","#EEF0F2","200"],["stone 04","#E6E8EB","300"],["stone 05","#D9DCE0","400"],["stone 06","#C7CAD0","500"],["stone 07","#AEB2BA","600"],["stone 08","#8D9199","700"],["stone 09","#5E626A","800"],["stone 10","#2F3237","900"]]},
 ];
-// Neutrals — not new scales; summarized separately
-const neutrals = [
-  ["offBlack","#1D1D1D","True Black","#000000","Off Black → True Black (may revert; new primitive added)"],
-  ["white","#FFFFFF","white","#FFFFFF","unchanged"],
-  ["stone 01–10","#FAFBFB–#2F3237","stone 01–10","#FAFBFB–#2F3237","unchanged — the neutral scale stays"],
-  ["grayPurple 01–08","#EDEBF1–#564771","stone (deprecated)","→ stone","Gray Purple deprecated → mapped onto Stone by lightness"],
+const GROUPS = [["brand","Brand"],["system","System — status / feedback"],["decorative","Decorative"],["neutral","Neutral — gray scale + black/white"]];
+// Neutral base (not ramps) + the Gray Purple → Stone deprecation
+const neutralBase = [
+  ["white","#FFFFFF","primitive.neutral.white","unchanged"],
+  ["True Black","#000000","primitive.neutral.black","primary action · text · icon → black (DS-130)"],
+  ["off-black","#1D1D1D","(deprecating)","→ True Black per DS-130"],
+];
+// grayPurple → stone step (by lightness; reference table, code re-points the 18 aliases). [gp, gpHex, stoneStep, stoneHex]
+const grayPurpleDep = [
+  ["grayPurple 01","#EDEBF1","200","#E5E7EB"],["grayPurple 02","#D5D1DB","300","#D1D5DB"],
+  ["grayPurple 03","#C0BACA","400","#9CA3AF"],["grayPurple 04","#ABA3B8","400","#9CA3AF"],
+  ["grayPurple 05","#958CA6","500","#6B7280"],["grayPurple 06","#807594","600","#4B5563"],
+  ["grayPurple 07","#6B5E82","700","#374151"],["grayPurple 08","#564771","800","#1F2937"],
 ];
 const semantics = {
   "base (code-only — retire; no Figma equivalent)": [
@@ -302,32 +316,43 @@ const codeOnly = [
 function chip(hex){ return hex ? `<span class="sw" style="background:${hex}"></span>` : ''; }
 function hx(hex){ return hex ? `<span class="hex">${hex}</span>` : ''; }
 
-// Remap
-let h = `<h2>Primitives — full new color scales</h2><p class="sub">Every color family gets a complete <b>50–950</b> ramp (pulled from Figma <code>[UV] Global Colors → Redesign/*</code>). Each family is a group below: one row per new step, with the <b>old</b> token that maps onto it (blank = net-new step). Old ramps are deprecated once consumers move over (DS-128).</p>`;
-h += `<table><thead><tr><th>Old token</th><th>now</th><th></th><th>New step</th><th>future</th><th>Note</th></tr></thead><tbody>`;
-for (const r of ramps){
-  h += `<tr class="grp"><td colspan="6">${r.name} <span style="font-weight:400;text-transform:none;letter-spacing:0">— ${r.group} · ${r.replaces}</span></td></tr>`;
-  // reverse the old→new map: newStep → {oldTok, oldHex, note}
-  const rev = {}; const drops = [];
-  for (const m of r.map){ if(m[2]==='—') drops.push(m); else rev[m[2]] = {old:m[0], oldHex:m[1], note:m[3]}; }
-  STEPS.forEach((step,i)=>{
-    const nh = r.hexes[i]; const e = rev[step];
-    const oldTok = e ? e.old : '<span class="note">—</span>';
-    const oldCell = e ? `${chip(e.oldHex)} ${hx(e.oldHex)}` : '';
-    let note = e ? (e.note || (step==='700'?'exact / core step':'remapped')) : 'new step';
-    if(!e && step==='700') note = 'core brand/role step (new)';
-    h += `<tr><td class="tok">${oldTok}</td><td>${oldCell}</td><td class="arrow">→</td><td class="tok">${r.name} ${step}</td><td>${chip(nh)} ${hx(nh)}</td><td class="note">${note}</td></tr>`;
-  });
-  for (const m of drops){ h += `<tr class="del"><td class="tok">${m[0]}</td><td>${chip(m[1])} ${hx(m[1])}</td><td class="arrow">→</td><td class="tok">— drop</td><td></td><td class="note">${m[3]||'dropped'}</td></tr>`; }
+// ---- Tab 1: Primitives — grouped brand / system / decorative / neutral ----
+let h = `<h2>Primitives — full color scales (50–950)</h2><p class="sub">Grouped <code>primitive.&lt;group&gt;.&lt;family&gt;.&lt;step&gt;</code>: <b>brand</b> · <b>system</b> (status/feedback) · <b>decorative</b> · <b>neutral</b> (gray + black/white). Each family is a full 50–950 ramp; rows map the <b>old</b> token to the <b>new step</b> (blank = net-new). Values from Figma <code>Redesign/*</code>; Stone re-based on Tailwind <code>gray</code> (⚠ confirm). Old ramps deprecated once consumers move (DS-128).</p>`;
+for (const [gkey, glabel] of GROUPS){
+  h += `<h3 style="margin:22px 0 6px;font-size:15px">${glabel}</h3>`;
+  h += `<table><thead><tr><th>Old token</th><th>now</th><th></th><th>New step</th><th>future</th><th>Note</th></tr></thead><tbody>`;
+  for (const r of ramps.filter(x=>x.g===gkey)){
+    h += `<tr class="grp"><td colspan="6">${r.name} <span style="font-weight:400;text-transform:none;letter-spacing:0">· <code>${r.path}</code> — ${r.replaces}</span></td></tr>`;
+    const rev = {}; const drops = [];
+    for (const m of r.map){ if(m[2]==='—') drops.push(m); else rev[m[2]] = {old:m[0], oldHex:m[1], note:m[3]}; }
+    STEPS.forEach((step,i)=>{
+      const nh = r.hexes[i]; const e = rev[step];
+      const oldTok = e ? e.old : '<span class="note">—</span>';
+      const oldCell = e ? `${chip(e.oldHex)} ${hx(e.oldHex)}` : '';
+      let note = e ? (e.note || (step==='700'?'exact / core step':'remapped')) : (step==='700'?'core step (new)':'new step');
+      h += `<tr><td class="tok">${oldTok}</td><td>${oldCell}</td><td class="arrow">→</td><td class="tok">${r.name} ${step}</td><td>${chip(nh)} ${hx(nh)}</td><td class="note">${note}</td></tr>`;
+    });
+    for (const m of drops){ h += `<tr class="del"><td class="tok">${m[0]}</td><td>${chip(m[1])} ${hx(m[1])}</td><td class="arrow">→</td><td class="tok">— drop</td><td></td><td class="note">${m[3]||'dropped'}</td></tr>`; }
+  }
+  h += `</tbody></table>`;
+  if (gkey === 'neutral'){
+    h += `<table><thead><tr><th>Base neutral</th><th></th><th>Proposed path</th><th>Note</th></tr></thead><tbody>`;
+    for (const [c,ch,p,n] of neutralBase){ h+=`<tr><td class="tok">${c}</td><td>${chip(ch)} ${hx(ch)}</td><td class="tok">${p}</td><td class="note">${n}</td></tr>`; }
+    h += `</tbody></table>`;
+    h += `<div style="font-weight:600;font-size:13px;margin:12px 0 4px">Gray Purple — deprecated → Stone <span class="note" style="font-weight:400">re-point the 18 semantic aliases onto Stone by lightness; no component edits (zero direct refs)</span></div>`;
+    h += `<table><thead><tr><th>Gray Purple (old)</th><th></th><th></th><th>→ Stone step</th><th>future</th></tr></thead><tbody>`;
+    for (const [gp,gph,ss,sh] of grayPurpleDep){ h+=`<tr class="del"><td class="tok">${gp}</td><td>${chip(gph)} ${hx(gph)}</td><td class="arrow">→</td><td class="tok">stone ${ss}</td><td>${chip(sh)} ${hx(sh)}</td></tr>`; }
+    h += `</tbody></table>`;
+  }
 }
-h += `</tbody></table>`;
-h += `<h2>Neutrals <span class="note" style="font-weight:400">(not new scales)</span></h2><table><thead><tr><th>Current</th><th>now</th><th></th><th>Proposed</th><th>future</th><th>Note</th></tr></thead><tbody>`;
-for (const [c,ch,p,ph,n] of neutrals){ h+=`<tr><td class="tok">${c}</td><td>${ch.startsWith('#')?chip(ch):''} ${hx(ch)}</td><td class="arrow">→</td><td class="tok">${p}</td><td>${ph.startsWith('#')?chip(ph):''} ${hx(ph)}</td><td class="note">${n}</td></tr>`; }
-h += `</tbody></table>`;
-h += `<h2>Semantics</h2><table><thead><tr><th>Token (now)</th><th>now primitive</th><th></th><th>Proposed token</th><th>future primitive</th><th>Note</th></tr></thead><tbody>`;
-for (const [group, rows] of Object.entries(semantics)){ h+=`<tr class="grp"><td colspan="6">${group}</td></tr>`; for (const [tok,cp,chex,ptok,fp,fhex,note,cls] of rows){ h+=`<tr class="${cls==='new'?'new':(cls==='del'?'del':'')}"><td class="tok">${tok}</td><td class="prim">${cp} ${chip(chex)} ${hx(chex)}</td><td class="arrow">→</td><td class="tok">${ptok}</td><td class="prim">${fp} ${chip(fhex)} ${hx(fhex)}</td><td class="${cls==='flag'?'note flag':'note'}">${note}</td></tr>`; } }
-h += `</tbody></table>`;
 document.getElementById('remap').innerHTML = h;
+
+// ---- Tab 2: Semantic colors ----
+let s = `<h2>Semantic colors</h2><p class="sub">All <code>colorTokens</code> by group: current token → primitive it pulls now → proposed token + future primitive. <span class="okmark">green</span> = new · <span style="opacity:.5">faded</span> = delete · <span class="flag">⚠</span> = confirm.</p>`;
+s += `<table><thead><tr><th>Token (now)</th><th>now primitive</th><th></th><th>Proposed token</th><th>future primitive</th><th>Note</th></tr></thead><tbody>`;
+for (const [group, rows] of Object.entries(semantics)){ s+=`<tr class="grp"><td colspan="6">${group}</td></tr>`; for (const [tok,cp,chex,ptok,fp,fhex,note,cls] of rows){ s+=`<tr class="${cls==='new'?'new':(cls==='del'?'del':'')}"><td class="tok">${tok}</td><td class="prim">${cp} ${chip(chex)} ${hx(chex)}</td><td class="arrow">→</td><td class="tok">${ptok}</td><td class="prim">${fp} ${chip(fhex)} ${hx(fhex)}</td><td class="${cls==='flag'?'note flag':'note'}">${note}</td></tr>`; } }
+s += `</tbody></table>`;
+document.getElementById('sem').innerHTML = s;
 
 // Components — by Storybook group, correct vs wrong split
 let totalC=0, totalFlag=0;
