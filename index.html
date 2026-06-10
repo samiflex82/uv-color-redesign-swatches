@@ -53,6 +53,7 @@
 <div class="tabs">
   <div class="tab active" data-view="remap">Primitives</div>
   <div class="tab" data-view="sem">Semantic colors</div>
+  <div class="tab" data-view="base">Base usage</div>
   <div class="tab" data-view="comp">Component usage</div>
   <div class="tab" data-view="hard">Hardcoded colors</div>
   <div class="tab" data-view="parity">Figma ↔ code</div>
@@ -60,11 +61,12 @@
 <main>
   <div class="view active" id="remap"></div>
   <div class="view" id="sem"></div>
+  <div class="view" id="base"></div>
   <div class="view" id="comp"></div>
   <div class="view" id="hard"></div>
   <div class="view" id="parity"></div>
 </main>
-<footer>Staging preview — not for external distribution. Component audit v2 = by Storybook group (Ultraviolet - New · Core · Components; Product/Pages/Partner/Multi-Bill held). Parity = <code>UV Color Tokens</code> (137 color vars) vs code <code>colorTokens</code>. Rebuild: edit <code>index.html</code> + push.</footer>
+<footer>Staging preview — not for external distribution. Remap = values only, names unchanged (renames = a later naming pass). Component audit v2 = by Storybook group (Ultraviolet - New · Core · Components; Product/Pages/Partner/Multi-Bill held). Parity = <code>UV Color Tokens</code> (137 color vars) vs code <code>colorTokens</code>. Rebuild: edit <code>index.html</code> + push.</footer>
 <script>
 // Full new ramps (50–950) pulled from Figma [UV] Global Colors → Redesign/*, with the old
 // token → new step mapping. Each ramp: {name, group, replaces, steps:[[step,hex]…], map:[[oldTok,oldHex,newStep]…]}
@@ -113,117 +115,173 @@ const grayPurpleDep = [
   ["grayPurple 05","#958CA6","500","#6B7280"],["grayPurple 06","#807594","600","#4B5563"],
   ["grayPurple 07","#6B5E82","700","#374151"],["grayPurple 08","#564771","800","#1F2937"],
 ];
+// NO-RENAME schema: [name, nowPrim, nowHex, futPrim, futHex, note, cls]. Name is UNCHANGED (proposed == current);
+// only the VALUE (primitive) re-points. Recats/renames live in the note as "naming pass". cls: new|del|flag|''.
 const semantics = {
-  "base (code-only — retire; no Figma equivalent)": [
-    ["base.onSurface","offBlack","#1D1D1D","text.default","trueBlack","#000000","",""],
-    ["base.primary","brandPurple 01","#2C194D","fill.primary","trueBlack","#000000","",""],
-    ["base.interactive","brandPurple 02","#6A3DB8","text.accent","brandPurple 700","#6A3DB8","",""],
-    ["base.secondary","grayPurple 02","#D5D1DB","—","stone 05","#D9DCE0","",""],
-    ["base.warning","yellow 01","#A16B00","—","butter 800","#94420C","",""],
-    ["base.success","green 01","#01795C","—","meadow 700","#106C41","",""],
+  "base — retire in the naming pass (see Base usage tab)": [
+    ["base.onSurface","offBlack","#1D1D1D","trueBlack","#000000","17 uses, mostly shadow · naming pass → text.default / shadow",""],
+    ["base.primary","brandPurple 01","#2C194D","trueBlack","#000000","naming pass → fill / icon",""],
+    ["base.interactive","brandPurple 02","#6A3DB8","brandPurple 700","#6A3DB8","naming pass → text.link / fill",""],
+    ["base.secondary","grayPurple 02","#D5D1DB","stone 05","#D9DCE0","naming pass → fill.neutral",""],
+    ["base.warning","yellow 01","#A16B00","butter 800","#94420C","naming pass → icon.warning",""],
+    ["base.success","green 01","#01795C","meadow 700","#106C41","naming pass",""],
   ],
   "background": [
-    ["background.lighter","white","#FFFFFF","background.lighter","white","#FFFFFF","",""],
-    ["background.dark","stone 02","#F6F7F8","background.subdued","stone 02","#F6F7F8","rename (it's light)",""],
-    ["background.brand","brandPurple 04","#EEE2FC","background.brand","brandPurple 100","#EEECFB","",""],
+    ["background.lighter","white","#FFFFFF","white","#FFFFFF","",""],
+    ["background.dark","stone 02","#F6F7F8","stone 02","#F6F7F8","naming pass → background.subdued (it's light)",""],
+    ["background.brand","brandPurple 04","#EEE2FC","brandPurple 100","#EEECFB","",""],
   ],
-  "surface": [
-    ["surface.default","white","#FFFFFF","surface.default","white","#FFFFFF","",""],
-    ["surface.subdued","stone 02","#F6F7F8","surface.subdued","stone 02","#F6F7F8","",""],
-    ["surface.callout","stone 03","#EEF0F2","surface.callout","stone 03","#EEF0F2","",""],
-    ["surface.disabled","grayPurple 01","#EDEBF1","surface.disabled","stone 03","#EEF0F2","",""],
-    ["surface.brand","brandPurple 04","#EEE2FC","surface.brand","brandPurple 100","#EEECFB","",""],
-    ["surface.brand.subdued","grayPurple 01","#EDEBF1","surface.brand.subdued","stone 03","#EEF0F2","",""],
-    ["surface.brand.dark","brandPurple 02","#6A3DB8","surface.brand.dark","brandPurple 700","#6A3DB8","",""],
-    ["surface.brand.darkest","brandPurple 01","#2C194D","surface.brand.darkest","brandPurple 950","#301C59","",""],
-    ["surface.brand.muted","grayPurple 05","#958CA6","surface.brand.muted","stone 08","#8D9199","",""],
-    ["surface.critical","red 04","#FAE8E8","surface.critical","tomato 50","#FFF4F1","",""],
-    ["surface.critical.dark","red 01","#CE1818","surface.critical.dark","tomato 600","#E5451D","",""],
-    ["surface.success","green 04","#E6F2EF","surface.success","meadow 50","#EEFBF3","",""],
-    ["surface.success.dark","green 01","#01795C","surface.success.dark","meadow 600","#14874F","",""],
-    ["surface.warning","yellow 05","#FFF4CB","surface.warning","butter 50","#FFFBEB","",""],
-    ["surface.warning.medium","yellow 04","#FFD789","surface.warning.medium","butter 200","#FFE988","",""],
-    ["surface.warning.dark","yellow 01","#A16B00","surface.warning.dark","butter 800","#94420C","",""],
-    ["surface.highlight","blue 05","#E5EEFF","surface.highlight","sky 50","#EFF7FF","",""],
-    ["surface.highlight.dark","blue 01","#00359C","surface.highlight.dark","sky 700","#005AA7","",""],
-    ["status.* (Figma already has this!)","—","","status.success/.highlight/.warning/.critical","meadow/sky/butter/tomato 200","#AFEBC5","pills/banners/cards — align to Figma status/*","new"],
-    ["— (new)","—","","status.scheduled","brandPurple 200","#E0DCF8","⚠ may change","new"],
-    ["— (new)","—","","status.info","stone 05","#D9DCE0","","new"],
-    ["— (new)","—","","surface.badge.default","popYellow 300","#CDFB5B","","new"],
-    ["— (new)","—","","surface.badge.recommended","seaGlass 300","#74E1DA","","new"],
-    ["— (new)","—","","surface.badge.new","bubblegum 300","#FFA8F9","","new"],
-    ["— (new)","—","","surface.badge.current","tangerine 400","#FFAE51","","new"],
-    ["— (new)","—","","surface.badge.backup","stone 05","#D9DCE0","","new"],
-    ["— (new)","—","","surface.scrim","trueBlack @ ~50%","#000000","modal/sheet backdrop","new"],
+  "surface  (see “Dark surface → fill?” table below)": [
+    ["surface.default","white","#FFFFFF","white","#FFFFFF","",""],
+    ["surface.subdued","stone 02","#F6F7F8","stone 02","#F6F7F8","",""],
+    ["surface.callout","stone 03","#EEF0F2","stone 03","#EEF0F2","",""],
+    ["surface.disabled","grayPurple 01","#EDEBF1","stone 03","#EEF0F2","mostly correct (disabled/skeleton/read-only); fix VerificationCode selected-state misuse",""],
+    ["surface.brand","brandPurple 04","#EEE2FC","brandPurple 100","#EEECFB","",""],
+    ["surface.brand.subdued","grayPurple 01","#EDEBF1","stone 03","#EEF0F2","",""],
+    ["surface.brand.dark","brandPurple 02","#6A3DB8","brandPurple 700","#6A3DB8","⚠ mixed fill/surface (37 uses) → split in naming pass","flag"],
+    ["surface.brand.darkest","brandPurple 01","#2C194D","brandPurple 950","#301C59","surface-like (cards)",""],
+    ["surface.brand.muted","grayPurple 05","#958CA6","stone 08","#8D9199","fill-like → fill in naming pass",""],
+    ["surface.critical","red 04","#FAE8E8","tomato 50","#FFF4F1","",""],
+    ["surface.critical.dark","red 01","#CE1818","tomato 600","#E5451D","fill-like → fill.critical in naming pass",""],
+    ["surface.success","green 04","#E6F2EF","meadow 50","#EEFBF3","",""],
+    ["surface.success.dark","green 01","#01795C","meadow 600","#14874F","⚠ mixed → split in naming pass","flag"],
+    ["surface.warning","yellow 05","#FFF4CB","butter 50","#FFFBEB","",""],
+    ["surface.warning.medium","yellow 04","#FFD789","butter 200","#FFE988","fill-like → fill in naming pass",""],
+    ["surface.warning.dark","yellow 01","#A16B00","butter 800","#94420C","surface-like",""],
+    ["surface.highlight","blue 05","#E5EEFF","sky 50","#EFF7FF","",""],
+    ["surface.highlight.dark","blue 01","#00359C","sky 700","#005AA7","",""],
   ],
   "text": [
-    ["text.default","offBlack","#1D1D1D","text.default","trueBlack","#000000","",""],
-    ["text.subdued","stone 09","#5E626A","text.subdued","stone 09","#5E626A","",""],
-    ["text.disabled","stone 07","#AEB2BA","text.disabled","stone 07","#AEB2BA","",""],
-    ["text.onDark","white","#FFFFFF","text.onDark","white","#FFFFFF","",""],
-    ["text.link / .link.inline / .brand.expressive","brandPurple 02","#6A3DB8","text.accent","brandPurple 700","#6A3DB8","merge triplicate","new"],
-    ["text.link.pressed","brandPurple 02","#6A3DB8","text.accent.pressed","brandPurple 800","#5D36A1","",""],
-    ["text.action","brandPurple 01","#2C194D","text.primary","trueBlack","#000000","",""],
-    ["text.critical","red 01","#CE1818","text.critical","tomato 700","#C13714","⚠ black vs colored","flag"],
-    ["text.success","green 01","#01795C","text.success","meadow 700","#106C41","⚠ black vs colored","flag"],
-    ["text.warning","yellow 01","#A16B00","text.warning","butter 800","#94420C","⚠ black vs colored","flag"],
-    ["text.criticalDisabled","red 03","#F0BABA","text.critical.disabled","tomato 200","#FFD2C7","fix camelCase",""],
+    ["text.default","offBlack","#1D1D1D","trueBlack","#000000","",""],
+    ["text.subdued","stone 09","#5E626A","stone 09","#5E626A","",""],
+    ["text.disabled","stone 07","#AEB2BA","stone 07","#AEB2BA","",""],
+    ["text.onDark","white","#FFFFFF","white","#FFFFFF","",""],
+    ["text.link","brandPurple 01","#2C194D","brandPurple 700","#6A3DB8","inline link / plain text button (stays text.link)",""],
+    ["text.link.inline","brandPurple 02","#6A3DB8","brandPurple 700","#6A3DB8","naming pass: consolidate w/ text.link",""],
+    ["text.link.disabled","stone 09","#5E626A","stone 09","#5E626A","exists but DEAD — activate (pairs w/ text.criticalDisabled)","flag"],
+    ["text.action","brandPurple 01","#2C194D","trueBlack","#000000","naming pass → text.primary",""],
+    ["text.critical","red 01","#CE1818","tomato 700","#C13714","⚠ black vs colored — decision","flag"],
+    ["text.success","green 01","#01795C","meadow 700","#106C41","⚠ black vs colored","flag"],
+    ["text.warning","yellow 01","#A16B00","butter 800","#94420C","⚠ black vs colored","flag"],
+    ["text.criticalDisabled","red 03","#F0BABA","tomato 200","#FFD2C7","naming pass: fix camelCase → text.critical.disabled",""],
+    ["text.link.pressed","brandPurple 02","#6A3DB8","—","","DEAD → delete (press → opacity)","del"],
   ],
   "icon": [
-    ["icon.default","offBlack","#1D1D1D","icon.default","trueBlack","#000000","",""],
-    ["icon.subdued","stone 09","#5E626A","icon.subdued","stone 09","#5E626A","",""],
-    ["icon.brand","brandPurple 02","#6A3DB8","icon.default","trueBlack","#000000","⚠ icons→black","flag"],
-    ["icon.link","brandPurple 01","#2C194D","icon.accent","brandPurple 700","#6A3DB8","⚠ keep accent?","flag"],
-    ["icon.critical","red 01","#CE1818","icon.critical","tomato 600","#E5451D","⚠","flag"],
-    ["icon.success","green 01","#01795C","icon.success","meadow 600","#14874F","⚠","flag"],
-    ["icon.warning","yellow 02","#C58301","icon.warning","butter 600","#DD7B02","⚠","flag"],
+    ["icon.default","offBlack","#1D1D1D","trueBlack","#000000","",""],
+    ["icon.subdued","stone 09","#5E626A","stone 09","#5E626A","",""],
+    ["icon.brand","brandPurple 02","#6A3DB8","trueBlack","#000000","⚠ icons→black? value decision","flag"],
+    ["icon.link","brandPurple 01","#2C194D","brandPurple 700","#6A3DB8","⚠ keep colored?","flag"],
+    ["icon.critical","red 01","#CE1818","tomato 600","#E5451D","⚠","flag"],
+    ["icon.success","green 01","#01795C","meadow 600","#14874F","⚠","flag"],
+    ["icon.warning","yellow 02","#C58301","butter 600","#DD7B02","⚠","flag"],
   ],
   "border": [
-    ["border.default","stone 06","#C7CAD0","border.default","trueBlack","#000000","",""],
-    ["border.subdued","stone 05","#D9DCE0","border.subdued","stone 06","#C7CAD0","",""],
-    ["border.hover","brandPurple 03","#DDC6F9","border.hover","brandPurple 200","#E0DCF8","",""],
-    ["border.pressed","brandPurple 02","#6A3DB8","border.primary","brandPurple 700","#6A3DB8","",""],
-    ["border.disabled","grayPurple 02","#D5D1DB","border.disabled","stone 05","#D9DCE0","",""],
-    ["— (new)","—","","border.selected","brandPurple 700","#6A3DB8","missing 'selected' layer","new"],
-    ["border.critical","red 01","#CE1818","border.critical","tomato 600","#E5451D","",""],
-    ["border.critical.subdued","red 03","#F0BABA","border.critical.subdued","tomato 200","#FFD2C7","",""],
-    ["border.success.subdued","green 03","#B3D7CE","border.success.subdued","meadow 200","#AFEBC5","",""],
-    ["border.warning.subdued","yellow 04","#FFD789","border.warning.subdued","butter 200","#FFE988","",""],
-    ["border.highlight.subdued","blue 04","#B1D4FF","border.highlight.subdued","sky 200","#B8DFFF","",""],
+    ["border.default","stone 06","#C7CAD0","trueBlack","#000000","",""],
+    ["border.subdued","stone 05","#D9DCE0","stone 06","#C7CAD0","",""],
+    ["border.hover","brandPurple 03","#DDC6F9","brandPurple 200","#E0DCF8","6 uses · → opacity hover (state pass)",""],
+    ["border.pressed","brandPurple 02","#6A3DB8","brandPurple 700","#6A3DB8","⚠ 20 uses, misused for focus/selected → route to border.focus / border.selected (see pressed audit)","flag"],
+    ["border.disabled","grayPurple 02","#D5D1DB","stone 05","#D9DCE0","",""],
+    ["border.critical","red 01","#CE1818","tomato 600","#E5451D","",""],
+    ["border.critical.subdued","red 03","#F0BABA","—","","DEAD → delete","del"],
+    ["border.success.subdued","green 03","#B3D7CE","meadow 200","#AFEBC5","1 use (RentStatusCard)",""],
+    ["border.warning.subdued","yellow 04","#FFD789","—","","DEAD → delete","del"],
+    ["border.highlight.subdued","blue 04","#B1D4FF","sky 200","#B8DFFF","1 use (RentStatusCard)",""],
   ],
-  "action → fill": [
-    ["action.primary / .default","brandPurple 01/02","#6A3DB8","fill.primary","trueBlack","#000000","",""],
-    ["action.primary.pressed","brandPurple 02","#6A3DB8","fill.primary.pressed","trueBlack +overlay","#000000","state layer",""],
-    ["action.primary.inactive / .disabled","stone 03","#EEF0F2","fill.primary.disabled","stone 03","#EEF0F2","",""],
-    ["action.secondary.border","brandPurple 02","#6A3DB8","border.primary","trueBlack","#000000","secondary = outline",""],
-    ["action.onLight","brandPurple 02","#6A3DB8","text.accent","brandPurple 700","#6A3DB8","",""],
-    ["action.onDark","white","#FFFFFF","text.onPrimary","white","#FFFFFF","",""],
-    ["action.selection.default","grayPurple 01","#EDEBF1","fill.selected","stone 03","#EEF0F2","selection = neutral",""],
-    ["— (new)","—","","border.selected","brandPurple 700","#6A3DB8","the missing 'selected' layer","new"],
-    ["action.progress.inactive","grayPurple 02","#D5D1DB","fill.neutral","stone 04","#E6E8EB","track/rail",""],
-    ["action.critical.default","red 01","#CE1818","fill.critical","tomato 600","#E5451D","",""],
-    ["action.critical.pressed","red 02","#E27474","fill.critical.pressed","tomato 700","#C13714","",""],
+  "action  (→ fill.* in the naming pass — names unchanged now)": [
+    ["action.primary","brandPurple 01","#2C194D","trueBlack","#000000","primary button bg · naming pass → fill.primary",""],
+    ["action.primary.default","brandPurple 02","#6A3DB8","trueBlack","#000000","naming pass → fill.primary",""],
+    ["action.primary.inactive","brandPurple 04","#EEE2FC","stone 03","#EEF0F2","naming pass → fill.primary.disabled",""],
+    ["action.primary.pressed","brandPurple 02","#6A3DB8","—","","⚠ misused for checked/selected (5) → fill.selected; true press → opacity","flag"],
+    ["action.secondary.border","brandPurple 02","#6A3DB8","brandPurple 700","#6A3DB8","secondary button border · naming pass → border.primary",""],
+    ["action.onLight","brandPurple 02","#6A3DB8","brandPurple 700","#6A3DB8","ProgressBar fill · naming pass → fill / text",""],
+    ["action.onDark","white","#FFFFFF","white","#FFFFFF","naming pass → text.onDark",""],
+    ["action.selection.default","grayPurple 01","#EDEBF1","stone 03","#EEF0F2","selection bg · naming pass → fill.selected",""],
+    ["action.progress.inactive","grayPurple 02","#D5D1DB","stone 04","#E6E8EB","track/rail · naming pass → fill.neutral",""],
+    ["action.critical.default","red 01","#CE1818","tomato 600","#E5451D","Button critical bg · naming pass → fill.critical",""],
+    ["action.critical.pressed","red 02","#E27474","tomato 700","#C13714","Button loading · naming pass → fill.critical.pressed",""],
   ],
-  "interaction states (NEW model)": [
-    ["hover","—","","(state layer)","rest + ~8% overlay","#000000","not a solid token","new"],
-    ["pressed","—","","(state layer)","rest + ~12% overlay","#000000","not a solid token","new"],
+  "NEW tokens — additive this remap": [
+    ["fill.neutral","—","","stone 04","#E6E8EB","track / rail (DS-101)","new"],
+    ["fill.selected","—","","stone 03","#EEF0F2","selected state for selection controls","new"],
+    ["border.selected","—","","brandPurple 700","#6A3DB8","selected ring","new"],
+    ["border.focus","—","","brandPurple 700","#6A3DB8","input focus ring","new"],
+    ["focus.default","—","","brandPurple 700","#6A3DB8","focus ring (missing in code)","new"],
+    ["surface.scrim","—","","trueBlack @ ~50%","#000000","modal / sheet backdrop","new"],
   ],
-  "focus": [
-    ["focus.default (missing in code)","—","","focus.default","brandPurple 700","#6A3DB8","add token","new"],
+  "interaction states — NEW model (state layers, not solid tokens)": [
+    ["hover","—","","rest + ~8% overlay","#000000","replaces border.hover / *.hover solids","new"],
+    ["pressed","—","","rest + ~12% overlay","#000000","replaces the 'pressed' solids","new"],
   ],
-  "decorative": [
-    ["decorative.surface/icon/text/border.* (live)","grayPurple/blue/yellow/brandPurple","#E5EEFF","→ new decorative ramps","popYellow/seaGlass/bubblegum/tangerine","#CDFB5B","⚠ per-slot TBD","flag"],
-  ],
-  "DEAD — delete (0 consumers)": [
-    ["base.surface","white","#FFFFFF","—","","","","del"],["base.critical","red 01","#CE1818","—","","","","del"],["base.highlight","blue 02","#1C53BA","—","","","","del"],
-    ["text.link.disabled","stone 09","#5E626A","—","","","","del"],["text.link.onDark","white","#FFFFFF","—","","","","del"],["text.action.onDark","stone 02","#F6F7F8","—","","","","del"],["text.action.dark","offBlack","#1D1D1D","—","","","","del"],["text.criticalPressed","red 02","#E27474","—","","","","del"],["text.highlight","blue 01","#00359C","—","","","","del"],
-    ["surface.pressed","brandPurple 01","#2C194D","—","","","","del"],
-    ["action.secondary.default/.pressed/.disabled/.pressed.inactive","various","#6A3DB8","—","","","","del"],["action.selection.pressed/.disabled","brandPurple 02/stone 05","#6A3DB8","—","","","","del"],["action.onLight.pressed","brandPurple 01","#2C194D","—","","","","del"],["action.progress.*.onDark / -inactive.brand","grayPurple","#EDEBF1","—","","","","del"],["pressed","brandPurple 02","#6A3DB8","—","","","bare key","del"],
-    ["icon.*-disabled (link/critical/success/warning)","various","#FAE8E8","—","","","","del"],
-    ["border.action.* / border.success/.warning/.highlight","brandPurple/status","#6A3DB8","—","","","","del"],
-    ["decorative.icon.1/3/5 · text.3 · border.1/2/4/5","various","#C0BACA","—","","","","del"],
+  "DEAD — delete (0 consumers, this remap)": [
+    ["base.surface","white","#FFFFFF","—","","",""],["base.critical","red 01","#CE1818","—","","",""],["base.success","green 01","#01795C","—","","",""],["base.highlight","blue 02","#1C53BA","—","","",""],
+    ["text.brand.expressive","brandPurple 02","#6A3DB8","—","","",""],["text.link.pressed","brandPurple 02","#6A3DB8","—","","",""],["text.criticalPressed","red 02","#E27474","—","","",""],
+    ["action.secondary.pressed / .pressed.inactive","grayPurple","#D5D1DB","—","","",""],["action.onLight.pressed","brandPurple 01","#2C194D","—","","",""],["pressed (bare key)","brandPurple 02","#6A3DB8","—","","",""],
+    ["border.action.pressed / .hover / .default","brandPurple","#6A3DB8","—","","",""],["border.critical.subdued","red 03","#F0BABA","—","","",""],["border.warning.subdued","yellow 04","#FFD789","—","","",""],
+    ["decorative.icon.1/3/5 · text.1/3 · border.1/2/4/5","various","#C0BACA","—","","","9 dead"],
   ],
 };
+// ---- Base usage (its own tab): [token, primitive+hex, consumers, where, remap note]
+const baseUsage = [
+  ["base.onSurface","offBlack #1D1D1D",17,"mostly SHADOW color — Card, PageFooter, Surface(elevation), nav header, tab bar, SegmentedControl, ToggleSwitch; + a few bg/divider","→ shadow effect-style + text.default (naming pass, DS-177)"],
+  ["base.interactive","brandPurple 02 #6A3DB8",7,"Button secondary text (×4), MigrationAgreement link, HelpTrackerStepDot, NudgeTooltip shadow","→ text.link / fill (naming pass)"],
+  ["base.warning","yellow 01 #A16B00",2,"CancelMembershipModal + RentAmountDoesntMatchModal warning icon","→ icon.warning"],
+  ["base.primary","brandPurple 01 #2C194D",1,"FlexAnywherePortalQuestionPageV2 icon fill","→ icon / text"],
+  ["base.secondary","grayPurple 02 #D5D1DB",1,"HelpTrackerStepDot bg","→ fill.neutral"],
+  ["base.surface","white #FFFFFF",0,"—","dead → delete"],
+  ["base.critical","red 01 #CE1818",0,"—","dead → delete"],
+  ["base.success","green 01 #01795C",0,"—","dead → delete"],
+  ["base.highlight","blue 02 #1C53BA",0,"—","dead → delete"],
+];
+// ---- Status (current dynamic mapping → net-new tokens): [component/source, current token(s), → plan]
+const statusNow = [
+  ["Pill (default bg)","surface.brand.dark","→ surface.status.* (net-new)"],
+  ["BadgeLabel","decorative.surface.3 + decorative.border.3","→ surface.badge.* (net-new)"],
+  ["TransactionPill (per status)","surface.brand.dark / success.dark / warning.medium / critical.dark","→ surface.status.*"],
+  ["statusPill helper","decorative.surface.2 / .3 / .4 + surface.success","→ surface.status.*"],
+];
+const statusNew = [
+  ["surface.status.success","meadow 200","#AFEBC5"],["surface.status.highlight","sky 200","#B8DFFF"],
+  ["surface.status.warning","butter 200","#FFE988"],["surface.status.critical","tomato 200","#FFD2C7"],
+  ["surface.status.scheduled","brandPurple 200","#E0DCF8"],["surface.status.info","stone 05","#D9DCE0"],
+  ["surface.badge.default","popYellow 300","#CDFB5B"],["surface.badge.recommended","seaGlass 300","#74E1DA"],
+  ["surface.badge.new","bubblegum 300","#FFA8F9"],["surface.badge.current","tangerine 400","#FFAE51"],
+  ["surface.badge.backup","stone 05","#D9DCE0"],
+];
+// ---- Decorative map: [token, primitive+hex, consumers, note]
+const decorativeMap = [
+  ["decorative.surface.2","blue 05 #E5EEFF",11,"selection-card backgrounds (heavy)"],
+  ["decorative.surface.4","yellow 05 #FFF4CB",3,""],["decorative.surface.5","stone 03 #EEF0F2",3,""],
+  ["decorative.surface.1","grayPurple 02 #D5D1DB",1,""],["decorative.surface.3","brandPurple 04 #EEE2FC",1,"BadgeLabel bg"],
+  ["decorative.icon.2","blue 02 #1C53BA",2,""],["decorative.icon.4","yellow 01 #A16B00",2,""],
+  ["decorative.text.2","blue 02 #1C53BA",1,""],["decorative.text.4","yellow 01 #A16B00",1,""],["decorative.text.5","brandPurple 01 #2C194D",1,""],
+  ["decorative.border.3","brandPurple 03 #DDC6F9",1,"BadgeLabel border"],
+  ["decorative.icon.1/3/5 · text.1/3 · border.1/2/4/5","various",0,"9 DEAD → delete"],
+];
+// ---- pressed audit: [token, primitive+hex, consumers, verdict]
+const pressedAudit = [
+  ["text.link.pressed","brandPurple 02 #6A3DB8",0,"DEAD → delete"],
+  ["action.secondary.pressed","grayPurple 02 #D5D1DB",0,"DEAD → delete"],
+  ["action.secondary.pressed.inactive","grayPurple 03 #C0BACA",0,"DEAD → delete"],
+  ["action.onLight.pressed","brandPurple 01 #2C194D",0,"DEAD → delete"],
+  ["border.action.pressed","brandPurple 01 #2C194D",0,"DEAD → delete"],
+  ["pressed (bare key)","brandPurple 02 #6A3DB8",0,"DEAD → delete"],
+  ["border.pressed","brandPurple 02 #6A3DB8",20,"⚠ MISUSED — inputs=focus → border.focus · cards/dates=selected → border.selected"],
+  ["action.primary.pressed","brandPurple 02 #6A3DB8",5,"⚠ MISUSED — checked/selected → fill.selected"],
+  ["action.selection.pressed","brandPurple 02 #6A3DB8",1,"selected chip → fill.selected"],
+  ["action.primary.pressed.inactive","grayPurple 05 #958CA6",6,"loading/inactive — keep (rename later)"],
+  ["action.critical.pressed","red 02 #E27474",1,"Button loading — keep (→ fill.critical.pressed)"],
+  ["surface.pressed","brandPurple 01 #2C194D",1,"intentional pressed variant → opacity (DS-161)"],
+];
+// ---- Dark surface → fill? verdicts: [token, primitive+hex, consumers, verdict]
+const darkSurface = [
+  ["surface.critical.dark","red 01 #CE1818",6,"fill-like ✅ → fill.critical"],
+  ["surface.brand.muted","grayPurple 05 #958CA6",4,"fill-like ✅ → fill"],
+  ["surface.warning.medium","yellow 04 #FFD789",8,"fill-like ✅ → fill"],
+  ["surface.brand.dark","brandPurple 02 #6A3DB8","37+","MIXED → split (pills=fill, cards/toasts=surface)"],
+  ["surface.success.dark","green 01 #01795C",9,"MIXED → split"],
+  ["surface.brand.darkest","brandPurple 01 #2C194D",6,"surface-like — stays surface"],
+  ["surface.warning.dark","yellow 01 #A16B00",5,"surface-like — stays surface"],
+];
 // Component usage v2 — organized BY STORYBOOK GROUP. Method: story title → component file →
 // rg "tokens(['|.)" → list tokens, flag role-mismatches vs the remap-plan.
 // Priority groups done: Ultraviolet - New, Core, Components. (Product · Pages · Partner · Multi-Bill held.)
@@ -317,7 +375,7 @@ function chip(hex){ return hex ? `<span class="sw" style="background:${hex}"></s
 function hx(hex){ return hex ? `<span class="hex">${hex}</span>` : ''; }
 
 // ---- Tab 1: Primitives — grouped brand / system / decorative / neutral ----
-let h = `<h2>Primitives — full color scales (50–950)</h2><p class="sub">Grouped <code>primitive.&lt;group&gt;.&lt;family&gt;.&lt;step&gt;</code>: <b>brand</b> · <b>system</b> (status/feedback) · <b>decorative</b> · <b>neutral</b> (gray + black/white). Each family is a full 50–950 ramp; rows map the <b>old</b> token to the <b>new step</b> (blank = net-new). Values from Figma <code>Redesign/*</code>; Stone re-based on Tailwind <code>gray</code> (⚠ confirm). Old ramps deprecated once consumers move (DS-128).</p>`;
+let h = `<h2>Primitives — full color scales (50–950)</h2><p class="sub">Grouped <code>primitive.&lt;group&gt;.&lt;family&gt;.&lt;step&gt;</code>: <b>brand</b> · <b>system</b> (status/feedback) · <b>decorative</b> · <b>neutral</b> (gray + black/white). Each family is a full 50–950 ramp; rows map the <b>old</b> token to the <b>new step</b> (blank = net-new). Values from Figma <code>Redesign/*</code>; Stone re-based on Tailwind <code>gray</code> (⚠ confirm). Old ramps deprecated once consumers move (DS-128). <b>Code adds these in the existing style first (DS-157); the brand/system/decorative/neutral grouping shown here is the deferred naming pass (DS-178).</b></p>`;
 for (const [gkey, glabel] of GROUPS){
   h += `<h3 style="margin:22px 0 6px;font-size:15px">${glabel}</h3>`;
   h += `<table><thead><tr><th>Old token</th><th>now</th><th></th><th>New step</th><th>future</th><th>Note</th></tr></thead><tbody>`;
@@ -348,11 +406,41 @@ for (const [gkey, glabel] of GROUPS){
 document.getElementById('remap').innerHTML = h;
 
 // ---- Tab 2: Semantic colors ----
-let s = `<h2>Semantic colors</h2><p class="sub">All <code>colorTokens</code> by group: current token → primitive it pulls now → proposed token + future primitive. <span class="okmark">green</span> = new · <span style="opacity:.5">faded</span> = delete · <span class="flag">⚠</span> = confirm.</p>`;
-s += `<table><thead><tr><th>Token (now)</th><th>now primitive</th><th></th><th>Proposed token</th><th>future primitive</th><th>Note</th></tr></thead><tbody>`;
-for (const [group, rows] of Object.entries(semantics)){ s+=`<tr class="grp"><td colspan="6">${group}</td></tr>`; for (const [tok,cp,chex,ptok,fp,fhex,note,cls] of rows){ s+=`<tr class="${cls==='new'?'new':(cls==='del'?'del':'')}"><td class="tok">${tok}</td><td class="prim">${cp} ${chip(chex)} ${hx(chex)}</td><td class="arrow">→</td><td class="tok">${ptok}</td><td class="prim">${fp} ${chip(fhex)} ${hx(fhex)}</td><td class="${cls==='flag'?'note flag':'note'}">${note}</td></tr>`; } }
+let s = `<h2>Semantic colors</h2><p class="sub"><b>Remap = re-point values only — token names do NOT change.</b> The table is <code>Token · now → future value · Note</code> (no "proposed name" column, because the name stays). Net-new tokens are the only new names. Recategorizations (<code>action→fill</code>, <code>base</code> flatten, <code>surface.*.dark→fill</code>, consolidation, taxonomy) are a separate <b>post-remap naming pass</b> — shown as "naming pass" notes. <span class="okmark">green</span> = net-new · <span style="opacity:.5">faded</span> = delete · <span class="flag">⚠</span> = confirm/fix.</p>`;
+s += `<div class="principle" style="margin:6px 0 14px"><b>surface vs fill</b><span><b>Surface</b> = a container / elevation layer that holds content (card, sheet, page, banner body). <b>Fill</b> = the painted body of one small component (button, pill, badge, chip, toggle, indicator). Test: a generic backdrop you could put anything in → surface; the body of one control → fill.</span></div>`;
+s += `<table><thead><tr><th>Token (name unchanged)</th><th>now</th><th></th><th>future value</th><th>Note</th></tr></thead><tbody>`;
+for (const [group, rows] of Object.entries(semantics)){ s+=`<tr class="grp"><td colspan="5">${group}</td></tr>`; for (const [name,cp,chex,fp,fhex,note,cls] of rows){ s+=`<tr class="${cls==='new'?'new':(cls==='del'?'del':'')}"><td class="tok">${name}</td><td class="prim">${cp} ${chip(chex)} ${hx(chex)}</td><td class="arrow">→</td><td class="prim">${fp} ${chip(fhex)} ${hx(fhex)}</td><td class="${cls==='flag'?'note flag':'note'}">${note}</td></tr>`; } }
+s += `</tbody></table>`;
+// Status
+s += `<h2>Status &amp; badge — net-new <span class="note" style="font-weight:400">(code has NO status tokens today; Figma has status/*)</span></h2><p class="sub">Status is currently faked via dynamic token-picking. The net-new <code>surface.status.*</code> / <code>surface.badge.*</code> tokens replace it; Pill / BadgeLabel / TransactionPill / statusPill re-point onto them (lands in DS-175).</p>`;
+s += `<table><thead><tr><th>Today (component / source)</th><th>current token(s)</th><th>→ plan</th></tr></thead><tbody>`;
+for (const [src,cur,plan] of statusNow) s+=`<tr><td><b>${src}</b></td><td class="tok">${cur}</td><td class="note">${plan}</td></tr>`;
+s += `</tbody></table><table><thead><tr><th>Net-new token</th><th>value</th><th></th></tr></thead><tbody>`;
+for (const [n,p,h2] of statusNew) s+=`<tr class="new"><td class="tok">${n}</td><td class="prim">${p}</td><td>${chip(h2)} ${hx(h2)}</td></tr>`;
+s += `</tbody></table>`;
+// Dark surface verdicts
+s += `<h2>“Dark surface → fill?” — usage verdicts</h2><p class="sub">Is every dark surface really a fill? <b>Partly.</b> These recats are deferred to the naming pass; this is the evidence.</p>`;
+s += `<table><thead><tr><th>Token</th><th>now</th><th>uses</th><th>verdict</th></tr></thead><tbody>`;
+for (const [n,p,u,v] of darkSurface){ const cls = v.includes('MIXED')?'warn-row':(v.includes('fill-like')?'ok-row':''); s+=`<tr class="${cls}"><td class="tok">${n}</td><td class="prim">${p}</td><td class="note">${u}</td><td class="note">${v}</td></tr>`; }
+s += `</tbody></table>`;
+// pressed audit
+s += `<h2>“pressed” token audit</h2><p class="sub">Dead → delete. The used ones are mostly <b>misused for focus/selected</b> → route to net-new <code>border.focus</code> / <code>border.selected</code> / <code>fill.selected</code> during this remap (a correctness fix, not a rename). True press → opacity state-layer (DS-161).</p>`;
+s += `<table><thead><tr><th>Token</th><th>value</th><th>uses</th><th>verdict</th></tr></thead><tbody>`;
+for (const [n,p,u,v] of pressedAudit){ const cls = u===0?'del':(v.includes('MISUSED')?'warn-row':''); s+=`<tr class="${cls}"><td class="tok">${n}</td><td class="prim">${p}</td><td class="note">${u}</td><td class="${v.includes('MISUSED')?'note flag':'note'}">${v}</td></tr>`; }
+s += `</tbody></table>`;
+// decorative map
+s += `<h2>Decorative semantic tokens — current map</h2><p class="sub">These are mostly <b>functional surfaces mislabeled "decorative"</b> (selection cards, badges) and they collide with the new <i>primitive</i> <code>decorative</code> group. Decision: keep "decorative" for the primitive ramps; <b>re-home these semantics to real roles (surface.badge.* / selection) in the naming pass.</b></p>`;
+s += `<table><thead><tr><th>Token</th><th>primitive</th><th>uses</th><th>note</th></tr></thead><tbody>`;
+for (const [n,p,u,note] of decorativeMap){ const cls = u===0?'del':''; s+=`<tr class="${cls}"><td class="tok">${n}</td><td class="prim">${p}</td><td class="note">${u}</td><td class="note">${note}</td></tr>`; }
 s += `</tbody></table>`;
 document.getElementById('sem').innerHTML = s;
+
+// ---- Tab: Base usage ----
+let b = `<h2>Base token usage <span class="note" style="font-weight:400">(retire/flatten in the naming pass — DS-177)</span></h2><p class="sub">Every consumer of <code>base.*</code>, so the flatten can be done safely. <code>base.onSurface</code> is the workhorse — almost all <b>shadow color</b>, not text. 4 base tokens are dead.</p>`;
+b += `<table><thead><tr><th>Token</th><th>value</th><th>uses</th><th>where</th><th>remap →</th></tr></thead><tbody>`;
+for (const [n,p,u,where,plan] of baseUsage){ const cls = u===0?'del':''; b+=`<tr class="${cls}"><td class="tok">${n}</td><td class="prim">${p}</td><td class="note">${u}</td><td class="note">${where}</td><td class="note">${plan}</td></tr>`; }
+b += `</tbody></table>`;
+document.getElementById('base').innerHTML = b;
 
 // Components — by Storybook group, correct vs wrong split
 let totalC=0, totalFlag=0;
