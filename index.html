@@ -46,14 +46,17 @@
 </head>
 <body>
 <header>
-  <h1>UV Color Redesign — Token Remap Audit</h1>
-  <p class="lede"><strong>Primitives</strong> (full 50–950 scales, grouped brand/system/decorative/neutral) and <strong>semantic colors</strong> on their own tabs, a <strong>component</strong> usage audit (correct vs wrong tokens), <strong>hardcoded</strong> colors, and <strong>Figma ↔ code</strong> parity. Primary action → True Black; <code>action.*</code> → <code>fill.*</code>.</p>
-  <p class="legend"><span style="color:#0f7b53">green</span> = new token · <span style="opacity:.5">faded</span> = delete · <span class="flag">⚠</span> = fix · chips 16×16.</p>
+  <h1>Flex DM — Color Token Remap Audit</h1>
+  <ul class="lede" style="margin:8px 0;padding-left:20px">
+    <li><strong>Primitive taxonomy</strong> — <code>primitive.&lt;group&gt;.&lt;family&gt;.&lt;step&gt;</code>: 4 groups <b>brand</b> (Purple) · <b>system</b> (Meadow/Tomato/Butter/Sky) · <b>decorative</b> (Pop Yellow/Sea Glass/Bubblegum/Tangerine) · <b>neutral</b> (Stone/white/black); numeric <b>50–950</b> scale, 700 = core.</li>
+    <li><strong>Semantic taxonomy</strong> — <code>group.role.prominence.state</code>: <code>background · surface · fill · text · icon · border · focus · shadow</code>, plus the governed <code>status.*</code> (feedback) &amp; <code>accent.*</code> (call-out) sub-namespaces.</li>
+  </ul>
+  <p class="legend"><span style="color:#0f7b53">green</span> = new token · <span style="opacity:.5">faded</span> = delete · <span class="flag">⚠</span> = fix / decision.</p>
 </header>
 <div class="tabs">
   <div class="tab active" data-view="remap">Primitives</div>
-  <div class="tab" data-view="sem">Semantic colors</div>
-  <div class="tab" data-view="tax">Grammar / taxonomy</div>
+  <div class="tab" data-view="tax">Semantic structure</div>
+  <div class="tab" data-view="sem">Semantic remap</div>
   <div class="tab" data-view="base">Base usage</div>
   <div class="tab" data-view="comp">Component usage</div>
   <div class="tab" data-view="hard">Hardcoded colors</div>
@@ -484,6 +487,16 @@ function hx(hex){ return hex ? `<span class="hex">${hex}</span>` : ''; }
 
 // ---- Tab 1: Primitives — grouped brand / system / decorative / neutral ----
 let h = `<h2>Primitives — full color scales (50–950)</h2><p class="sub">Grouped <code>primitive.&lt;group&gt;.&lt;family&gt;.&lt;step&gt;</code>: <b>brand</b> · <b>system</b> (status/feedback) · <b>decorative</b> · <b>neutral</b> (gray + black/white). Each family is a full 50–950 ramp; rows map the <b>old</b> token to the <b>new step</b> (blank = net-new). Values from Figma <code>Redesign/*</code>; Stone re-based on Tailwind <code>gray</code> (⚠ confirm). Old ramps deprecated once consumers move (DS-128). <b>Code adds these in the existing style first (DS-157); the brand/system/decorative/neutral grouping shown here is the deferred naming pass (DS-178).</b></p>`;
+h += `<div class="principle" style="margin:6px 0 14px"><b>Primitive grammar — <code>primitive.&lt;group&gt;.&lt;family&gt;.&lt;step&gt;</code></b><span>Raw values only (every semantic aliases a primitive; raw hex lives only here). Numeric <b>50–950</b> scale, light→dark; <b>700</b> = the core brand/role step.</span></div>`;
+h += `<table><thead><tr><th>Group</th><th>Families</th><th>Role</th></tr></thead><tbody>`;
+const primTax = [
+  ['brand','Purple (Brand Purple)','identity — kept separate from feedback'],
+  ['system','Meadow (success) · Tomato (critical) · Butter (warning) · Sky (highlight)','status / feedback only'],
+  ['decorative','Pop Yellow · Sea Glass · Bubblegum · Tangerine','expressive; no fixed status meaning'],
+  ['neutral','Stone (gray = Tailwind gray) · white · black (True Black)','grays are their own family'],
+];
+for (const [g,f,r] of primTax) h += `<tr><td class="tok">${g}</td><td>${f}</td><td class="note">${r}</td></tr>`;
+h += `</tbody></table>`;
 for (const [gkey, glabel] of GROUPS){
   h += `<h3 style="margin:22px 0 6px;font-size:15px">${glabel}</h3>`;
   h += `<table><thead><tr><th>Old token</th><th>now</th><th></th><th>New step</th><th>future</th><th>Note</th></tr></thead><tbody>`;
@@ -665,7 +678,7 @@ g += `</tbody></table>`;
 document.getElementById('tax').innerHTML = g;
 
 // ---- Tab: Base usage ----
-let b = `<h2>Base token usage <span class="note" style="font-weight:400">(retire/flatten in the naming pass — DS-177)</span></h2><p class="sub">Every consumer of <code>base.*</code>, so the flatten can be done safely. <code>base.onSurface</code> is the workhorse — almost all <b>shadow color</b>, not text. 4 base tokens are dead.</p>`;
+let b = `<p class="sub" style="color:#9a6700"><b>⚠ Snapshot as of 2026-06-08.</b> Not yet re-audited against current genoa (<code>a4586204</code>) — values may have drifted (DS-160 removed dead tokens, DS-88 fixed ChipSelector). Re-audit = separate pass.</p><h2>Base token usage <span class="note" style="font-weight:400">(retire/flatten in the naming pass — DS-177)</span></h2><p class="sub">Every consumer of <code>base.*</code>, so the flatten can be done safely. <code>base.onSurface</code> is the workhorse — almost all <b>shadow color</b>, not text. 4 base tokens are dead.</p>`;
 b += `<table><thead><tr><th>Token</th><th>value</th><th>uses</th><th>where</th><th>remap →</th></tr></thead><tbody>`;
 for (const [n,p,u,where,plan] of baseUsage){ const cls = u===0?'del':''; b+=`<tr class="${cls}"><td class="tok">${n}</td><td class="prim">${p}</td><td class="note">${u}</td><td class="note">${where}</td><td class="note">${plan}</td></tr>`; }
 b += `</tbody></table>`;
@@ -674,7 +687,7 @@ document.getElementById('base').innerHTML = b;
 // Components — by Storybook group, correct vs wrong split
 let totalC=0, totalFlag=0;
 for (const rows of Object.values(compGroups)){ totalC+=rows.length; totalFlag+=rows.filter(r=>r[3].length).length; }
-let c = `<h2>Component token usage — by Storybook group (v2)</h2><p class="sub">Priority Storybook groups <b>Ultraviolet - New</b>, <b>Core</b>, <b>Components</b> audited (Product · Pages · Partner · Multi-Bill held for later). <b>${totalC}</b> components, <b>${totalFlag}</b> with role-mismatch fixes. Each component's tokens split into <span class="okmark">✅ correct</span> and <span class="flag">⚠ wrong / to fix</span> — the wrong column is the fix list. Recurring fixes: <code>border.pressed</code> reused for focus/selected, <code>surface.*.dark</code> reused for status fills, the retiring <code>base.*</code> + <code>action.*</code> groups, and brand icons (<code>icon.primary</code>/<code>icon.brand</code>/<code>text.link</code>) → black/accent.</p>`;
+let c = `<p class="sub" style="color:#9a6700"><b>⚠ Snapshot as of 2026-06-08.</b> Not yet re-audited against current genoa (<code>a4586204</code>) — e.g. DS-88 fixed ChipSelector since. Re-audit = separate pass.</p><h2>Component token usage — by Storybook group (v2)</h2><p class="sub">Priority Storybook groups <b>Ultraviolet - New</b>, <b>Core</b>, <b>Components</b> audited (Product · Pages · Partner · Multi-Bill held for later). <b>${totalC}</b> components, <b>${totalFlag}</b> with role-mismatch fixes. Each component's tokens split into <span class="okmark">✅ correct</span> and <span class="flag">⚠ wrong / to fix</span> — the wrong column is the fix list. Recurring fixes: <code>border.pressed</code> reused for focus/selected, <code>surface.*.dark</code> reused for status fills, the retiring <code>base.*</code> + <code>action.*</code> groups, and brand icons (<code>icon.primary</code>/<code>icon.brand</code>/<code>text.link</code>) → black/accent.</p>`;
 for (const [group, rows] of Object.entries(compGroups)){
   const flagged = rows.filter(r=>r[3].length).length;
   c += `<h3 style="margin:22px 0 6px;font-size:15px">${group} <span class="note" style="font-weight:400">— ${rows.length} components, ${flagged} with fixes</span></h3>`;
@@ -711,7 +724,7 @@ const hardcoded = [
   ["#FFFFFF","#fff","Modal close icon / text","BillerAutomationFlowModal:435,465","leak","icon.onDark / text.onDark"],
 ];
 const exempt = [["app/dev/partner-embed-debug.tsx","Dev debug tool — VS-Code / Bootstrap palette","~17"],["app/partner-embed/bilt/agreements/tila.tsx","Bilt partner agreement page — partner styling","3 (#fff)"],["AutomationScriptWebview.tsx:36","Inert iframe HTML — not product UI","1"]];
-let hc = `<p class="sub"><b>Clusters:</b> the <b>MultiBill category tints</b> + <b>modal/sheet scrims</b> are the clearest "needs new token" findings. The <b>FA "Flex Checking" purple card</b> is the biggest leak cluster (bespoke purples + white-opacity text + gradients). Grouped by what they need.</p>`;
+let hc = `<p class="sub" style="color:#9a6700"><b>⚠ Snapshot as of 2026-06-08.</b> Hardcoded-color scan not yet re-run against current genoa (<code>a4586204</code>) — 52 commits of new code since. Re-audit = separate pass.</p><p class="sub"><b>Clusters:</b> the <b>MultiBill category tints</b> + <b>modal/sheet scrims</b> are the clearest "needs new token" findings. The <b>FA "Flex Checking" purple card</b> is the biggest leak cluster (bespoke purples + white-opacity text + gradients). Grouped by what they need.</p>`;
 hc += `<h2>Needs a new token / style</h2><table><thead><tr><th>Color</th><th>Value</th><th>What</th><th>Where</th><th>Action</th></tr></thead><tbody>`;
 for (const r of hardcoded.filter(x=>x[4]==='newtok')) hc+=`<tr><td>${chip(r[0])}</td><td class="hex">${r[1]}</td><td>${r[2]}</td><td class="where">${r[3]}</td><td class="note">${r[5]}</td></tr>`;
 hc += `</tbody></table><h2>Leak — map to an existing token</h2><table><thead><tr><th>Color</th><th>Value</th><th>What</th><th>Where</th><th>Proposed token</th></tr></thead><tbody>`;
@@ -722,7 +735,7 @@ hc += `</tbody></table>`;
 document.getElementById('hard').innerHTML = hc;
 
 // Parity
-let p = `<p class="sub">Figma <code>UV Color Tokens</code> = <b>137</b> color variables; code <code>colorTokens</code> ≈ <b>134</b>. Two big findings: Figma already has a <b>status/*</b> group (align the new status tokens to it), and the entire <b>base.*</b> group is <b>code-only</b> (retire). Plus systemic naming drift.</p>`;
+let p = `<p class="sub" style="color:#9a6700"><b>⚠ Snapshot as of 2026-06-08.</b> Figma↔code parity not yet re-checked against current genoa (<code>a4586204</code>) / latest Figma. Re-audit = separate pass.</p><p class="sub">Figma <code>UV Color Tokens</code> = <b>137</b> color variables; code <code>colorTokens</code> ≈ <b>134</b>. Two big findings: Figma already has a <b>status/*</b> group (align the new status tokens to it), and the entire <b>base.*</b> group is <b>code-only</b> (retire). Plus systemic naming drift.</p>`;
 p += `<h2>Naming drift — same concept, different name</h2><table><thead><tr><th>Figma</th><th>Code</th><th>Issue</th></tr></thead><tbody>`;
 for (const [f,cc,i] of drift) p+=`<tr><td class="tok">${f}</td><td class="tok">${cc}</td><td class="note flag">${i}</td></tr>`;
 p += `</tbody></table><h2>Figma-only <span class="note" style="font-weight:400">(in Figma, missing in code)</span></h2><table><thead><tr><th>Figma token(s)</th><th>Note</th></tr></thead><tbody>`;
