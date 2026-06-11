@@ -53,6 +53,7 @@
 <div class="tabs">
   <div class="tab active" data-view="remap">Primitives</div>
   <div class="tab" data-view="sem">Semantic colors</div>
+  <div class="tab" data-view="tax">Grammar / taxonomy</div>
   <div class="tab" data-view="base">Base usage</div>
   <div class="tab" data-view="comp">Component usage</div>
   <div class="tab" data-view="hard">Hardcoded colors</div>
@@ -61,6 +62,7 @@
 <main>
   <div class="view active" id="remap"></div>
   <div class="view" id="sem"></div>
+  <div class="view" id="tax"></div>
   <div class="view" id="base"></div>
   <div class="view" id="comp"></div>
   <div class="view" id="hard"></div>
@@ -488,6 +490,110 @@ s += `<table><thead><tr><th>Token</th><th>primitive</th><th>uses</th><th>note</t
 for (const [n,p,u,note] of decorativeMap){ const cls = u===0?'del':''; s+=`<tr class="${cls}"><td class="tok">${n}</td><td class="prim">${p}</td><td class="note">${u}</td><td class="note">${note}</td></tr>`; }
 s += `</tbody></table>`;
 document.getElementById('sem').innerHTML = s;
+
+// ---- Tab: Grammar / taxonomy ----
+// row schema: [role, exampleToken, hex, meaning, note]  note: '' current · 'new' · 'rename/value …' · '⚠ …'
+const taxGroups = [
+  {label:'<code>background</code>', def:'the page / app frame — the canvas everything sits on', roles:[
+    ['default','background.lighter','#FFFFFF','base page / canvas',''],
+    ['subdued','background.subdued','#F6F7F8','a quieter page section','rename ← background.dark (it is light)'],
+    ['brand','background.brand','#EEECFB','brand-tinted page',''],
+  ]},
+  {label:'<code>surface</code>', def:'a container / backdrop that HOLDS content (card, sheet, banner, pill)', states:'pressed → opacity (DS-161)', roles:[
+    ['default','surface.default','#FFFFFF','base container (card, sheet)',''],
+    ['subdued','surface.subdued','#F6F7F8','quieter container',''],
+    ['callout','surface.callout','#EEF0F2','emphasis container',''],
+    ['disabled','surface.disabled','#EEF0F2','disabled / skeleton / read-only',''],
+    ['brand','surface.brand','#EEECFB','brand-tinted container',''],
+    ['brand.subdued','surface.brand.subdued','#EEF0F2','quieter brand container',''],
+    ['status.success','surface.status.success','#AFEBC5','success pill / banner','new'],
+    ['status.warning','surface.status.warning','#FFE988','warning pill / banner','new'],
+    ['status.critical','surface.status.critical','#FFD2C7','critical pill / banner','new'],
+    ['status.highlight','surface.status.highlight','#B8DFFF','info / highlight pill','new'],
+    ['status.scheduled','surface.status.scheduled','#E0DCF8','scheduled pill','new'],
+    ['status.info','surface.status.info','#D9DCE0','neutral / process / inactive','new'],
+    ['badge.default','surface.badge.default','#CDFB5B','default badge','new'],
+    ['badge.recommended','surface.badge.recommended','#74E1DA','recommended badge','new'],
+    ['badge.new','surface.badge.new','#FFA8F9','new badge','new'],
+    ['badge.current','surface.badge.current','#FFAE51','current badge','new'],
+    ['badge.backup','surface.badge.backup','#D9DCE0','backup badge','new'],
+  ]},
+  {label:'<code>fill</code>', def:'the solid painted BODY of one control (button, chip, toggle, track)', states:'pressed · disabled (prefer opacity state-layer)', roles:[
+    ['primary','fill.primary','#000000','primary action body (button)','rename ← action.primary'],
+    ['primary.disabled','fill.primary.disabled','#EEF0F2','primary disabled','rename ← action.primary.inactive'],
+    ['brand','fill.brand','#6A3DB8','brand-colored solid body','rename ← surface.brand.dark'],
+    ['critical','fill.critical','#E5451D','destructive body','rename ← action.critical.default'],
+    ['neutral','fill.neutral','#E6E8EB','track / rail / unselected chip','new'],
+    ['selected','fill.selected','#EEF0F2','selected state (chip / checkbox / date)','new'],
+  ]},
+  {label:'<code>text</code>', def:'text color', states:'disabled · link pressed → opacity', roles:[
+    ['default','text.default','#000000','body text',''],
+    ['subdued','text.subdued','#5E626A','secondary text',''],
+    ['disabled','text.disabled','#AEB2BA','disabled text',''],
+    ['onDark / onPrimary','text.onDark','#FFFFFF','text on a dark / primary fill',''],
+    ['onDark.subdued','text.onDarkSubdued','#FFFFFF','quieter text on dark','naming pass → text.onDark.subdued'],
+    ['link (= accent)','text.link','#6A3DB8','inline link / plain-text button',''],
+    ['critical','text.critical','#C13714','standalone error text','⚠ black vs colored (DS-131)'],
+    ['success','text.success','#106C41','standalone success text','⚠ black vs colored'],
+    ['warning','text.warning','#94420C','standalone warning text','⚠ black vs colored'],
+  ]},
+  {label:'<code>icon</code>', def:'icon color', roles:[
+    ['default','icon.default','#000000','default icon',''],
+    ['subdued','icon.subdued','#5E626A','secondary icon',''],
+    ['disabled','icon.default.disabled','#AEB2BA','disabled icon','naming pass → icon.disabled'],
+    ['brand','icon.brand','#000000','brand icon','⚠ black vs accent (DS-196)'],
+    ['link','icon.link','#6A3DB8','link icon',''],
+    ['critical','icon.critical','#E5451D','error icon',''],
+    ['success','icon.success','#14874F','success icon',''],
+    ['warning','icon.warning','#DD7B02','warning icon',''],
+    ['onDark','icon.onDark','#FFFFFF','icon on dark / primary fill',''],
+  ]},
+  {label:'<code>border</code>', def:'strokes / dividers / outlines', states:'hover → opacity', roles:[
+    ['default','border.default','#000000','default stroke / divider','value ← stone 06'],
+    ['subdued','border.subdued','#C7CAD0','quieter stroke','value ← stone 05'],
+    ['focus','border.focus','#6A3DB8','input focus ring','new'],
+    ['selected','border.selected','#6A3DB8','selected ring','new'],
+    ['critical','border.critical','#E5451D','error stroke',''],
+    ['critical.subdued','border.critical.subdued','#FFD2C7','quieter error stroke',''],
+    ['success.subdued','border.success.subdued','#AFEBC5','quieter success stroke',''],
+    ['highlight.subdued','border.highlight.subdued','#B8DFFF','quieter highlight stroke',''],
+    ['disabled','border.disabled','#D9DCE0','disabled stroke',''],
+  ]},
+  {label:'<code>focus</code>', def:'focus rings', roles:[
+    ['default','focus.default','#6A3DB8','focus ring','new (missing in code)'],
+  ]},
+  {label:'<code>shadow</code>', def:'elevation effect-styles (today faked via base.onSurface + hardcoded)', roles:[
+    ['sm','shadow.sm','','low elevation (card)','new (DS-137)'],
+    ['md','shadow.md','','medium (sheet)','new (DS-137)'],
+    ['lg','shadow.lg','','high (modal)','new (DS-137)'],
+  ]},
+];
+const roleGlossary = [
+  ['default','The group baseline / neutral value — text.default (black body), surface.default (white), border.default.'],
+  ['primary','The PRIMARY ACTION. Lives ONLY as fill.primary (+ its content pair text.onPrimary). NOT a text/border role — those use default. (Fixes the default/primary overlap.)'],
+  ['subdued','A quieter step within a role — text.subdued, surface.subdued, border.subdued.'],
+  ['brand','Brand identity (purple). Kept separate from status.'],
+  ['accent / link','Inline link or plain-text button (purple) — text.link / icon.link.'],
+  ['neutral','Grayscale body — tracks, rails, unselected chips (fill.neutral).'],
+  ['selected','The selected state of a selection control — one neutral token (fill.selected) for chip / checkbox / date.'],
+  ['critical · success · warning · highlight','Status / feedback intents. Reused across surface / text / icon / border.'],
+  ['onDark / onPrimary','Content (text / icon) sitting ON a dark or primary fill — resolves to white.'],
+  ['status.* / badge.*','Surface sub-namespaces: status.* = pills / banners / cards; badge.* = labels.'],
+  ['hover · pressed · disabled · focus','Interaction STATES — always the LAST segment (fill.primary.pressed). Prefer an opacity state-layer over solid per-state tokens.'],
+];
+let g = `<h2>Grammar / taxonomy</h2><p class="sub">The naming system, enumerated. Grammar: <code>group.role.prominence.state</code> — all lowercase, dotted, fixed order; only <b>group</b> + <b>role</b> are required. Below: every <b>group</b> and its valid <b>roles</b> (example token + value), then a <b>role glossary</b>. <span class="okmark">green</span> = net-new · <span class="flag">⚠</span> = open value decision. This is the spec <b>DS-133</b> ratifies + lints.</p>`;
+g += `<div class="principle" style="margin:6px 0 14px"><b>surface vs fill — the load-bearing split</b><span>Same intent, two treatments: <b>fill</b> = a solid body with content ON it (button, chip, toggle) — <code>fill.critical</code> = solid red, white text; <b>surface</b> = a tint / backdrop that holds normal content (card, banner, pill) — <code>surface.critical</code> = pale red, black text. Neutrals blur the line (white tint = white solid), which is why a white segment thumb is just <code>surface.default</code>.</span></div>`;
+for (const grp of taxGroups){
+  g += `<h3 style="margin:20px 0 4px;font-size:15px">${grp.label} <span class="note" style="font-weight:400;text-transform:none;letter-spacing:0">— ${grp.def}${grp.states?' · states: '+grp.states:''}</span></h3>`;
+  g += `<table><thead><tr><th>Role</th><th>Example token</th><th>value</th><th>Meaning</th><th>Status</th></tr></thead><tbody>`;
+  for (const [role,tok,hex,mean,note] of grp.roles){ const isNew=note==='new'||(note&&note.startsWith('new')); const isFlag=note&&note.includes('⚠'); const cls=isFlag?'warn-row':(isNew?'new':''); g += `<tr class="${cls}"><td class="tok">${role}</td><td class="tok">${tok}</td><td>${chip(hex)} ${hx(hex)}</td><td class="note">${mean}</td><td class="${isFlag?'note flag':'note'}">${note}</td></tr>`; }
+  g += `</tbody></table>`;
+}
+g += `<h2>Role glossary <span class="note" style="font-weight:400">— what each role word means (so names are guessable)</span></h2>`;
+g += `<table><thead><tr><th>Role word</th><th>Meaning</th></tr></thead><tbody>`;
+for (const [w,m] of roleGlossary) g += `<tr><td class="tok">${w}</td><td class="note">${m}</td></tr>`;
+g += `</tbody></table>`;
+document.getElementById('tax').innerHTML = g;
 
 // ---- Tab: Base usage ----
 let b = `<h2>Base token usage <span class="note" style="font-weight:400">(retire/flatten in the naming pass — DS-177)</span></h2><p class="sub">Every consumer of <code>base.*</code>, so the flatten can be done safely. <code>base.onSurface</code> is the workhorse — almost all <b>shadow color</b>, not text. 4 base tokens are dead.</p>`;
