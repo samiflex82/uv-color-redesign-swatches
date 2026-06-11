@@ -193,18 +193,17 @@ const semantics = {
     ["action.primary","brandPurple 01","#2C194D","trueBlack","#000000","primary button bg · naming pass → fill.primary",""],
     ["action.primary.default","brandPurple 02","#6A3DB8","trueBlack","#000000","naming pass → fill.primary",""],
     ["action.primary.inactive","brandPurple 04","#EEE2FC","stone 03","#EEF0F2","naming pass → fill.primary.disabled",""],
-    ["action.primary.pressed","brandPurple 02","#6A3DB8","—","","⚠ misused for checked/selected (5) → fill.selected; true press → opacity","flag"],
+    ["action.primary.pressed","brandPurple 02","#6A3DB8","—","","⚠ misused for checked/selected (5) → fill.primary (black); true press → opacity","flag"],
     ["action.secondary.border","brandPurple 02","#6A3DB8","brandPurple 700","#6A3DB8","secondary button border · naming pass → border.primary",""],
     ["action.onLight","brandPurple 02","#6A3DB8","brandPurple 700","#6A3DB8","ProgressBar fill · naming pass → fill / text",""],
     ["action.onDark","white","#FFFFFF","white","#FFFFFF","naming pass → text.onDark",""],
-    ["action.selection.default","grayPurple 01","#EDEBF1","stone 03","#EEF0F2","selection bg · naming pass → fill.selected",""],
+    ["action.selection.default","grayPurple 01","#EDEBF1","stone 03","#EEF0F2","unselected chip bg · naming pass → fill.neutral",""],
     ["action.progress.inactive","grayPurple 02","#D5D1DB","stone 04","#E6E8EB","track/rail · naming pass → fill.neutral",""],
     ["action.critical.default","red 01","#CE1818","tomato 600","#E5451D","Button critical bg · naming pass → fill.critical",""],
     ["action.critical.pressed","red 02","#E27474","tomato 700","#C13714","Button loading · naming pass → fill.critical.pressed",""],
   ],
   "NEW tokens — additive this remap": [
     ["fill.neutral","—","","stone 04","#E6E8EB","track / rail (DS-101)","new"],
-    ["fill.selected","—","","stone 03","#EEF0F2","selected state for selection controls","new"],
     ["border.selected","—","","brandPurple 700","#6A3DB8","selected ring","new"],
     ["border.focus","—","","brandPurple 700","#6A3DB8","input focus ring","new"],
     ["focus.default","—","","brandPurple 700","#6A3DB8","focus ring (missing in code)","new"],
@@ -237,7 +236,7 @@ const baseUsage = [
 // ---- Status (current dynamic mapping → net-new tokens): [component/source, current token(s), → plan]
 const statusNow = [
   ["Pill (default bg)","surface.brand.dark","→ surface.status.* (net-new)"],
-  ["BadgeLabel","decorative.surface.3 + decorative.border.3","→ surface.badge.* (net-new)"],
+  ["BadgeLabel","decorative.surface.3 + decorative.border.3","→ accent.* (net-new)"],
   ["TransactionPill (per status)","surface.brand.dark / success.dark / warning.medium / critical.dark","→ surface.status.*"],
   ["statusPill helper","decorative.surface.2 / .3 / .4 + surface.success","→ surface.status.*"],
 ];
@@ -245,19 +244,24 @@ const statusNew = [
   ["surface.status.success","meadow 200","#AFEBC5"],["surface.status.highlight","sky 200","#B8DFFF"],
   ["surface.status.warning","butter 200","#FFE988"],["surface.status.critical","tomato 200","#FFD2C7"],
   ["surface.status.scheduled","brandPurple 200","#E0DCF8"],["surface.status.info","stone 05","#D9DCE0"],
-  ["surface.badge.default","popYellow 300","#CDFB5B"],["surface.badge.recommended","seaGlass 300","#74E1DA"],
-  ["surface.badge.new","bubblegum 300","#FFA8F9"],["surface.badge.current","tangerine 400","#FFAE51"],
-  ["surface.badge.backup","stone 05","#D9DCE0"],
+  ["accent.default","popYellow 300","#CDFB5B"],["accent.recommended","seaGlass 300","#74E1DA"],
+  ["accent.new","bubblegum 300","#FFA8F9"],["accent.current","tangerine 400","#FFAE51"],
+  ["accent.backup","stone 05","#D9DCE0"],
 ];
-// ---- Decorative map: [token, primitive+hex, consumers, note]
+// ---- Decorative map: [token, now primitive+hex, consumers, note, newVal, newHex]
 const decorativeMap = [
-  ["decorative.surface.2","blue 05 #E5EEFF",11,"selection-card backgrounds (heavy)"],
-  ["decorative.surface.4","yellow 05 #FFF4CB",3,""],["decorative.surface.5","stone 03 #EEF0F2",3,""],
-  ["decorative.surface.1","grayPurple 02 #D5D1DB",1,""],["decorative.surface.3","brandPurple 04 #EEE2FC",1,"BadgeLabel bg"],
-  ["decorative.icon.2","blue 02 #1C53BA",2,""],["decorative.icon.4","yellow 01 #A16B00",2,""],
-  ["decorative.text.2","blue 02 #1C53BA",1,""],["decorative.text.4","yellow 01 #A16B00",1,""],["decorative.text.5","brandPurple 01 #2C194D",1,""],
-  ["decorative.border.3","brandPurple 03 #DDC6F9",1,"BadgeLabel border"],
-  ["decorative.icon.1/3/5 · text.1/3 · border.1/2/4/5","various",0,"9 DEAD → delete"],
+  ["decorative.surface.2","blue 05 #E5EEFF",11,"selection-card backgrounds (heavy)","sky 100","#DFEFFF"],
+  ["decorative.surface.4","yellow 05 #FFF4CB",3,"","butter 100","#FFF5C6"],
+  ["decorative.surface.5","stone 03 #EEF0F2",3,"","stone 100","#F3F4F6"],
+  ["decorative.surface.1","grayPurple 02 #D5D1DB",1,"","stone 300","#D1D5DB"],
+  ["decorative.surface.3","brandPurple 04 #EEE2FC",1,"BadgeLabel bg","brandPurple 100","#EEECFB"],
+  ["decorative.icon.2","blue 02 #1C53BA",2,"","sky 700","#005AA7"],
+  ["decorative.icon.4","yellow 01 #A16B00",2,"","butter 800","#94420C"],
+  ["decorative.text.2","blue 02 #1C53BA",1,"","sky 700","#005AA7"],
+  ["decorative.text.4","yellow 01 #A16B00",1,"","butter 800","#94420C"],
+  ["decorative.text.5","brandPurple 01 #2C194D",1,"","brandPurple 950","#301C59"],
+  ["decorative.border.3","brandPurple 03 #DDC6F9",1,"BadgeLabel border","brandPurple 200","#E0DCF8"],
+  ["decorative.icon.1/3/5 · text.1/3 · border.1/2/4/5","various",0,"9 DEAD → delete","—",""],
 ];
 // ---- pressed audit: [token, primitive+hex, consumers, verdict]
 const pressedAudit = [
@@ -268,8 +272,8 @@ const pressedAudit = [
   ["border.action.pressed","brandPurple 01 #2C194D",0,"DEAD → delete"],
   ["pressed (bare key)","brandPurple 02 #6A3DB8",0,"DEAD → delete"],
   ["border.pressed","brandPurple 02 #6A3DB8",20,"⚠ MISUSED — inputs=focus → border.focus · cards/dates=selected → border.selected"],
-  ["action.primary.pressed","brandPurple 02 #6A3DB8",5,"⚠ MISUSED — checked/selected → fill.selected"],
-  ["action.selection.pressed","brandPurple 02 #6A3DB8",1,"selected chip → fill.selected"],
+  ["action.primary.pressed","brandPurple 02 #6A3DB8",5,"⚠ MISUSED — checked/selected → fill.primary (black)"],
+  ["action.selection.pressed","brandPurple 02 #6A3DB8",1,"selected chip → fill.primary (black)"],
   ["action.primary.pressed.inactive","grayPurple 05 #958CA6",6,"loading/inactive — keep (rename later)"],
   ["action.critical.pressed","red 02 #E27474",1,"Button loading — keep (→ fill.critical.pressed)"],
   ["surface.pressed","brandPurple 01 #2C194D",1,"intentional pressed variant → opacity (DS-161)"],
@@ -287,30 +291,93 @@ const darkSurface = [
 // ---- Component token map: [component, rows]; row = [slot, nowTok, nowHex, propTok, propHex, note]
 // The decided surface+fill model applied per component. nowHex/propHex drive the chips ('' = no chip).
 const componentMap = [
-  ["Button", [
+  ["Buttons", [
     ["Primary — fill","action.primary.default","#6A3DB8","fill.primary","#000000","action.* → fill.* · True Black"],
-    ["Primary — label","text.onDark","#FFFFFF","text.onPrimary","#FFFFFF","rename only (value unchanged)"],
-    ["Brand (jewelPurple) — fill","surface.brand.dark","#6A3DB8","fill.brand","#6A3DB8","surface-as-fill → fill.brand · value unchanged"],
+    ["Primary — label","text.onDark","#FFFFFF","text.onPrimary","#FFFFFF","rename only"],
+    ["Brand (jewelPurple) — fill","surface.brand.dark","#6A3DB8","fill.brand","#6A3DB8","surface-as-fill → fill.brand · same hex"],
     ["Destructive — fill","action.critical.default","#CE1818","fill.critical","#E5451D","→ fill.critical (tomato 600)"],
-    ["Secondary — bg","surface.default","#FFFFFF","surface.default","#FFFFFF","unchanged (outline on white)"],
-    ["Secondary — border","action.secondary.border","#6A3DB8","border.default","#000000","→ border.default (black) · primary reserved for fill"],
-    ["Secondary — label","base.interactive","#6A3DB8","text.default","#000000","kills retiring base.* → text.default"],
-    ["Disabled — fill","action.primary.inactive","#EEE2FC","fill.primary.disabled","#EEF0F2","→ fill.primary.disabled (stone 03)"],
+    ["Secondary — bg / border / label","surface.default · action.secondary.border · base.interactive","","surface.default · border.default · text.default","#000000","outline on white; kills base.* ; primary reserved for fill"],
+    ["Plain — label","text.action.onLight","#6A3DB8","text.default","#000000","plain text button → black"],
+    ["Plain bright — label","text.link.inline","#6A3DB8","text.link","#6A3DB8","inline link → purple 700 (accent)"],
+    ["Disabled — fill","action.primary.inactive","#EEE2FC","fill.primary.disabled","#EEF0F2","stone 03"],
   ]],
-  ["Segmented control", [
-    ["Track","surface.subdued (placeholder)","#F6F7F8","fill.neutral","#E6E8EB","real track token (stone 04) ← DS-184"],
-    ["Selected thumb","surface.default","#FFFFFF","surface.default","#FFFFFF","KNOB: stays a raised white surface + elevation — selection-as-surface, NOT fill.selected"],
-    ["Unselected label","text.subdued","#5E626A","text.subdued","#5E626A","unchanged"],
-    ["Selected label","text.default","#1D1D1D","text.default","#000000","value → True Black"],
-    ["Press feedback","rgba(0,0,0,.08) hardcoded","","state layer","","→ interaction state layer (DS-161)"],
+  ["Toggle", [
+    ["Track — off","surface.subdued","#F6F7F8","fill.neutral","#E6E8EB","stone track"],
+    ["Track — on","surface.brand.dark","#6A3DB8","fill.primary","#000000","ON = black (was purple surface)"],
+    ["Knob","surface.default","#FFFFFF","surface.default","#FFFFFF","white knob"],
+    ["Shadow","base.onSurface","","shadow.sm","","retiring base.* → shadow token"],
+  ]],
+  ["Checkbox", [
+    ["Unchecked — bg / border","surface.default · border.default","","surface.default · border.default","","white box, black border"],
+    ["Checked — fill","action.primary.pressed","#6A3DB8","fill.primary","#000000","selected = BLACK (was pressed-misuse)"],
+    ["Check mark","icon.onDark","#FFFFFF","icon.onPrimary","#FFFFFF","white on black"],
+    ["Disabled","surface.disabled · border.disabled","#EDEBF1","surface.disabled · border.disabled","#EEF0F2","→ stone"],
+  ]],
+  ["Radio", [
+    ["Unselected ring","border.default","#C7CAD0","border.default","#000000","black ring"],
+    ["Selected dot","SVG (no token)","","fill.primary","#000000","⚠ tokenize → black dot"],
+    ["Disabled","surface.disabled · border.disabled","#EDEBF1","surface.disabled · border.disabled","#EEF0F2",""],
   ]],
   ["Chip (ChipSelector)", [
-    ["Unselected — fill","action.selection.default","#EDEBF1","fill.neutral","#E6E8EB","→ fill.neutral"],
-    ["Unselected — label","text.default","#1D1D1D","text.default","#000000",""],
-    ["Selected — fill","action.selection.pressed (branded)","#6A3DB8","fill.selected","#EEF0F2","⚠ moves OFF branded → neutral fill.selected (locked decision)"],
-    ["Selected — label","text.onDark","#FFFFFF","text.default","#000000","black on neutral fill (was white on purple)"],
-    ["Border (all states)","border.default","#C7CAD0","border.default","#000000","value → True Black"],
-    ["Disabled — fill","action.selection.disabled","#D9DCE0","fill.primary.disabled","#EEF0F2","→ shared disabled fill"],
+    ["Unselected — fill / label / border","action.selection.default","#EDEBF1","fill.neutral · text.default · border.default","#E6E8EB","resting chip"],
+    ["Selected — fill","action.selection.pressed","#6A3DB8","fill.primary","#000000","⚠ selected = BLACK (was branded purple)"],
+    ["Selected — label","text.onDark","#FFFFFF","text.onPrimary","#FFFFFF","white on black"],
+    ["Focus","border.action.default","#6A3DB8","border.focus","#6A3DB8","focus ring"],
+    ["Disabled — fill","action.selection.disabled","#D9DCE0","fill.primary.disabled","#EEF0F2","shared disabled fill"],
+  ]],
+  ["Single-select", [
+    ["Selected","Button jewelPurple","#6A3DB8","fill.primary","#000000","selected = black"],
+    ["Unselected","Button secondary + bordered","","surface.default · border.default","","outline"],
+  ]],
+  ["SelectorCard", [
+    ["Bg (selected / disabled)","surface.default · surface.subdued","#FFFFFF","surface.default · surface.subdued","#FFFFFF","stays surface (container)"],
+    ["Border — unselected","border.subdued","#D9DCE0","border.subdued","#C7CAD0",""],
+    ["Border — selected","border.pressed","#6A3DB8","border.selected","#000000","⚠ was pressed-misuse → black ring"],
+    ["Radio (selected)","SVG","","fill.primary","#000000","black dot"],
+  ]],
+  ["Segmented control", [
+    ["Track","surface.subdued (placeholder)","#F6F7F8","fill.neutral","#E6E8EB","stone 04 track ← DS-184"],
+    ["Selected thumb","surface.default","#FFFFFF","surface.default","#FFFFFF","white knob — surface, not fill"],
+    ["Labels (unselected / selected)","text.subdued · text.default","#5E626A","text.subdued · text.default","","unchanged"],
+    ["Press feedback","rgba(0,0,0,.08) hardcoded","","state layer","","→ DS-161 opacity layer"],
+  ]],
+  ["Text / input fields", [
+    ["Bg","background.lighter · surface.default","#FFFFFF","surface.default","#FFFFFF",""],
+    ["Border — default","border.default","#C7CAD0","border.default","#000000",""],
+    ["Border — FOCUS","border.pressed","#6A3DB8","border.focus","#6A3DB8","⚠ was pressed-misuse (6 inputs)"],
+    ["Border — error","border.critical","#CE1818","border.critical","#E5451D",""],
+    ["Disabled","surface.disabled · border.disabled","#EDEBF1","surface.disabled · border.disabled","#EEF0F2",""],
+    ["Text / placeholder / error","text.default · text.subdued · text.critical","","text.default · text.subdued · text.critical","","unchanged roles"],
+  ]],
+  ["Code input (VerificationCode)", [
+    ["Cell — default","surface.default · border.default","","surface.default · border.default","","white cell, black border"],
+    ["Cell — active","border.pressed","#6A3DB8","border.focus","#6A3DB8","⚠ was pressed-misuse"],
+    ["Disabled","surface.disabled","#EDEBF1","surface.disabled","#EEF0F2",""],
+  ]],
+  ["Horizontal date picker", [
+    ["Unselected — bg / text","surface.subdued · text.action","#F6F7F8","fill.neutral · text.default","#E6E8EB",""],
+    ["Selected — fill","action.primary.pressed","#6A3DB8","fill.primary","#000000","⚠ purple was the OLD color → BLACK"],
+    ["Selected — label","text.onDark","#FFFFFF","text.onPrimary","#FFFFFF",""],
+    ["Recommended / link","text.subdued · text.link.inline","#6A3DB8","text.subdued · text.link","#6A3DB8","purple link (accent)"],
+  ]],
+  ["Calendar (date tile)", [
+    ["Default cell","surface.subdued","#F6F7F8","fill.neutral","#E6E8EB",""],
+    ["Selected cell border","border.pressed","#6A3DB8","border.selected","#000000","⚠ was pressed-misuse → black"],
+    ["Amount pill — fill / label","surface.brand.dark · text.onDark","#6A3DB8","fill.primary · text.onPrimary","#000000","black pill, white text"],
+    ["Date text","text.default","#1D1D1D","text.default","#000000",""],
+  ]],
+  ["Progress bar", [
+    ["Track","surface.brand.subdued","#EDEBF1","fill.neutral","#E6E8EB",""],
+    ["Fill","action.onLight","#6A3DB8","fill.primary","#000000","black fill"],
+    ["Complete","surface.success.dark","#01795C","fill.success","#14874F","meadow"],
+  ]],
+  ["Loading spinner", [
+    ["Track","icon.brand.subdued · action.progress.inactive","#958CA6","fill.neutral","#E6E8EB",""],
+    ["Indicator","icon.brand · surface.default","#6A3DB8","icon.default","#000000","black indicator"],
+  ]],
+  ["Pagination (dots)", [
+    ["Active dot","icon.subdued","#5E626A","icon.default","#000000","black"],
+    ["Inactive dot","icon.subdued.disabled","#AEB2BA","icon.subdued","#5E626A",""],
   ]],
 ];
 // ---- How other systems do it (condensed): [system, small-body model, selected-state token]
@@ -321,14 +388,14 @@ const systemRef = [
   ["Atlassian","background.&lt;intent&gt;.&lt;prom&gt; + elevation.surface","background.selected — neutral"],
   ["IBM Carbon","button-* / field-* / layer-*","layer-selected-inverse — neutral"],
   ["GitHub Primer","bgColor-* (prominence)","controlKnob — neutral knob (= our thumb)"],
-  ["UV (proposed)","surface (container) + fill (body)","fill.selected — neutral ✅"],
+  ["UV (proposed)","surface (container) + fill (body)","fill.primary (black) — selection = our primary"],
 ];
 // Component usage v2 — organized BY STORYBOOK GROUP. Method: story title → component file →
 // rg "tokens(['|.)" → list tokens, flag role-mismatches vs the remap-plan.
 // Priority groups done: Ultraviolet - New, Core, Components. (Product · Pages · Partner · Multi-Bill held.)
 const compGroups = {
   "Ultraviolet - New": [
-    ["BadgeLabel","components/BadgeLabel","—",[["decorative.surface.3","badge fill → surface.badge.* (new tier)"],["border.hover","static badge border uses a hover-state token → border.subdued / badge border"]]],
+    ["BadgeLabel","components/BadgeLabel","—",[["decorative.surface.3","badge fill → accent.* (governed call-out tier)"],["border.hover","static badge border uses a hover-state token → border.subdued / badge border"]]],
     ["BottomSheet","components/core/BottomSheet","icon.subdued · surface.default",[["(hardcoded scrim)","rgba(0,0,0,·) backdrop → surface.scrim"]]],
     ["CardDetailsInputField","components/CardDetailsInputField","text.critical · text.default",[]],
     ["DateOfBirthField","components/DateOfBirthField","— composes TextField (no direct color)",[]],
@@ -343,10 +410,10 @@ const compGroups = {
     ["Pill","components/Pill","text.onDark",[["surface.brand.dark","pill fill → surface.status.* / fill.primary"]]],
     ["Select","components/SelectField","border.critical · border.default · surface.default · text.default/.subdued/.critical",[]],
     ["Selection · CheckList","components/CheckList","— composes Checkbox",[["icon.brand.disabled","→ icon.disabled (rename)"]]],
-    ["Selection · Checkbox","components/Checkbox","border.critical/.default/.disabled · icon.onDark · surface.default/.disabled",[["action.primary.pressed","checked fill → fill.selected / fill.primary"],["icon.brand.disabled","→ icon.disabled"]]],
+    ["Selection · Checkbox","components/Checkbox","border.critical/.default/.disabled · icon.onDark · surface.default/.disabled",[["action.primary.pressed","checked fill → fill.primary (black)"],["icon.brand.disabled","→ icon.disabled"]]],
     ["Selection · CheckboxGroup","components/Checkbox","— composes Checkbox",[]],
-    ["Selection · Radio","components/Radio","border.default · border.disabled · surface.disabled",[["border.pressed","selected ring → border.selected"],["surface.brand.subdued","selected fill → fill.selected"]]],
-    ["Selection · RadioIcon","components/Radio","border.default · border.disabled · surface.disabled",[["(missing)","no selected token → add fill.selected"]]],
+    ["Selection · Radio","components/Radio","border.default · border.disabled · surface.disabled",[["border.pressed","selected ring → border.selected"],["surface.brand.subdued","selected dot → fill.primary (black)"]]],
+    ["Selection · RadioIcon","components/Radio","border.default · border.disabled · surface.disabled",[["(missing)","no selected token → fill.primary (black)"]]],
     ["Selection · SelectorCard","components/core/SelectorCard","background.lighter · surface.default/.subdued · text.default/.disabled/.subdued · border.subdued",[["border.pressed","selected → border.selected"],["icon.primary · icon.primary.disabled","brand icon → icon.default / icon.accent"]]],
     ["Selection · SingleSelect","components/SingleSelect","— composes SelectorCard / Form",[]],
     ["Selection · ToggleSwitch","components/ToggleSwitch","surface.default · surface.subdued",[["surface.brand.dark","on-track fill → fill.primary (black)"],["base.onSurface","→ text.default (retire base.*)"]]],
@@ -450,7 +517,7 @@ document.getElementById('remap').innerHTML = h;
 let s = `<h2>Semantic colors</h2><p class="sub"><b>Remap = re-point values only — token names do NOT change.</b> The table is <code>Token · now → future value · Note</code> (no "proposed name" column, because the name stays). Net-new tokens are the only new names. Recategorizations (<code>action→fill</code>, <code>base</code> flatten, <code>surface.*.dark→fill</code>, consolidation, taxonomy) are a separate <b>post-remap naming pass</b> — shown as "naming pass" notes. <span class="okmark">green</span> = net-new · <span style="opacity:.5">faded</span> = delete · <span class="flag">⚠</span> = confirm/fix.</p>`;
 s += `<div class="principle" style="margin:6px 0 14px"><b>surface vs fill — DECIDED (keep both)</b><span><b>Surface</b> = a container / elevation layer that holds content (card, sheet, page, banner, light status pill). <b>Fill</b> = the painted body of one small control (button, solid chip/badge, toggle, indicator). Operational test: <i>solid body + on-color text</i> → fill; <i>tint/container + normal text</i> → surface. The “Dark surface → fill?” MIXED rows below (one token used as both) are the proof a single intent-token can’t serve both — so we keep the split. Middle ground between Spectrum (collapses fill) and Polaris (most explicit) = Atlassian; matches our grammar 1:1.</span></div>`;
 // ---- Component token map (button / segmented control / chip) ----
-s += `<h2>Component token map — button · segmented control · chip</h2><p class="sub">The decided model applied per component: <b>current token → proposed token</b> (<code>surface</code>=container, <code>fill</code>=small body). Selection is unified on neutral <code>fill.selected</code> — <b>chips move off the branded purple fill</b>; the segmented <b>thumb stays a white elevated surface (knob)</b>, the one selection that's a surface not a fill. <span class="flag">⚠</span> = the locked selection change · exact stone steps confirm in DS-184 / Phase-4 visual pass.</p>`;
+s += `<h2>Component token map — all components</h2><p class="sub">The decided model applied per component: <b>current token → proposed token</b> (<code>surface</code>=container, <code>fill</code>=small body). <b>Selection / "on" / active / filled = <code>fill.primary</code> (BLACK)</b> everywhere (checkbox, radio, chip, toggle-on, single-select, date, calendar, progress) — reuses the primary token. <b>Tracks/rails = <code>fill.neutral</code></b>, <b>knobs/segment thumb = <code>surface.default</code></b> (white), <b>input focus = <code>border.focus</code></b>, <b>selected ring = <code>border.selected</code> (black)</b>. Purple is <b>accent only</b> via <code>text.link</code> (links, plain-bright button) + the brand button (<code>fill.brand</code>). <span class="flag">⚠</span> = the change vs today (fixes the focus-/selection-via-<code>pressed</code> misuse, surface-as-fill, retiring <code>base.*</code>).</p>`;
 for (const [comp, rows] of componentMap){
   s += `<h3 style="margin:18px 0 6px;font-size:15px">${comp}</h3>`;
   s += `<table><thead><tr><th>Slot</th><th>now</th><th></th><th>proposed</th><th>note</th></tr></thead><tbody>`;
@@ -460,7 +527,7 @@ for (const [comp, rows] of componentMap){
   }
   s += `</tbody></table>`;
 }
-s += `<h2 style="font-size:15px;margin-top:18px">How other systems name the small-body fill + the selected state</h2><p class="sub">Cross-system reference (verbatim token families). <b>Every system backs "selected" with a NEUTRAL/container token — never the primary-button fill</b> (Spectrum reuses accent only as an opt-in "emphasized" variant). Our <code>fill.selected</code> follows the consensus.</p>`;
+s += `<h2 style="font-size:15px;margin-top:18px">How other systems name the small-body fill + the selected state</h2><p class="sub">Cross-system reference (verbatim token families). Most systems back "selected" with a NEUTRAL/container token (Spectrum reuses accent only when "emphasized"). <b>We deliberately diverge: selection = <code>fill.primary</code> (BLACK)</b> — selection reuses our primary-action color, per the screenshot target / black-primary direction.</p>`;
 s += `<table><thead><tr><th>System</th><th>small-body fill model</th><th>selected-state token</th></tr></thead><tbody>`;
 for (const [sys,model,sel] of systemRef){ const me = sys.includes('UV'); s+=`<tr${me?' class="ok-row"':''}><td>${me?'<b>'+sys+'</b>':sys}</td><td class="tok">${model}</td><td class="tok">${sel}</td></tr>`; }
 s += `</tbody></table>`;
@@ -468,7 +535,7 @@ s += `<table><thead><tr><th>Token (name unchanged)</th><th>now</th><th></th><th>
 for (const [group, rows] of Object.entries(semantics)){ s+=`<tr class="grp"><td colspan="5">${group}</td></tr>`; for (const [name,cp,chex,fp,fhex,note,cls] of rows){ s+=`<tr class="${cls==='new'?'new':(cls==='del'?'del':'')}"><td class="tok">${name}</td><td class="prim">${cp} ${chip(chex)} ${hx(chex)}</td><td class="arrow">→</td><td class="prim">${fp} ${chip(fhex)} ${hx(fhex)}</td><td class="${cls==='flag'?'note flag':'note'}">${note}</td></tr>`; } }
 s += `</tbody></table>`;
 // Status
-s += `<h2>Status &amp; badge — net-new <span class="note" style="font-weight:400">(code has NO status tokens today; Figma has status/*)</span></h2><p class="sub">Status is currently faked via dynamic token-picking. The net-new <code>surface.status.*</code> / <code>surface.badge.*</code> tokens replace it; Pill / BadgeLabel / TransactionPill / statusPill re-point onto them (lands in DS-175).</p>`;
+s += `<h2>Status &amp; accent (call-out) — net-new <span class="note" style="font-weight:400">(code has NO status tokens today)</span></h2><p class="sub">Two distinct net-new tiers replace today's dynamic token-picking: <b><code>surface.status.*</code></b> = semantic feedback (pill, nudge banner — communicates a state; meaning self-governs); <b><code>accent.*</code></b> = call-out color that just needs to stand out (home service cards, badges — no fixed state), pulled out of <code>surface.*</code> into its own <b>governed</b> namespace (the semantic-tier synonym for the primitive <code>decorative</code> group — future lint limits who may reference it). Brand tints stay <code>surface.brand.*</code>.</p>`;
 s += `<table><thead><tr><th>Today (component / source)</th><th>current token(s)</th><th>→ plan</th></tr></thead><tbody>`;
 for (const [src,cur,plan] of statusNow) s+=`<tr><td><b>${src}</b></td><td class="tok">${cur}</td><td class="note">${plan}</td></tr>`;
 s += `</tbody></table><table><thead><tr><th>Net-new token</th><th>value</th><th></th></tr></thead><tbody>`;
@@ -480,14 +547,14 @@ s += `<table><thead><tr><th>Token</th><th>now</th><th>uses</th><th>verdict</th><
 for (const [n,p,u,v] of darkSurface){ const cls = v.includes('MIXED')?'warn-row':(v.includes('fill-like')?'ok-row':''); s+=`<tr class="${cls}"><td class="tok">${n}</td><td class="prim">${p}</td><td class="note">${u}</td><td class="note">${v}</td></tr>`; }
 s += `</tbody></table>`;
 // pressed audit
-s += `<h2>“pressed” token audit</h2><p class="sub">Dead → delete. The used ones are mostly <b>misused for focus/selected</b> → route to net-new <code>border.focus</code> / <code>border.selected</code> / <code>fill.selected</code> during this remap (a correctness fix, not a rename). True press → opacity state-layer (DS-161).</p>`;
+s += `<h2>“pressed” token audit</h2><p class="sub">Dead → delete. The used ones are mostly <b>misused for focus/selected</b> → route to <code>border.focus</code> / <code>border.selected</code> (net-new) and <code>fill.primary</code> (selection) during this remap (a correctness fix, not a rename). True press → opacity state-layer (DS-161).</p>`;
 s += `<table><thead><tr><th>Token</th><th>value</th><th>uses</th><th>verdict</th></tr></thead><tbody>`;
 for (const [n,p,u,v] of pressedAudit){ const cls = u===0?'del':(v.includes('MISUSED')?'warn-row':''); s+=`<tr class="${cls}"><td class="tok">${n}</td><td class="prim">${p}</td><td class="note">${u}</td><td class="${v.includes('MISUSED')?'note flag':'note'}">${v}</td></tr>`; }
 s += `</tbody></table>`;
 // decorative map
-s += `<h2>Decorative semantic tokens — current map</h2><p class="sub">These are mostly <b>functional surfaces mislabeled "decorative"</b> (selection cards, badges) and they collide with the new <i>primitive</i> <code>decorative</code> group. Decision: keep "decorative" for the primitive ramps; <b>re-home these semantics to real roles (surface.badge.* / selection) in the naming pass.</b></p>`;
-s += `<table><thead><tr><th>Token</th><th>primitive</th><th>uses</th><th>note</th></tr></thead><tbody>`;
-for (const [n,p,u,note] of decorativeMap){ const cls = u===0?'del':''; s+=`<tr class="${cls}"><td class="tok">${n}</td><td class="prim">${p}</td><td class="note">${u}</td><td class="note">${note}</td></tr>`; }
+s += `<h2>Decorative semantic tokens — value remap + Phase-2 re-home</h2><p class="sub"><b>Phase 1b (value remap, names unchanged):</b> each current <code>decorative.*</code> re-points to its direct new-ramp equivalent — <code>blue→sky</code>, <code>yellow→butter</code>, <code>grayPurple→stone</code>, <code>brandPurple→</code>new steps. Mid-ramp steps are judgment calls (confirm in DS-194). <b>Phase 2 (re-home):</b> these are mostly functional surfaces mislabeled "decorative" — they get re-homed onto <code>surface.status.*</code> (selection-card backgrounds) / <code>accent.*</code> (badge bg+border), freeing "decorative" for the primitive ramps. Not part of the non-disruptive remap.</p>`;
+s += `<table><thead><tr><th>Token (name unchanged)</th><th>now</th><th></th><th>→ new value</th><th>uses · note</th></tr></thead><tbody>`;
+for (const [n,p,u,note,nv,nh] of decorativeMap){ const cls = u===0?'del':''; s+=`<tr class="${cls}"><td class="tok">${n}</td><td class="prim">${p}</td><td class="arrow">→</td><td class="prim">${nv} ${chip(nh)} ${hx(nh)}</td><td class="note">${u}${note?' · '+note:''}</td></tr>`; }
 s += `</tbody></table>`;
 document.getElementById('sem').innerHTML = s;
 
@@ -512,19 +579,20 @@ const taxGroups = [
     ['status.highlight','surface.status.highlight','#B8DFFF','info / highlight pill','new'],
     ['status.scheduled','surface.status.scheduled','#E0DCF8','scheduled pill','new'],
     ['status.info','surface.status.info','#D9DCE0','neutral / process / inactive','new'],
-    ['badge.default','surface.badge.default','#CDFB5B','default badge','new'],
-    ['badge.recommended','surface.badge.recommended','#74E1DA','recommended badge','new'],
-    ['badge.new','surface.badge.new','#FFA8F9','new badge','new'],
-    ['badge.current','surface.badge.current','#FFAE51','current badge','new'],
-    ['badge.backup','surface.badge.backup','#D9DCE0','backup badge','new'],
   ]},
-  {label:'<code>fill</code>', def:'the solid painted BODY of one control (button, chip, toggle, track)', states:'pressed · disabled (prefer opacity state-layer)', roles:[
+  {label:'<code>accent</code> — governed call-out (semantic-tier synonym for primitive <code>decorative</code>)', def:'expressive call-out colors, NO fixed state (badges, home service-card flags); pulled OUT of surface so it is not grabbed casually — future lint limits who may use it', roles:[
+    ['default','accent.default','#CDFB5B','default call-out','new'],
+    ['recommended','accent.recommended','#74E1DA','recommended','new'],
+    ['new','accent.new','#FFA8F9','new','new'],
+    ['current','accent.current','#FFAE51','current','new'],
+    ['backup','accent.backup','#D9DCE0','backup','new'],
+  ]},
+  {label:'<code>fill</code>', def:'the solid painted BODY of one control (button, chip, toggle, track). Selection / "on" states reuse fill.primary (black) — no separate token', states:'pressed · disabled (prefer opacity state-layer)', roles:[
     ['primary','fill.primary','#000000','primary action body (button)','rename ← action.primary'],
     ['primary.disabled','fill.primary.disabled','#EEF0F2','primary disabled','rename ← action.primary.inactive'],
     ['brand','fill.brand','#6A3DB8','brand-colored solid body','rename ← surface.brand.dark'],
     ['critical','fill.critical','#E5451D','destructive body','rename ← action.critical.default'],
     ['neutral','fill.neutral','#E6E8EB','track / rail / unselected chip','new'],
-    ['selected','fill.selected','#EEF0F2','selected state (chip / checkbox / date)','new'],
   ]},
   {label:'<code>text</code>', def:'text color', states:'disabled · link pressed → opacity', roles:[
     ['default','text.default','#000000','body text',''],
@@ -573,12 +641,13 @@ const roleGlossary = [
   ['primary','The PRIMARY ACTION. Lives ONLY as fill.primary (+ its content pair text.onPrimary). NOT a text/border role — those use default. (Fixes the default/primary overlap.)'],
   ['subdued','A quieter step within a role — text.subdued, surface.subdued, border.subdued.'],
   ['brand','Brand identity (purple). Kept separate from status.'],
-  ['accent / link','Inline link or plain-text button (purple) — text.link / icon.link.'],
+  ['link','Inline link or plain-text button (purple) — text.link / icon.link. (We dropped "accent" as a text synonym; it now names the call-out namespace.)'],
+  ['accent.*','GOVERNED call-out namespace (badges, home service-card flags) — the semantic-tier synonym for primitive decorative. Pulled out of surface; not for casual use.'],
   ['neutral','Grayscale body — tracks, rails, unselected chips (fill.neutral).'],
-  ['selected','The selected state of a selection control — one neutral token (fill.selected) for chip / checkbox / date.'],
+  ['selected','Selection / "on" reuses fill.primary (BLACK) — checkbox / radio / chip / toggle / date. No separate fill token; the selected RING is border.selected (black).'],
   ['critical · success · warning · highlight','Status / feedback intents. Reused across surface / text / icon / border.'],
   ['onDark / onPrimary','Content (text / icon) sitting ON a dark or primary fill — resolves to white.'],
-  ['status.* / badge.*','Surface sub-namespaces: status.* = pills / banners / cards; badge.* = labels.'],
+  ['status.*','Semantic feedback surfaces (surface.status.* — pills / banners / cards). Communicates a state; meaning self-governs.'],
   ['hover · pressed · disabled · focus','Interaction STATES — always the LAST segment (fill.primary.pressed). Prefer an opacity state-layer over solid per-state tokens.'],
 ];
 let g = `<h2>Grammar / taxonomy</h2><p class="sub">The naming system, enumerated. Grammar: <code>group.role.prominence.state</code> — all lowercase, dotted, fixed order; only <b>group</b> + <b>role</b> are required. Below: every <b>group</b> and its valid <b>roles</b> (example token + value), then a <b>role glossary</b>. <span class="okmark">green</span> = net-new · <span class="flag">⚠</span> = open value decision. This is the spec <b>DS-133</b> ratifies + lints.</p>`;
