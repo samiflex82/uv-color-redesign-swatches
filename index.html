@@ -282,6 +282,45 @@ const darkSurface = [
   ["surface.brand.darkest","brandPurple 01 #2C194D",6,"surface-like — stays surface"],
   ["surface.warning.dark","yellow 01 #A16B00",5,"surface-like — stays surface"],
 ];
+// ---- Component token map: [component, rows]; row = [slot, nowTok, nowHex, propTok, propHex, note]
+// The decided surface+fill model applied per component. nowHex/propHex drive the chips ('' = no chip).
+const componentMap = [
+  ["Button", [
+    ["Primary — fill","action.primary.default","#6A3DB8","fill.primary","#000000","action.* → fill.* · True Black"],
+    ["Primary — label","text.onDark","#FFFFFF","text.onPrimary","#FFFFFF","rename only (value unchanged)"],
+    ["Brand (jewelPurple) — fill","surface.brand.dark","#6A3DB8","fill.brand","#6A3DB8","surface-as-fill → fill.brand · value unchanged"],
+    ["Destructive — fill","action.critical.default","#CE1818","fill.critical","#E5451D","→ fill.critical (tomato 600)"],
+    ["Secondary — bg","surface.default","#FFFFFF","surface.default","#FFFFFF","unchanged (outline on white)"],
+    ["Secondary — border","action.secondary.border","#6A3DB8","border.primary","#000000","→ border.primary (black)"],
+    ["Secondary — label","base.interactive","#6A3DB8","text.primary","#000000","kills retiring base.* → text.primary"],
+    ["Disabled — fill","action.primary.inactive","#EEE2FC","fill.primary.disabled","#EEF0F2","→ fill.primary.disabled (stone 03)"],
+  ]],
+  ["Segmented control", [
+    ["Track","surface.subdued (placeholder)","#F6F7F8","fill.neutral","#E6E8EB","real track token (stone 04) ← DS-184"],
+    ["Selected thumb","surface.default","#FFFFFF","surface.default","#FFFFFF","KNOB: stays a raised white surface + elevation — selection-as-surface, NOT fill.selected"],
+    ["Unselected label","text.subdued","#5E626A","text.subdued","#5E626A","unchanged"],
+    ["Selected label","text.default","#1D1D1D","text.default","#000000","value → True Black"],
+    ["Press feedback","rgba(0,0,0,.08) hardcoded","","state layer","","→ interaction state layer (DS-161)"],
+  ]],
+  ["Chip (ChipSelector)", [
+    ["Unselected — fill","action.selection.default","#EDEBF1","fill.neutral","#E6E8EB","→ fill.neutral"],
+    ["Unselected — label","text.default","#1D1D1D","text.default","#000000",""],
+    ["Selected — fill","action.selection.pressed (branded)","#6A3DB8","fill.selected","#EEF0F2","⚠ moves OFF branded → neutral fill.selected (locked decision)"],
+    ["Selected — label","text.onDark","#FFFFFF","text.default","#000000","black on neutral fill (was white on purple)"],
+    ["Border (all states)","border.default","#C7CAD0","border.default","#000000","value → True Black"],
+    ["Disabled — fill","action.selection.disabled","#D9DCE0","fill.primary.disabled","#EEF0F2","→ shared disabled fill"],
+  ]],
+];
+// ---- How other systems do it (condensed): [system, small-body model, selected-state token]
+const systemRef = [
+  ["Shopify Polaris","bg-fill (split from bg-surface)","bg-fill-selected — neutral"],
+  ["Adobe Spectrum 2","background.&lt;intent&gt; (no fill group)","neutral-subdued (accent only if 'emphasized')"],
+  ["Material 3","primary / *-container","secondary-container (shared by segment + chip)"],
+  ["Atlassian","background.&lt;intent&gt;.&lt;prom&gt; + elevation.surface","background.selected — neutral"],
+  ["IBM Carbon","button-* / field-* / layer-*","layer-selected-inverse — neutral"],
+  ["GitHub Primer","bgColor-* (prominence)","controlKnob — neutral knob (= our thumb)"],
+  ["UV (proposed)","surface (container) + fill (body)","fill.selected — neutral ✅"],
+];
 // Component usage v2 — organized BY STORYBOOK GROUP. Method: story title → component file →
 // rg "tokens(['|.)" → list tokens, flag role-mismatches vs the remap-plan.
 // Priority groups done: Ultraviolet - New, Core, Components. (Product · Pages · Partner · Multi-Bill held.)
@@ -407,7 +446,22 @@ document.getElementById('remap').innerHTML = h;
 
 // ---- Tab 2: Semantic colors ----
 let s = `<h2>Semantic colors</h2><p class="sub"><b>Remap = re-point values only — token names do NOT change.</b> The table is <code>Token · now → future value · Note</code> (no "proposed name" column, because the name stays). Net-new tokens are the only new names. Recategorizations (<code>action→fill</code>, <code>base</code> flatten, <code>surface.*.dark→fill</code>, consolidation, taxonomy) are a separate <b>post-remap naming pass</b> — shown as "naming pass" notes. <span class="okmark">green</span> = net-new · <span style="opacity:.5">faded</span> = delete · <span class="flag">⚠</span> = confirm/fix.</p>`;
-s += `<div class="principle" style="margin:6px 0 14px"><b>surface vs fill</b><span><b>Surface</b> = a container / elevation layer that holds content (card, sheet, page, banner body). <b>Fill</b> = the painted body of one small component (button, pill, badge, chip, toggle, indicator). Test: a generic backdrop you could put anything in → surface; the body of one control → fill.</span></div>`;
+s += `<div class="principle" style="margin:6px 0 14px"><b>surface vs fill — DECIDED (keep both)</b><span><b>Surface</b> = a container / elevation layer that holds content (card, sheet, page, banner, light status pill). <b>Fill</b> = the painted body of one small control (button, solid chip/badge, toggle, indicator). Operational test: <i>solid body + on-color text</i> → fill; <i>tint/container + normal text</i> → surface. The “Dark surface → fill?” MIXED rows below (one token used as both) are the proof a single intent-token can’t serve both — so we keep the split. Middle ground between Spectrum (collapses fill) and Polaris (most explicit) = Atlassian; matches our grammar 1:1.</span></div>`;
+// ---- Component token map (button / segmented control / chip) ----
+s += `<h2>Component token map — button · segmented control · chip</h2><p class="sub">The decided model applied per component: <b>current token → proposed token</b> (<code>surface</code>=container, <code>fill</code>=small body). Selection is unified on neutral <code>fill.selected</code> — <b>chips move off the branded purple fill</b>; the segmented <b>thumb stays a white elevated surface (knob)</b>, the one selection that's a surface not a fill. <span class="flag">⚠</span> = the locked selection change · exact stone steps confirm in DS-184 / Phase-4 visual pass.</p>`;
+for (const [comp, rows] of componentMap){
+  s += `<h3 style="margin:18px 0 6px;font-size:15px">${comp}</h3>`;
+  s += `<table><thead><tr><th>Slot</th><th>now</th><th></th><th>proposed</th><th>note</th></tr></thead><tbody>`;
+  for (const [slot,nt,nh,pt,ph,note] of rows){
+    const flag = note.includes('⚠');
+    s += `<tr${flag?' class="warn-row"':''}><td>${slot}</td><td class="tok">${nt} ${chip(nh)} ${hx(nh)}</td><td class="arrow">→</td><td class="tok">${pt} ${chip(ph)} ${hx(ph)}</td><td class="${flag?'note flag':'note'}">${note}</td></tr>`;
+  }
+  s += `</tbody></table>`;
+}
+s += `<h2 style="font-size:15px;margin-top:18px">How other systems name the small-body fill + the selected state</h2><p class="sub">Cross-system reference (verbatim token families). <b>Every system backs "selected" with a NEUTRAL/container token — never the primary-button fill</b> (Spectrum reuses accent only as an opt-in "emphasized" variant). Our <code>fill.selected</code> follows the consensus.</p>`;
+s += `<table><thead><tr><th>System</th><th>small-body fill model</th><th>selected-state token</th></tr></thead><tbody>`;
+for (const [sys,model,sel] of systemRef){ const me = sys.includes('UV'); s+=`<tr${me?' class="ok-row"':''}><td>${me?'<b>'+sys+'</b>':sys}</td><td class="tok">${model}</td><td class="tok">${sel}</td></tr>`; }
+s += `</tbody></table>`;
 s += `<table><thead><tr><th>Token (name unchanged)</th><th>now</th><th></th><th>future value</th><th>Note</th></tr></thead><tbody>`;
 for (const [group, rows] of Object.entries(semantics)){ s+=`<tr class="grp"><td colspan="5">${group}</td></tr>`; for (const [name,cp,chex,fp,fhex,note,cls] of rows){ s+=`<tr class="${cls==='new'?'new':(cls==='del'?'del':'')}"><td class="tok">${name}</td><td class="prim">${cp} ${chip(chex)} ${hx(chex)}</td><td class="arrow">→</td><td class="prim">${fp} ${chip(fhex)} ${hx(fhex)}</td><td class="${cls==='flag'?'note flag':'note'}">${note}</td></tr>`; } }
 s += `</tbody></table>`;
