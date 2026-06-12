@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>UV Color Redesign — Audit Detail</title>
+<style>
+  :root { --bd:#e6e8eb; --ink:#1d1d1d; --sub:#5e626a; --bg:#fafbfb; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--ink); background:var(--bg); }
+  header { padding:30px 24px 0; max-width:1320px; margin:0 auto; }
+  h1 { font-size:24px; margin:0 0 8px; letter-spacing:-.01em; }
+  .lede { color:var(--sub); font-size:13.5px; max-width:920px; line-height:1.55; }
+  .legend { font-size:12px; color:var(--sub); margin-top:8px; }
+  .tabs { max-width:1320px; margin:18px auto 0; padding:0 24px; display:flex; gap:6px; border-bottom:1px solid var(--bd); flex-wrap:wrap; }
+  .tab { padding:9px 16px; font-size:13px; font-weight:600; color:var(--sub); cursor:pointer; border:1px solid transparent; border-bottom:none; border-radius:8px 8px 0 0; }
+  .tab.active { color:var(--ink); background:#fff; border-color:var(--bd); }
+  main { max-width:1320px; margin:0 auto; padding:14px 24px 72px; }
+  .view { display:none; } .view.active { display:block; }
+  h2 { font-size:17px; margin:28px 0 6px; letter-spacing:-.01em; }
+  .sub { font-size:12px; color:var(--sub); margin:2px 0 10px; max-width:940px; line-height:1.5; }
+  table { width:100%; border-collapse:collapse; font-size:12.5px; background:#fff; border:1px solid var(--bd); border-radius:10px; overflow:hidden; margin-bottom:8px; }
+  thead th { position:sticky; top:0; background:#f6f7f8; text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--sub); padding:8px 10px; border-bottom:1px solid var(--bd); z-index:1; }
+  td { padding:7px 10px; border-bottom:1px solid #f0f1f3; vertical-align:top; }
+  tr:last-child td { border-bottom:none; }
+  .grp td { background:#eef0f2; font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:#3a3d42; }
+  .tok { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11.5px; }
+  .prim { color:var(--sub); font-size:11px; white-space:nowrap; }
+  .sw { display:inline-block; width:16px; height:16px; border-radius:3px; border:1px solid rgba(0,0,0,.14); vertical-align:middle; }
+  .hex { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:10.5px; color:var(--sub); text-transform:uppercase; }
+  .arrow { color:#c7cad0; text-align:center; }
+  .note { color:var(--sub); font-size:11px; }
+  tr.new .tok { color:#0f7b53; }
+  tr.del { opacity:.5; }
+  .flag { color:#b75606; font-weight:600; }
+  .okmark { color:#0f7b53; font-weight:700; }
+  .badtok { font-family:ui-monospace,Menlo,monospace; font-size:11.5px; color:#a01414; background:#fae8e8; padding:1px 5px; border-radius:4px; }
+  .where { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:10.5px; color:var(--sub); }
+  .pill { display:inline-block; font-size:10px; font-weight:700; padding:1px 7px; border-radius:20px; text-transform:uppercase; letter-spacing:.03em; }
+  .pill.leak { background:#fae8e8; color:#a01414; } .pill.exempt { background:#eef0f2; color:#5e626a; } .pill.newtok { background:#e6f2ef; color:#0f7b53; }
+  .ok-row td:first-child { border-left:3px solid #51c787; }
+  .warn-row td:first-child { border-left:3px solid #ffae51; }
+  footer { max-width:1320px; margin:0 auto; padding:24px; color:var(--sub); font-size:12px; line-height:1.5; }
+  code { background:#eef0f2; padding:1px 5px; border-radius:4px; font-size:.9em; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Flex DM — Color Token Audit Detail</h1>
+  <p class="lede">Reference and iteration tabs — Base token usage, Component token audit, Hardcoded colors, Figma ↔ code parity. <a href="index.html" style="color:#6A3DB8">← Back to main</a></p>
+  <p class="legend"><span class="okmark">green</span> = correct · <span style="opacity:.5">faded</span> = delete · <span class="flag">⚠</span> = fix / decision.</p>
+</header>
+<div class="tabs">
+  <div class="tab active" data-view="base">Base usage</div>
+  <div class="tab" data-view="comp">Component usage</div>
+  <div class="tab" data-view="hard">Hardcoded colors</div>
+  <div class="tab" data-view="parity">Figma ↔ code</div>
+</div>
+<main>
+  <div class="view active" id="base"></div>
+  <div class="view" id="comp"></div>
+  <div class="view" id="hard"></div>
+  <div class="view" id="parity"></div>
+</main>
+<footer>Staging preview — not for external distribution. Snapshot as of 2026-06-08 — not yet re-audited against current genoa (<code>a4586204</code>). See <a href="index.html" style="color:#6A3DB8">index.html</a> for Global Styles, Semantic structure, and Semantic remap.</footer>
+<script>
+function chip(hex){ return hex ? `<span class="sw" style="background:${hex}"></span>` : ''; }
+function hx(hex){ return hex ? `<span class="hex">${hex}</span>` : ''; }
+
+// ---- Base usage: [token, primitive+hex, consumers, where, remap note]
+const baseUsage = [
+  ["base.onSurface","offBlack #1D1D1D",17,"mostly SHADOW color — Card, PageFooter, Surface(elevation), nav header, tab bar, SegmentedControl, ToggleSwitch; + a few bg/divider","→ shadow effect-style + text.default (naming pass, DS-177)"],
+  ["base.interactive","brandPurple 02 #6A3DB8",7,"Button secondary text (×4), MigrationAgreement link, HelpTrackerStepDot, NudgeTooltip shadow","→ text.link / fill (naming pass)"],
+  ["base.warning","yellow 01 #A16B00",2,"CancelMembershipModal + RentAmountDoesntMatchModal warning icon","→ icon.warning"],
+  ["base.primary","brandPurple 01 #2C194D",1,"FlexAnywherePortalQuestionPageV2 icon fill","→ icon / text"],
+  ["base.secondary","grayPurple 02 #D5D1DB",1,"HelpTrackerStepDot bg","→ fill.neutral"],
+  ["base.surface","white #FFFFFF",0,"—","dead → delete"],
+  ["base.critical","red 01 #CE1818",0,"—","dead → delete"],
+  ["base.success","green 01 #01795C",0,"—","dead → delete"],
+  ["base.highlight","blue 02 #1C53BA",0,"—","dead → delete"],
+];
+
+// ---- Component usage v2 — organized BY STORYBOOK GROUP. Method: story title → component file →
+// rg "tokens(['|.)" → list tokens, flag role-mismatches vs the remap-plan.
+// Priority groups done: Ultraviolet - New, Core, Components. (Product · Pages · Partner · Multi-Bill held.)
+const compGroups = {
+  "Ultraviolet - New": [
+    ["BadgeLabel","components/BadgeLabel","—",[["decorative.surface.3","badge fill → accent.* (governed call-out tier)"],["border.hover","static badge border uses a hover-state token → border.subdued / badge border"]]],
+    ["BottomSheet","components/core/BottomSheet","icon.subdued · surface.default",[["(hardcoded scrim)","rgba(0,0,0,·) backdrop → surface.scrim"]]],
+    ["CardDetailsInputField","components/CardDetailsInputField","text.critical · text.default",[]],
+    ["DateOfBirthField","components/DateOfBirthField","— composes TextField (no direct color)",[]],
+    ["FullScreenAlertContent","components/FullScreenAlertContent","text.default",[]],
+    ["LargeCurrencyInput","components/LargeCurrencyInput","border.critical · border.default · text.critical/.default/.subdued",[["border.pressed","focus → border.focus / border.primary"]]],
+    ["ListItem","components/core/ListItem","text.default/.disabled/.subdued",[]],
+    ["LoadingSpinner","components/LoadingSpinner","surface.default",[["action.progress.inactive","track → fill.neutral"],["icon.brand · icon.brand.subdued","brand spinner → icon.accent (rename)"]]],
+    ["FullScreenLoadingSpinner","components/LoadingSpinner","— composes LoadingSpinner",[]],
+    ["MoneyInputField","components/MoneyInputField","border.critical/.critical.hover/.default/.disabled/.hover · surface.default/.disabled · text.critical/.default/.disabled",[["border.pressed","focus → border.focus / border.primary"]]],
+    ["Page","components/Page","background.brand · background.lighter",[["background.dark","misnomer (it's light) → background.subdued"],["surface.brand.dark","brand section fill → fill.primary / brand"]]],
+    ["PhoneInputField","components/PhoneInputField","— composes TextField (no direct color)",[]],
+    ["Pill","components/Pill","text.onDark",[["surface.brand.dark","pill fill → surface.status.* / fill.primary"]]],
+    ["Select","components/SelectField","border.critical · border.default · surface.default · text.default/.subdued/.critical",[]],
+    ["Selection · CheckList","components/CheckList","— composes Checkbox",[["icon.brand.disabled","→ icon.disabled (rename)"]]],
+    ["Selection · Checkbox","components/Checkbox","border.critical/.default/.disabled · icon.onDark · surface.default/.disabled",[["action.primary.pressed","checked fill → fill.primary (black)"],["icon.brand.disabled","→ icon.disabled"]]],
+    ["Selection · CheckboxGroup","components/Checkbox","— composes Checkbox",[]],
+    ["Selection · Radio","components/Radio","border.default · border.disabled · surface.disabled",[["border.pressed","selected ring → border.selected"],["surface.brand.subdued","selected dot → fill.primary (black)"]]],
+    ["Selection · RadioIcon","components/Radio","border.default · border.disabled · surface.disabled",[["(missing)","no selected token → fill.primary (black)"]]],
+    ["Selection · SelectorCard","components/core/SelectorCard","background.lighter · surface.default/.subdued · text.default/.disabled/.subdued · border.subdued",[["border.pressed","selected → border.selected"],["icon.primary · icon.primary.disabled","brand icon → icon.default / icon.accent"]]],
+    ["Selection · SingleSelect","components/SingleSelect","— composes SelectorCard / Form",[]],
+    ["Selection · ToggleSwitch","components/ToggleSwitch","surface.default · surface.subdued",[["surface.brand.dark","on-track fill → fill.primary (black)"],["base.onSurface","→ text.default (retire base.*)"]]],
+    ["Surface","components/core/Surface","surface.default/.subdued/.brand/.critical/.success/.warning/.highlight/.disabled · border.subdued",[["base.onSurface","→ text.default (retire base.*)"],["surface.brand.dark","brand fill → fill.primary"]]],
+    ["TextField","components/TextField","background.lighter · border.critical/.default/.disabled · icon.subdued · surface.disabled · text.critical/.default/.subdued",[["border.pressed","focus → border.focus / border.primary"]]],
+  ],
+  "Core": [
+    ["Accordion","components/Accordion","background.lighter · text.default",[]],
+    ["Button","components/Button","border.critical · border.default · surface.default · text.onDark · text.subdued",[["action.primary* (×5)","→ fill.primary (+ states)"],["action.critical* (×3)","→ fill.critical (+ states)"],["action.secondary* / .stroke","→ border.primary / text.primary (outline)"],["base.interactive","→ fill.primary / text.accent (retire base.*)"],["surface.brand · surface.brand.dark","button fill → fill.primary / brand"],["text.action.default.disabled","→ text.disabled"],["text.link","DELETE — consumers → text.link.inline"]]],
+    ["Card","components/Card","border.disabled",[["base.onSurface","→ text.default (retire base.*)"]]],
+    ["Card · ToggleCard","components/Card","background.lighter · border.default · text.subdued",[]],
+    ["ContextualToast","components/ContextualToast","surface.brand · text.onDark",[["surface.brand.dark","toast fill → surface.status.* / fill.primary"],["text.action","→ text.primary"]]],
+    ["Divider","components/Divider","border.subdued",[]],
+    ["FeedbackScreen","components/FeedbackScreen","— composes (no direct color)",[]],
+    ["IconButton","components/CircleIconButton","—",[["text.link","DELETE — was a TEXT token on an icon → icon.link.brand (purple) or icon.default (black)"]]],
+    ["IconButton · CircleIcon","components/CircleIconButton","—",[["text.link","DELETE → icon.link.brand or icon.default (recat text→icon)"]]],
+    ["NudgeBanner","components/core/NudgeBanner","background.lighter · surface.default/.subdued/.brand/.brand.subdued · icon.subdued · text.default",[["surface.success/.critical/.warning/.highlight/.highlight.dark","status banner → surface.status.*"],["icon.brand/.brand.dark/.primary/.critical/.success/.warning","status icons → icon.default (on status surface) / icon.accent"]]],
+    ["NudgeTooltip","components/NudgeTooltip","surface.brand · text.onDark",[["base.interactive","→ fill.primary / text.accent (retire base.*)"],["surface.brand.dark","tooltip fill → fill.primary"],["text.action","→ text.primary"]]],
+    ["Progress","components/ProgressBar","—",[["surface.brand.subdued","track → fill.neutral"],["action.onLight","progress fill → fill.primary / brand"],["surface.success.dark","complete → fill.success / status"]]],
+  ],
+  "Components": [
+    ["AccordionItem","components/AccordionItem","— composes (no direct color)",[]],
+    ["AnimatedTransition","components/AnimatedTransition","— animation (no color)",[]],
+    ["BigNumberInput","components/BigNumberInput","background.lighter · border.critical/.default · text.critical/.default/.subdued",[["border.pressed","focus → border.focus / border.primary"]]],
+    ["CollapsibleCard","components/CollapsibleCard","border.subdued · surface.default · text.default/.subdued",[["base.onSurface","→ text.default (retire base.*)"],["surface.warning.medium","warning callout → surface.status.warning (if status)"]]],
+    ["FullScreenModal","components/FullScreenModal","— composes (no direct color)",[["(hardcoded scrim)","backdrop → surface.scrim"]]],
+    ["Modals · FAPaymentSuccessModal","modals/FAPaymentSuccessModal","surface.brand · surface.callout · text.onDark",[["action.primary","→ fill.primary"],["icon.primary","brand icon → icon.default / icon.accent"],["text.action","→ text.primary"]]],
+    ["LargeHeading","components/LargeHeading","—",[["icon.brand","brand icon → icon.default / icon.accent"]]],
+    ["Skeleton","components/Skeleton","surface.disabled",[]],
+  ],
+};
+
+// ---- Parity: [figmaName, codeName, issue]
+const drift = [
+  ["text/Critical","text.critical","capital C in Figma"],
+  ["text/critical/disabled","text.criticalDisabled","slash vs camelCase"],
+  ["text/critical/pressed","text.criticalPressed","slash vs camelCase"],
+  ["icon/brand-dark","icon.brand.dark","hyphen vs dot"],
+  ["icon/brand-disabled · -subdued","icon.brand.disabled · .subdued","hyphen vs dot"],
+  ["icon/default-disabled · subdued-disabled","icon.default.disabled · subdued.disabled","hyphen vs dot"],
+  ["icon/critical-disabled · success-disabled · warning-disabled · link-disabled","icon.*.disabled","hyphen vs dot"],
+  ["icon/on dark","icon.onDark","SPACE in Figma name (bug)"],
+  ["text/link/onDarkSubdued","text.link.onDark.subdued","structure differs"],
+  ["action/onDark/default","action.onDark","extra /default in Figma"],
+  ["action/progress/inactive/default","action.progress.inactive","extra /default in Figma"],
+  ["surface/brand/default","surface.brand","extra /default"],
+  ["surface/critical/default · success/default · warning/default · highlight/default","surface.critical · .success · .warning · .highlight","extra /default"],
+  ["surface/critical/dark/default","surface.critical.dark","extra /default"],
+  ["background/brand-light","background.brand","name differs"],
+];
+const figmaOnly = [
+  ["status/critical · highlight · success · warning","Figma already has a status group — align new surface.status.* to this"],
+  ["action/primary/border/default · disabled · hover · pressed","button border states — code has none"],
+  ["action/secondary/border/default · disabled · hover · pressed · action/secondary/inactive","secondary button border states"],
+  ["text/link/underline/* (default, onDark, pressed, primary, subdued, critical/*)","~8 underline tokens not in code"],
+  ["surface/critical/dark/hover","code has no hover variant"],
+  ["surface/border/default","surface-border token"],
+  ["action/progress/active/active","malformed name (active/active)"],
+];
+const codeOnly = [
+  ["base.* (9: surface, onSurface, primary, secondary, interactive, critical, warning, success, highlight)","entire base group is code-only → retire"],
+  ["pressed (bare top-level key)","no Figma equivalent → delete"],
+  ["action.progress-inactive.brand","hyphen-in-segment; no Figma equivalent"],
+  ["text.action.default.disabled","code has extra .default vs Figma text/action/disabled"],
+];
+
+// ---- Hardcoded colors
+const hardcoded = [
+  ["#E5E3F8","#E5E3F8 #F7F3CC #DBEAFE #D0F0EC #EDE0E3 #E8EDD0","MultiBill provider category tints (8)","components/MultiBill/SelectProvider:87–95","newtok","NEEDS new decorative category token set"],
+  ["#000000","rgba(0,0,0,.2–.55)","Modal / bottom-sheet scrim","BottomSheet.web:348 · BillerAutomationFlowModal:454","newtok","NEEDS surface.scrim / overlay token"],
+  ["#0E0622","#0E0622 · rgba(14,6,34,.05)","Shadows / shadow gradients","FlexBillPaymentDetailsPage:473 · navigation/utils:33,36 · AddressSearchShadowFlatList:50","newtok","NEEDS shadow effect-styles"],
+  ["#000000","#000 / #000000","Card shadows","FlexCheckingAccountCard:347 · FlexBankAccountCard:114","newtok","shadow effect-style"],
+  ["#FFFFFF","rgba(255,255,255,.1–.9)","White text/border on purple card","FlexCheckingAccountCard:387–474","newtok","text.onDark / onPrimary @ opacity"],
+  ["#1F1442","#1F1442","FA 'Flex Checking' card bg/text","FlexBillPaymentDetailsPage:515,525,565","newtok","⚠ bespoke purple (≈ brandPurple 950) — FA card cluster"],
+  ["#926EEB","#6862E6 #7A6CE8 #926EEB","Approved-page gradient","ApprovedPagePricingV2GA:93–100","newtok","Gradient/Brand paint style"],
+  ["#2C194D","['#1F0F45','#2C194D','#3A2469']","Flex checking card gradient","FlexCheckingAccountCard:308","newtok","Gradient/Brand style (#2C194D=brandPurple 01)"],
+  ["#F2F2F2","#F2F2F2","Tab header background","app/(tabs)/_layout.tsx:185","leak","surface.subdued (stone 02)"],
+  ["#222222","#222222","Markdown table border","MarkdownStyles.ts:206","leak","border.default (True Black)"],
+  ["#808080","rgba(128,128,128,.1)","Markdown row stripe","MarkdownStyles.ts:25,220","leak","surface.subdued"],
+  ["#CCCCCC","#ccc","Markdown rule / border","MarkdownStyles.ts:103,157","leak","border.subdued (stone 05)"],
+  ["#EEDDFB","#EEDDFB","FA card bg","FlexBillPaymentDetailsPage:535","leak","brandPurple 100"],
+  ["#B98BEE","#B98BEE","FA card accent","FlexBillPaymentDetailsPage:544","leak","brandPurple 300/400"],
+  ["#FFFFFF","#FFFFFF","Browser theme-color","BrowserThemeStatusBarProvider.web:4","leak","surface.default (white)"],
+  ["#6A3DB8","#6A3DB8","Browser controls color","rxp/utils/url.ts:98","leak","brandPurple 700 (primitive hardcoded)"],
+  ["#F4F7F9","#F4F7F9","Inline message background","ExpandableInlineMessage:44","leak","surface.subdued (stone 02)"],
+  ["#000000","#000000","Animated dot default color","ThreeDotsLoader/AnimatedDot:24","leak","text.default / trueBlack"],
+  ["#FFFFFF","#fff","Modal close icon / text","BillerAutomationFlowModal:435,465","leak","icon.onDark / text.onDark"],
+];
+const exempt = [["app/dev/partner-embed-debug.tsx","Dev debug tool — VS-Code / Bootstrap palette","~17"],["app/partner-embed/bilt/agreements/tila.tsx","Bilt partner agreement page — partner styling","3 (#fff)"],["AutomationScriptWebview.tsx:36","Inert iframe HTML — not product UI","1"]];
+
+// ---- Tab: Base usage ----
+let b = `<p class="sub" style="color:#9a6700"><b>⚠ Snapshot as of 2026-06-08.</b> Not yet re-audited against current genoa (<code>a4586204</code>) — values may have drifted (DS-160 removed dead tokens, DS-88 fixed ChipSelector). Re-audit = separate pass.</p><h2>Base token usage <span class="note" style="font-weight:400">(retire/flatten in the naming pass — DS-177)</span></h2><p class="sub">Every consumer of <code>base.*</code>, so the flatten can be done safely. <code>base.onSurface</code> is the workhorse — almost all <b>shadow color</b>, not text. 4 base tokens are dead.</p>`;
+b += `<table><thead><tr><th>Token</th><th>value</th><th>uses</th><th>where</th><th>remap →</th></tr></thead><tbody>`;
+for (const [n,p,u,where,plan] of baseUsage){ const cls = u===0?'del':''; b+=`<tr class="${cls}"><td class="tok">${n}</td><td class="prim">${p}</td><td class="note">${u}</td><td class="note">${where}</td><td class="note">${plan}</td></tr>`; }
+b += `</tbody></table>`;
+document.getElementById('base').innerHTML = b;
+
+// ---- Tab: Component usage ----
+let totalC=0, totalFlag=0;
+for (const rows of Object.values(compGroups)){ totalC+=rows.length; totalFlag+=rows.filter(r=>r[3].length).length; }
+let c = `<p class="sub" style="color:#9a6700"><b>⚠ Snapshot as of 2026-06-08.</b> Not yet re-audited against current genoa (<code>a4586204</code>) — e.g. DS-88 fixed ChipSelector since. Re-audit = separate pass.</p><h2>Component token usage — by Storybook group (v2)</h2><p class="sub">Priority Storybook groups <b>Ultraviolet - New</b>, <b>Core</b>, <b>Components</b> audited (Product · Pages · Partner · Multi-Bill held for later). <b>${totalC}</b> components, <b>${totalFlag}</b> with role-mismatch fixes. Each component's tokens split into <span class="okmark">✅ correct</span> and <span class="flag">⚠ wrong / to fix</span> — the wrong column is the fix list. Recurring fixes: <code>border.pressed</code> reused for focus/selected, <code>surface.*.dark</code> reused for status fills, the retiring <code>base.*</code> + <code>action.*</code> groups, and brand icons (<code>icon.primary</code>/<code>icon.brand</code>) → black; <code>text.link</code> deleted (consumers → <code>text.link.inline</code>).</p>`;
+for (const [group, rows] of Object.entries(compGroups)){
+  const flagged = rows.filter(r=>r[3].length).length;
+  c += `<h3 style="margin:22px 0 6px;font-size:15px">${group} <span class="note" style="font-weight:400">— ${rows.length} components, ${flagged} with fixes</span></h3>`;
+  c += `<table><thead><tr><th>Component</th><th>✅ Correct tokens</th><th>⚠ Wrong / to fix</th></tr></thead><tbody>`;
+  for (const [name,file,correct,wrong] of rows){
+    const rowcls = wrong.length ? 'warn-row' : 'ok-row';
+    const wrongHtml = wrong.length ? wrong.map(([t,fix])=>`<div style="margin-bottom:3px"><span class="badtok">${t}</span> → ${fix}</div>`).join('') : '<span class="okmark">✅ all role-correct</span>';
+    c += `<tr class="${rowcls}"><td><b>${name}</b><br><span class="where">${file}</span></td><td class="tok" style="font-size:11px;color:#3a3d42">${correct}</td><td class="note">${wrongHtml}</td></tr>`;
+  }
+  c += `</tbody></table>`;
+}
+document.getElementById('comp').innerHTML = c;
+
+// ---- Tab: Hardcoded colors ----
+let hc = `<p class="sub" style="color:#9a6700"><b>⚠ Snapshot as of 2026-06-08.</b> Hardcoded-color scan not yet re-run against current genoa (<code>a4586204</code>) — 52 commits of new code since. Re-audit = separate pass.</p><p class="sub"><b>Clusters:</b> the <b>MultiBill category tints</b> + <b>modal/sheet scrims</b> are the clearest "needs new token" findings. The <b>FA "Flex Checking" purple card</b> is the biggest leak cluster (bespoke purples + white-opacity text + gradients). Grouped by what they need.</p>`;
+hc += `<h2>Needs a new token / style</h2><table><thead><tr><th>Color</th><th>Value</th><th>What</th><th>Where</th><th>Action</th></tr></thead><tbody>`;
+for (const r of hardcoded.filter(x=>x[4]==='newtok')) hc+=`<tr><td>${chip(r[0])}</td><td class="hex">${r[1]}</td><td>${r[2]}</td><td class="where">${r[3]}</td><td class="note">${r[5]}</td></tr>`;
+hc += `</tbody></table><h2>Leak — map to an existing token</h2><table><thead><tr><th>Color</th><th>Value</th><th>What</th><th>Where</th><th>Proposed token</th></tr></thead><tbody>`;
+for (const r of hardcoded.filter(x=>x[4]==='leak')) hc+=`<tr><td>${chip(r[0])}</td><td class="hex">${r[1]}</td><td>${r[2]}</td><td class="where">${r[3]}</td><td class="note">${r[5]}</td></tr>`;
+hc += `</tbody></table><h2>Exempt <span class="note" style="font-weight:400">(partner / dev / inert)</span></h2><table><thead><tr><th>Where</th><th>What</th><th>Count</th></tr></thead><tbody>`;
+for (const [w,wt,ct] of exempt) hc+=`<tr><td class="where">${w}</td><td>${wt}</td><td class="note">${ct}</td></tr>`;
+hc += `</tbody></table>`;
+document.getElementById('hard').innerHTML = hc;
+
+// ---- Tab: Figma ↔ code parity ----
+let p = `<p class="sub" style="color:#9a6700"><b>⚠ Snapshot as of 2026-06-08.</b> Figma↔code parity not yet re-checked against current genoa (<code>a4586204</code>) / latest Figma. Re-audit = separate pass.</p><p class="sub">Figma <code>UV Color Tokens</code> = <b>137</b> color variables; code <code>colorTokens</code> ≈ <b>134</b>. Two big findings: Figma already has a <b>status/*</b> group (align the new status tokens to it), and the entire <b>base.*</b> group is <b>code-only</b> (retire). Plus systemic naming drift.</p>`;
+p += `<h2>Naming drift — same concept, different name</h2><table><thead><tr><th>Figma</th><th>Code</th><th>Issue</th></tr></thead><tbody>`;
+for (const [f,cc,i] of drift) p+=`<tr><td class="tok">${f}</td><td class="tok">${cc}</td><td class="note flag">${i}</td></tr>`;
+p += `</tbody></table><h2>Figma-only <span class="note" style="font-weight:400">(in Figma, missing in code)</span></h2><table><thead><tr><th>Figma token(s)</th><th>Note</th></tr></thead><tbody>`;
+for (const [f,n] of figmaOnly) p+=`<tr><td class="tok">${f}</td><td class="note">${n}</td></tr>`;
+p += `</tbody></table><h2>Code-only <span class="note" style="font-weight:400">(in code, missing in Figma)</span></h2><table><thead><tr><th>Code token(s)</th><th>Note</th></tr></thead><tbody>`;
+for (const [f,n] of codeOnly) p+=`<tr><td class="tok">${f}</td><td class="note">${n}</td></tr>`;
+p += `</tbody></table>`;
+document.getElementById('parity').innerHTML = p;
+
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active'); document.getElementById(t.dataset.view).classList.add('active');
+}));
+</script>
+</body>
+</html>

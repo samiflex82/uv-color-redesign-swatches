@@ -57,21 +57,13 @@
   <div class="tab active" data-view="remap">Primitives</div>
   <div class="tab" data-view="tax">Semantic structure</div>
   <div class="tab" data-view="sem">Semantic remap</div>
-  <div class="tab" data-view="base">Base usage</div>
-  <div class="tab" data-view="comp">Component usage</div>
-  <div class="tab" data-view="hard">Hardcoded colors</div>
-  <div class="tab" data-view="parity">Figma ↔ code</div>
 </div>
 <main>
   <div class="view active" id="remap"></div>
   <div class="view" id="sem"></div>
   <div class="view" id="tax"></div>
-  <div class="view" id="base"></div>
-  <div class="view" id="comp"></div>
-  <div class="view" id="hard"></div>
-  <div class="view" id="parity"></div>
 </main>
-<footer>Staging preview — not for external distribution. Remap = values only, names unchanged (renames = a later naming pass). Component audit v2 = by Storybook group (Ultraviolet - New · Core · Components; Product/Pages/Partner/Multi-Bill held). Parity = <code>UV Color Tokens</code> (137 color vars) vs code <code>colorTokens</code>. Rebuild: edit <code>index.html</code> + push.</footer>
+<footer>Staging preview — not for external distribution. Remap = values only, names unchanged (renames = a later naming pass). Rebuild: edit <code>index.html</code> + push. Detail tabs (base usage, component audit, hardcoded colors, Figma parity) are in <a href="detail.html" style="color:#6A3DB8">detail.html</a>.</footer>
 <script>
 // Full new ramps (50–950) pulled from Figma [UV] Global Colors → Redesign/*, with the old
 // token → new step mapping. Each ramp: {name, group, replaces, steps:[[step,hex]…], map:[[oldTok,oldHex,newStep]…]}
@@ -123,7 +115,7 @@ const grayPurpleDep = [
 // NO-RENAME schema: [name, nowPrim, nowHex, futPrim, futHex, note, cls]. Name is UNCHANGED (proposed == current);
 // only the VALUE (primitive) re-points. Recats/renames live in the note as "naming pass". cls: new|del|flag|''.
 const semantics = {
-  "base — retire in the naming pass (see Base usage tab)": [
+  "base — retire in the naming pass (see detail.html → Base usage)": [
     ["base.onSurface","offBlack","#1D1D1D","trueBlack","#000000","17 uses, mostly shadow · naming pass → text.default / shadow",""],
     ["base.primary","brandPurple 01","#2C194D","trueBlack","#000000","naming pass → fill / icon",""],
     ["base.interactive","brandPurple 02","#6A3DB8","brandPurple 700","#6A3DB8","naming pass → text.link / fill",""],
@@ -226,18 +218,6 @@ const semantics = {
     ["decorative.icon.1/3/5 · text.1/3 · border.1/2/4/5","various","#C0BACA","—","","","9 dead"],
   ],
 };
-// ---- Base usage (its own tab): [token, primitive+hex, consumers, where, remap note]
-const baseUsage = [
-  ["base.onSurface","offBlack #1D1D1D",17,"mostly SHADOW color — Card, PageFooter, Surface(elevation), nav header, tab bar, SegmentedControl, ToggleSwitch; + a few bg/divider","→ shadow effect-style + text.default (naming pass, DS-177)"],
-  ["base.interactive","brandPurple 02 #6A3DB8",7,"Button secondary text (×4), MigrationAgreement link, HelpTrackerStepDot, NudgeTooltip shadow","→ text.link / fill (naming pass)"],
-  ["base.warning","yellow 01 #A16B00",2,"CancelMembershipModal + RentAmountDoesntMatchModal warning icon","→ icon.warning"],
-  ["base.primary","brandPurple 01 #2C194D",1,"FlexAnywherePortalQuestionPageV2 icon fill","→ icon / text"],
-  ["base.secondary","grayPurple 02 #D5D1DB",1,"HelpTrackerStepDot bg","→ fill.neutral"],
-  ["base.surface","white #FFFFFF",0,"—","dead → delete"],
-  ["base.critical","red 01 #CE1818",0,"—","dead → delete"],
-  ["base.success","green 01 #01795C",0,"—","dead → delete"],
-  ["base.highlight","blue 02 #1C53BA",0,"—","dead → delete"],
-];
 // ---- Status (current dynamic mapping → net-new tokens): [component/source, current token(s), → plan]
 const statusNow = [
   ["Pill (default bg)","surface.brand.dark","→ surface.status.* (net-new)"],
@@ -393,94 +373,6 @@ const systemRef = [
   ["GitHub Primer","bgColor-* (prominence)","controlKnob — neutral knob (= our thumb)"],
   ["UV (proposed)","surface (container) + fill (body)","fill.primary (black) — selection = our primary"],
 ];
-// Component usage v2 — organized BY STORYBOOK GROUP. Method: story title → component file →
-// rg "tokens(['|.)" → list tokens, flag role-mismatches vs the remap-plan.
-// Priority groups done: Ultraviolet - New, Core, Components. (Product · Pages · Partner · Multi-Bill held.)
-const compGroups = {
-  "Ultraviolet - New": [
-    ["BadgeLabel","components/BadgeLabel","—",[["decorative.surface.3","badge fill → accent.* (governed call-out tier)"],["border.hover","static badge border uses a hover-state token → border.subdued / badge border"]]],
-    ["BottomSheet","components/core/BottomSheet","icon.subdued · surface.default",[["(hardcoded scrim)","rgba(0,0,0,·) backdrop → surface.scrim"]]],
-    ["CardDetailsInputField","components/CardDetailsInputField","text.critical · text.default",[]],
-    ["DateOfBirthField","components/DateOfBirthField","— composes TextField (no direct color)",[]],
-    ["FullScreenAlertContent","components/FullScreenAlertContent","text.default",[]],
-    ["LargeCurrencyInput","components/LargeCurrencyInput","border.critical · border.default · text.critical/.default/.subdued",[["border.pressed","focus → border.focus / border.primary"]]],
-    ["ListItem","components/core/ListItem","text.default/.disabled/.subdued",[]],
-    ["LoadingSpinner","components/LoadingSpinner","surface.default",[["action.progress.inactive","track → fill.neutral"],["icon.brand · icon.brand.subdued","brand spinner → icon.accent (rename)"]]],
-    ["FullScreenLoadingSpinner","components/LoadingSpinner","— composes LoadingSpinner",[]],
-    ["MoneyInputField","components/MoneyInputField","border.critical/.critical.hover/.default/.disabled/.hover · surface.default/.disabled · text.critical/.default/.disabled",[["border.pressed","focus → border.focus / border.primary"]]],
-    ["Page","components/Page","background.brand · background.lighter",[["background.dark","misnomer (it's light) → background.subdued"],["surface.brand.dark","brand section fill → fill.primary / brand"]]],
-    ["PhoneInputField","components/PhoneInputField","— composes TextField (no direct color)",[]],
-    ["Pill","components/Pill","text.onDark",[["surface.brand.dark","pill fill → surface.status.* / fill.primary"]]],
-    ["Select","components/SelectField","border.critical · border.default · surface.default · text.default/.subdued/.critical",[]],
-    ["Selection · CheckList","components/CheckList","— composes Checkbox",[["icon.brand.disabled","→ icon.disabled (rename)"]]],
-    ["Selection · Checkbox","components/Checkbox","border.critical/.default/.disabled · icon.onDark · surface.default/.disabled",[["action.primary.pressed","checked fill → fill.primary (black)"],["icon.brand.disabled","→ icon.disabled"]]],
-    ["Selection · CheckboxGroup","components/Checkbox","— composes Checkbox",[]],
-    ["Selection · Radio","components/Radio","border.default · border.disabled · surface.disabled",[["border.pressed","selected ring → border.selected"],["surface.brand.subdued","selected dot → fill.primary (black)"]]],
-    ["Selection · RadioIcon","components/Radio","border.default · border.disabled · surface.disabled",[["(missing)","no selected token → fill.primary (black)"]]],
-    ["Selection · SelectorCard","components/core/SelectorCard","background.lighter · surface.default/.subdued · text.default/.disabled/.subdued · border.subdued",[["border.pressed","selected → border.selected"],["icon.primary · icon.primary.disabled","brand icon → icon.default / icon.accent"]]],
-    ["Selection · SingleSelect","components/SingleSelect","— composes SelectorCard / Form",[]],
-    ["Selection · ToggleSwitch","components/ToggleSwitch","surface.default · surface.subdued",[["surface.brand.dark","on-track fill → fill.primary (black)"],["base.onSurface","→ text.default (retire base.*)"]]],
-    ["Surface","components/core/Surface","surface.default/.subdued/.brand/.critical/.success/.warning/.highlight/.disabled · border.subdued",[["base.onSurface","→ text.default (retire base.*)"],["surface.brand.dark","brand fill → fill.primary"]]],
-    ["TextField","components/TextField","background.lighter · border.critical/.default/.disabled · icon.subdued · surface.disabled · text.critical/.default/.subdued",[["border.pressed","focus → border.focus / border.primary"]]],
-  ],
-  "Core": [
-    ["Accordion","components/Accordion","background.lighter · text.default",[]],
-    ["Button","components/Button","border.critical · border.default · surface.default · text.onDark · text.subdued",[["action.primary* (×5)","→ fill.primary (+ states)"],["action.critical* (×3)","→ fill.critical (+ states)"],["action.secondary* / .stroke","→ border.primary / text.primary (outline)"],["base.interactive","→ fill.primary / text.accent (retire base.*)"],["surface.brand · surface.brand.dark","button fill → fill.primary / brand"],["text.action.default.disabled","→ text.disabled"],["text.link","DELETE — consumers → text.link.inline"]]],
-    ["Card","components/Card","border.disabled",[["base.onSurface","→ text.default (retire base.*)"]]],
-    ["Card · ToggleCard","components/Card","background.lighter · border.default · text.subdued",[]],
-    ["ContextualToast","components/ContextualToast","surface.brand · text.onDark",[["surface.brand.dark","toast fill → surface.status.* / fill.primary"],["text.action","→ text.primary"]]],
-    ["Divider","components/Divider","border.subdued",[]],
-    ["FeedbackScreen","components/FeedbackScreen","— composes (no direct color)",[]],
-    ["IconButton","components/CircleIconButton","—",[["text.link","DELETE — was a TEXT token on an icon → icon.link.brand (purple) or icon.default (black)"]]],
-    ["IconButton · CircleIcon","components/CircleIconButton","—",[["text.link","DELETE → icon.link.brand or icon.default (recat text→icon)"]]],
-    ["NudgeBanner","components/core/NudgeBanner","background.lighter · surface.default/.subdued/.brand/.brand.subdued · icon.subdued · text.default",[["surface.success/.critical/.warning/.highlight/.highlight.dark","status banner → surface.status.*"],["icon.brand/.brand.dark/.primary/.critical/.success/.warning","status icons → icon.default (on status surface) / icon.accent"]]],
-    ["NudgeTooltip","components/NudgeTooltip","surface.brand · text.onDark",[["base.interactive","→ fill.primary / text.accent (retire base.*)"],["surface.brand.dark","tooltip fill → fill.primary"],["text.action","→ text.primary"]]],
-    ["Progress","components/ProgressBar","—",[["surface.brand.subdued","track → fill.neutral"],["action.onLight","progress fill → fill.primary / brand"],["surface.success.dark","complete → fill.success / status"]]],
-  ],
-  "Components": [
-    ["AccordionItem","components/AccordionItem","— composes (no direct color)",[]],
-    ["AnimatedTransition","components/AnimatedTransition","— animation (no color)",[]],
-    ["BigNumberInput","components/BigNumberInput","background.lighter · border.critical/.default · text.critical/.default/.subdued",[["border.pressed","focus → border.focus / border.primary"]]],
-    ["CollapsibleCard","components/CollapsibleCard","border.subdued · surface.default · text.default/.subdued",[["base.onSurface","→ text.default (retire base.*)"],["surface.warning.medium","warning callout → surface.status.warning (if status)"]]],
-    ["FullScreenModal","components/FullScreenModal","— composes (no direct color)",[["(hardcoded scrim)","backdrop → surface.scrim"]]],
-    ["Modals · FAPaymentSuccessModal","modals/FAPaymentSuccessModal","surface.brand · surface.callout · text.onDark",[["action.primary","→ fill.primary"],["icon.primary","brand icon → icon.default / icon.accent"],["text.action","→ text.primary"]]],
-    ["LargeHeading","components/LargeHeading","—",[["icon.brand","brand icon → icon.default / icon.accent"]]],
-    ["Skeleton","components/Skeleton","surface.disabled",[]],
-  ],
-};
-// parity: [figmaName, codeName, issue]
-const drift = [
-  ["text/Critical","text.critical","capital C in Figma"],
-  ["text/critical/disabled","text.criticalDisabled","slash vs camelCase"],
-  ["text/critical/pressed","text.criticalPressed","slash vs camelCase"],
-  ["icon/brand-dark","icon.brand.dark","hyphen vs dot"],
-  ["icon/brand-disabled · -subdued","icon.brand.disabled · .subdued","hyphen vs dot"],
-  ["icon/default-disabled · subdued-disabled","icon.default.disabled · subdued.disabled","hyphen vs dot"],
-  ["icon/critical-disabled · success-disabled · warning-disabled · link-disabled","icon.*.disabled","hyphen vs dot"],
-  ["icon/on dark","icon.onDark","SPACE in Figma name (bug)"],
-  ["text/link/onDarkSubdued","text.link.onDark.subdued","structure differs"],
-  ["action/onDark/default","action.onDark","extra /default in Figma"],
-  ["action/progress/inactive/default","action.progress.inactive","extra /default in Figma"],
-  ["surface/brand/default","surface.brand","extra /default"],
-  ["surface/critical/default · success/default · warning/default · highlight/default","surface.critical · .success · .warning · .highlight","extra /default"],
-  ["surface/critical/dark/default","surface.critical.dark","extra /default"],
-  ["background/brand-light","background.brand","name differs"],
-];
-const figmaOnly = [
-  ["status/critical · highlight · success · warning","Figma already has a status group — align new surface.status.* to this"],
-  ["action/primary/border/default · disabled · hover · pressed","button border states — code has none"],
-  ["action/secondary/border/default · disabled · hover · pressed · action/secondary/inactive","secondary button border states"],
-  ["text/link/underline/* (default, onDark, pressed, primary, subdued, critical/*)","~8 underline tokens not in code"],
-  ["surface/critical/dark/hover","code has no hover variant"],
-  ["surface/border/default","surface-border token"],
-  ["action/progress/active/active","malformed name (active/active)"],
-];
-const codeOnly = [
-  ["base.* (9: surface, onSurface, primary, secondary, interactive, critical, warning, success, highlight)","entire base group is code-only → retire"],
-  ["pressed (bare top-level key)","no Figma equivalent → delete"],
-  ["action.progress-inactive.brand","hyphen-in-segment; no Figma equivalent"],
-  ["text.action.default.disabled","code has extra .default vs Figma text/action/disabled"],
-];
 
 function chip(hex){ return hex ? `<span class="sw" style="background:${hex}"></span>` : ''; }
 function hx(hex){ return hex ? `<span class="hex">${hex}</span>` : ''; }
@@ -488,7 +380,7 @@ const PRIM_MAP = {'#000000':'True Black','#FFFFFF':'white','#1D1D1D':'offBlack',
 function prim(hex){ return PRIM_MAP[hex] ? `<span class="note" style="font-size:11px">${PRIM_MAP[hex]}</span> ` : ''; }
 
 // ---- Tab 1: Primitives — grouped brand / system / decorative / neutral ----
-let h = `<h2>Primitives — full color scales (50–950)</h2><p class="sub">Grouped <code>globalColors.&lt;group&gt;.&lt;family&gt;.&lt;step&gt;</code>: <b>brand</b> · <b>system</b> (status/feedback) · <b>decorative</b> · <b>neutral</b> (gray + black/white). Each family is a full 50–950 ramp; rows map the <b>old</b> token to the <b>new step</b> (blank = net-new). Values from Figma <code>Redesign/*</code>; Stone re-based on Tailwind <code>gray</code> (⚠ confirm). Old ramps deprecated once consumers move (DS-128). <b>Code adds these in the existing primary/secondary/tertiary style first (DS-157); the brand/system/decorative/neutral regrouping is the deferred naming pass (DS-178). No <code>primitive.</code> prefix — <code>globalColors</code> marks the tier.</b></p>`;
+let h = `<h2>Global Styles — full color scales (50–950)</h2><p class="sub">Grouped <code>globalColors.&lt;group&gt;.&lt;family&gt;.&lt;step&gt;</code>: <b>brand</b> · <b>system</b> (status/feedback) · <b>decorative</b> · <b>neutral</b> (gray + black/white). Each family is a full 50–950 ramp; rows map the <b>old</b> token to the <b>new step</b> (blank = net-new). Values from Figma <code>Redesign/*</code>; Stone re-based on Tailwind <code>gray</code> (⚠ confirm). Old ramps deprecated once consumers move (DS-128). <b>Code adds these in the existing primary/secondary/tertiary style first (DS-157); the brand/system/decorative/neutral regrouping is the deferred naming pass (DS-178). No <code>primitive.</code> prefix — <code>globalColors</code> marks the tier.</b></p>`;
 h += `<div class="principle" style="margin:6px 0 14px"><b>Primitive grammar — <code>globalColors.&lt;group&gt;.&lt;family&gt;.&lt;step&gt;</code></b><span>Raw values only (every semantic aliases a primitive; raw hex lives only here). Numeric <b>50–950</b> scale, light→dark; <b>700</b> = the core brand/role step. No <code>primitive.</code> prefix — the <code>globalColors</code> export name marks the tier (industry standard: Tailwind <code>colors.gray.700</code>, Polaris, Primer all prefix-free).</span></div>`;
 h += `<table><thead><tr><th>Group</th><th>Families</th><th>Role</th></tr></thead><tbody>`;
 const primTax = [
@@ -676,74 +568,6 @@ g += `<table><thead><tr><th>Role word</th><th>Meaning</th></tr></thead><tbody>`;
 for (const [w,m] of roleGlossary) g += `<tr><td class="tok">${w}</td><td class="note">${m}</td></tr>`;
 g += `</tbody></table>`;
 document.getElementById('tax').innerHTML = g;
-
-// ---- Tab: Base usage ----
-let b = `<p class="sub" style="color:#9a6700"><b>⚠ Snapshot as of 2026-06-08.</b> Not yet re-audited against current genoa (<code>a4586204</code>) — values may have drifted (DS-160 removed dead tokens, DS-88 fixed ChipSelector). Re-audit = separate pass.</p><h2>Base token usage <span class="note" style="font-weight:400">(retire/flatten in the naming pass — DS-177)</span></h2><p class="sub">Every consumer of <code>base.*</code>, so the flatten can be done safely. <code>base.onSurface</code> is the workhorse — almost all <b>shadow color</b>, not text. 4 base tokens are dead.</p>`;
-b += `<table><thead><tr><th>Token</th><th>value</th><th>uses</th><th>where</th><th>remap →</th></tr></thead><tbody>`;
-for (const [n,p,u,where,plan] of baseUsage){ const cls = u===0?'del':''; b+=`<tr class="${cls}"><td class="tok">${n}</td><td class="prim">${p}</td><td class="note">${u}</td><td class="note">${where}</td><td class="note">${plan}</td></tr>`; }
-b += `</tbody></table>`;
-document.getElementById('base').innerHTML = b;
-
-// Components — by Storybook group, correct vs wrong split
-let totalC=0, totalFlag=0;
-for (const rows of Object.values(compGroups)){ totalC+=rows.length; totalFlag+=rows.filter(r=>r[3].length).length; }
-let c = `<p class="sub" style="color:#9a6700"><b>⚠ Snapshot as of 2026-06-08.</b> Not yet re-audited against current genoa (<code>a4586204</code>) — e.g. DS-88 fixed ChipSelector since. Re-audit = separate pass.</p><h2>Component token usage — by Storybook group (v2)</h2><p class="sub">Priority Storybook groups <b>Ultraviolet - New</b>, <b>Core</b>, <b>Components</b> audited (Product · Pages · Partner · Multi-Bill held for later). <b>${totalC}</b> components, <b>${totalFlag}</b> with role-mismatch fixes. Each component's tokens split into <span class="okmark">✅ correct</span> and <span class="flag">⚠ wrong / to fix</span> — the wrong column is the fix list. Recurring fixes: <code>border.pressed</code> reused for focus/selected, <code>surface.*.dark</code> reused for status fills, the retiring <code>base.*</code> + <code>action.*</code> groups, and brand icons (<code>icon.primary</code>/<code>icon.brand</code>) → black; <code>text.link</code> deleted (consumers → <code>text.link.inline</code>).</p>`;
-for (const [group, rows] of Object.entries(compGroups)){
-  const flagged = rows.filter(r=>r[3].length).length;
-  c += `<h3 style="margin:22px 0 6px;font-size:15px">${group} <span class="note" style="font-weight:400">— ${rows.length} components, ${flagged} with fixes</span></h3>`;
-  c += `<table><thead><tr><th>Component</th><th>✅ Correct tokens</th><th>⚠ Wrong / to fix</th></tr></thead><tbody>`;
-  for (const [name,file,correct,wrong] of rows){
-    const rowcls = wrong.length ? 'warn-row' : 'ok-row';
-    const wrongHtml = wrong.length ? wrong.map(([t,fix])=>`<div style="margin-bottom:3px"><span class="badtok">${t}</span> → ${fix}</div>`).join('') : '<span class="okmark">✅ all role-correct</span>';
-    c += `<tr class="${rowcls}"><td><b>${name}</b><br><span class="where">${file}</span></td><td class="tok" style="font-size:11px;color:#3a3d42">${correct}</td><td class="note">${wrongHtml}</td></tr>`;
-  }
-  c += `</tbody></table>`;
-}
-document.getElementById('comp').innerHTML = c;
-
-// Hardcoded
-const hardcoded = [
-  ["#E5E3F8","#E5E3F8 #F7F3CC #DBEAFE #D0F0EC #EDE0E3 #E8EDD0","MultiBill provider category tints (8)","components/MultiBill/SelectProvider:87–95","newtok","NEEDS new decorative category token set"],
-  ["#000000","rgba(0,0,0,.2–.55)","Modal / bottom-sheet scrim","BottomSheet.web:348 · BillerAutomationFlowModal:454","newtok","NEEDS surface.scrim / overlay token"],
-  ["#0E0622","#0E0622 · rgba(14,6,34,.05)","Shadows / shadow gradients","FlexBillPaymentDetailsPage:473 · navigation/utils:33,36 · AddressSearchShadowFlatList:50","newtok","NEEDS shadow effect-styles"],
-  ["#000000","#000 / #000000","Card shadows","FlexCheckingAccountCard:347 · FlexBankAccountCard:114","newtok","shadow effect-style"],
-  ["#FFFFFF","rgba(255,255,255,.1–.9)","White text/border on purple card","FlexCheckingAccountCard:387–474","newtok","text.onDark / onPrimary @ opacity"],
-  ["#1F1442","#1F1442","FA 'Flex Checking' card bg/text","FlexBillPaymentDetailsPage:515,525,565","newtok","⚠ bespoke purple (≈ brandPurple 950) — FA card cluster"],
-  ["#926EEB","#6862E6 #7A6CE8 #926EEB","Approved-page gradient","ApprovedPagePricingV2GA:93–100","newtok","Gradient/Brand paint style"],
-  ["#2C194D","['#1F0F45','#2C194D','#3A2469']","Flex checking card gradient","FlexCheckingAccountCard:308","newtok","Gradient/Brand style (#2C194D=brandPurple 01)"],
-  ["#F2F2F2","#F2F2F2","Tab header background","app/(tabs)/_layout.tsx:185","leak","surface.subdued (stone 02)"],
-  ["#222222","#222222","Markdown table border","MarkdownStyles.ts:206","leak","border.default (True Black)"],
-  ["#808080","rgba(128,128,128,.1)","Markdown row stripe","MarkdownStyles.ts:25,220","leak","surface.subdued"],
-  ["#CCCCCC","#ccc","Markdown rule / border","MarkdownStyles.ts:103,157","leak","border.subdued (stone 05)"],
-  ["#EEDDFB","#EEDDFB","FA card bg","FlexBillPaymentDetailsPage:535","leak","brandPurple 100"],
-  ["#B98BEE","#B98BEE","FA card accent","FlexBillPaymentDetailsPage:544","leak","brandPurple 300/400"],
-  ["#FFFFFF","#FFFFFF","Browser theme-color","BrowserThemeStatusBarProvider.web:4","leak","surface.default (white)"],
-  ["#6A3DB8","#6A3DB8","Browser controls color","rxp/utils/url.ts:98","leak","brandPurple 700 (primitive hardcoded)"],
-  ["#F4F7F9","#F4F7F9","Inline message background","ExpandableInlineMessage:44","leak","surface.subdued (stone 02)"],
-  ["#000000","#000000","Animated dot default color","ThreeDotsLoader/AnimatedDot:24","leak","text.default / trueBlack"],
-  ["#FFFFFF","#fff","Modal close icon / text","BillerAutomationFlowModal:435,465","leak","icon.onDark / text.onDark"],
-];
-const exempt = [["app/dev/partner-embed-debug.tsx","Dev debug tool — VS-Code / Bootstrap palette","~17"],["app/partner-embed/bilt/agreements/tila.tsx","Bilt partner agreement page — partner styling","3 (#fff)"],["AutomationScriptWebview.tsx:36","Inert iframe HTML — not product UI","1"]];
-let hc = `<p class="sub" style="color:#9a6700"><b>⚠ Snapshot as of 2026-06-08.</b> Hardcoded-color scan not yet re-run against current genoa (<code>a4586204</code>) — 52 commits of new code since. Re-audit = separate pass.</p><p class="sub"><b>Clusters:</b> the <b>MultiBill category tints</b> + <b>modal/sheet scrims</b> are the clearest "needs new token" findings. The <b>FA "Flex Checking" purple card</b> is the biggest leak cluster (bespoke purples + white-opacity text + gradients). Grouped by what they need.</p>`;
-hc += `<h2>Needs a new token / style</h2><table><thead><tr><th>Color</th><th>Value</th><th>What</th><th>Where</th><th>Action</th></tr></thead><tbody>`;
-for (const r of hardcoded.filter(x=>x[4]==='newtok')) hc+=`<tr><td>${chip(r[0])}</td><td class="hex">${r[1]}</td><td>${r[2]}</td><td class="where">${r[3]}</td><td class="note">${r[5]}</td></tr>`;
-hc += `</tbody></table><h2>Leak — map to an existing token</h2><table><thead><tr><th>Color</th><th>Value</th><th>What</th><th>Where</th><th>Proposed token</th></tr></thead><tbody>`;
-for (const r of hardcoded.filter(x=>x[4]==='leak')) hc+=`<tr><td>${chip(r[0])}</td><td class="hex">${r[1]}</td><td>${r[2]}</td><td class="where">${r[3]}</td><td class="note">${r[5]}</td></tr>`;
-hc += `</tbody></table><h2>Exempt <span class="note" style="font-weight:400">(partner / dev / inert)</span></h2><table><thead><tr><th>Where</th><th>What</th><th>Count</th></tr></thead><tbody>`;
-for (const [w,wt,ct] of exempt) hc+=`<tr><td class="where">${w}</td><td>${wt}</td><td class="note">${ct}</td></tr>`;
-hc += `</tbody></table>`;
-document.getElementById('hard').innerHTML = hc;
-
-// Parity
-let p = `<p class="sub" style="color:#9a6700"><b>⚠ Snapshot as of 2026-06-08.</b> Figma↔code parity not yet re-checked against current genoa (<code>a4586204</code>) / latest Figma. Re-audit = separate pass.</p><p class="sub">Figma <code>UV Color Tokens</code> = <b>137</b> color variables; code <code>colorTokens</code> ≈ <b>134</b>. Two big findings: Figma already has a <b>status/*</b> group (align the new status tokens to it), and the entire <b>base.*</b> group is <b>code-only</b> (retire). Plus systemic naming drift.</p>`;
-p += `<h2>Naming drift — same concept, different name</h2><table><thead><tr><th>Figma</th><th>Code</th><th>Issue</th></tr></thead><tbody>`;
-for (const [f,cc,i] of drift) p+=`<tr><td class="tok">${f}</td><td class="tok">${cc}</td><td class="note flag">${i}</td></tr>`;
-p += `</tbody></table><h2>Figma-only <span class="note" style="font-weight:400">(in Figma, missing in code)</span></h2><table><thead><tr><th>Figma token(s)</th><th>Note</th></tr></thead><tbody>`;
-for (const [f,n] of figmaOnly) p+=`<tr><td class="tok">${f}</td><td class="note">${n}</td></tr>`;
-p += `</tbody></table><h2>Code-only <span class="note" style="font-weight:400">(in code, missing in Figma)</span></h2><table><thead><tr><th>Code token(s)</th><th>Note</th></tr></thead><tbody>`;
-for (const [f,n] of codeOnly) p+=`<tr><td class="tok">${f}</td><td class="note">${n}</td></tr>`;
-p += `</tbody></table>`;
-document.getElementById('parity').innerHTML = p;
 
 
 document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
