@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>UV Color Redesign — Token Remap Audit</title>
+<title>Flex DS — Color Token Remapping</title>
 <style>
   :root { --bd:#e6e8eb; --ink:#1d1d1d; --sub:#5e626a; --bg:#fafbfb; }
   * { box-sizing:border-box; }
@@ -46,7 +46,7 @@
 </head>
 <body>
 <header>
-  <h1>Flex DM — Color Token Remap Audit</h1>
+  <h1>Flex DS — Color Token Remapping</h1>
   <ul class="lede" style="margin:8px 0;padding-left:20px">
     <li><strong>Primitive taxonomy</strong> — <code>globalColors.&lt;group&gt;.&lt;family&gt;.&lt;step&gt;</code>: 4 groups <b>brand</b> (Purple) · <b>system</b> (Meadow/Tomato/Butter/Sky) · <b>decorative</b> (Pop Yellow/Sea Glass/Bubblegum/Tangerine) · <b>neutral</b> (Stone/white/black); numeric <b>50–950</b> scale, 700 = core. No <code>primitive.</code> prefix — <code>globalColors</code> export name marks the tier.</li>
     <li><strong>Semantic taxonomy</strong> — <code>group.role.prominence.state</code>: <code>background · surface · fill · text · icon · border · focus · shadow</code>, plus the governed <code>status.*</code> (feedback) &amp; <code>accent.*</code> (call-out) sub-namespaces.</li>
