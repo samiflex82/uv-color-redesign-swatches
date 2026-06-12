@@ -483,6 +483,8 @@ const codeOnly = [
 
 function chip(hex){ return hex ? `<span class="sw" style="background:${hex}"></span>` : ''; }
 function hx(hex){ return hex ? `<span class="hex">${hex}</span>` : ''; }
+const PRIM_MAP = {'#000000':'True Black','#FFFFFF':'white','#1D1D1D':'offBlack','#6A3DB8':'brandPurple 700','#E0DCF8':'brandPurple 200','#EEECFB':'brandPurple 100','#301C59':'brandPurple 950','#F6F7F8':'stone 02','#EEF0F2':'stone 03','#E6E8EB':'stone 04','#D9DCE0':'stone 05','#C7CAD0':'stone 06','#AEB2BA':'stone 07','#8D9199':'stone 08','#5E626A':'stone 09','#E5451D':'tomato 600','#C13714':'tomato 700','#FFD2C7':'tomato 200','#14874F':'meadow 600','#94420C':'butter 800','#DD7B02':'butter 600','#FFE988':'butter 200','#B8DFFF':'sky 200','#005AA7':'sky 700','#CDFB5B':'popYellow 300','#74E1DA':'seaGlass 300','#FFA8F9':'bubblegum 300','#FFAE51':'tangerine 400'};
+function prim(hex){ return PRIM_MAP[hex] ? `<span class="note" style="font-size:11px">${PRIM_MAP[hex]}</span> ` : ''; }
 
 // ---- Tab 1: Primitives — grouped brand / system / decorative / neutral ----
 let h = `<h2>Primitives — full color scales (50–950)</h2><p class="sub">Grouped <code>primitive.&lt;group&gt;.&lt;family&gt;.&lt;step&gt;</code>: <b>brand</b> · <b>system</b> (status/feedback) · <b>decorative</b> · <b>neutral</b> (gray + black/white). Each family is a full 50–950 ramp; rows map the <b>old</b> token to the <b>new step</b> (blank = net-new). Values from Figma <code>Redesign/*</code>; Stone re-based on Tailwind <code>gray</code> (⚠ confirm). Old ramps deprecated once consumers move (DS-128). <b>Code adds these in the existing style first (DS-157); the brand/system/decorative/neutral grouping shown here is the deferred naming pass (DS-178).</b></p>`;
@@ -665,7 +667,7 @@ g += `<div class="principle" style="margin:6px 0 14px"><b>surface vs fill — th
 for (const grp of taxGroups){
   g += `<h3 style="margin:20px 0 4px;font-size:15px">${grp.label} <span class="note" style="font-weight:400;text-transform:none;letter-spacing:0">— ${grp.def}${grp.states?' · states: '+grp.states:''}</span></h3>`;
   g += `<table><thead><tr><th>Role</th><th>Example token</th><th>value</th><th>Meaning</th><th>Status</th></tr></thead><tbody>`;
-  for (const [role,tok,hex,mean,note] of grp.roles){ const isNew=note==='new'||(note&&note.startsWith('new')); const isFlag=note&&note.includes('⚠'); const cls=isFlag?'warn-row':(isNew?'new':''); g += `<tr class="${cls}"><td class="tok">${role}</td><td class="tok">${tok}</td><td>${chip(hex)} ${hx(hex)}</td><td class="note">${mean}</td><td class="${isFlag?'note flag':'note'}">${note}</td></tr>`; }
+  for (const [role,tok,hex,mean,note] of grp.roles){ const isNew=note==='new'||(note&&note.startsWith('new')); const isFlag=note&&note.includes('⚠'); const cls=isFlag?'warn-row':(isNew?'new':''); g += `<tr class="${cls}"><td class="tok">${role}</td><td class="tok">${tok}</td><td>${prim(hex)}${chip(hex)} ${hx(hex)}</td><td class="note">${mean}</td><td class="${isFlag?'note flag':'note'}">${note}</td></tr>`; }
   g += `</tbody></table>`;
 }
 g += `<h2>Role glossary <span class="note" style="font-weight:400">— what each role word means (so names are guessable)</span></h2>`;
