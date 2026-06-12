@@ -161,10 +161,11 @@ const semantics = {
     ["text.subdued","stone 09","#5E626A","stone 09","#5E626A","",""],
     ["text.disabled","stone 07","#AEB2BA","stone 07","#AEB2BA","",""],
     ["text.onDark","white","#FFFFFF","white","#FFFFFF","",""],
-    ["text.link","brandPurple 01","#2C194D","brandPurple 700","#6A3DB8","inline link / plain text button (stays text.link)",""],
-    ["text.link.inline","brandPurple 02","#6A3DB8","brandPurple 700","#6A3DB8","naming pass: consolidate w/ text.link",""],
+    ["text.link","brandPurple 01","#2C194D","—","","DELETE — 27 consumers → text.link.inline (purple)","del"],
+    ["text.link.inline","brandPurple 02","#6A3DB8","brandPurple 700","#6A3DB8","the ONE purple text escape hatch; absorbs text.link consumers",""],
     ["text.link.disabled","stone 09","#5E626A","stone 09","#5E626A","exists but DEAD — activate (pairs w/ text.criticalDisabled)","flag"],
-    ["text.action","brandPurple 01","#2C194D","trueBlack","#000000","naming pass → text.primary",""],
+    ["text.action","brandPurple 01","#2C194D","trueBlack","#000000","dedicated interactive-label token; keep for linting tappable elements",""],
+    ["text.action.onLight","brandPurple 02","#6A3DB8","trueBlack","#000000","naming pass: collapse into text.action",""],
     ["text.critical","red 01","#CE1818","tomato 700","#C13714","⚠ black vs colored — decision","flag"],
     ["text.success","green 01","#01795C","meadow 700","#106C41","⚠ black vs colored","flag"],
     ["text.warning","yellow 01","#A16B00","butter 800","#94420C","⚠ black vs colored","flag"],
@@ -174,8 +175,8 @@ const semantics = {
   "icon": [
     ["icon.default","offBlack","#1D1D1D","trueBlack","#000000","",""],
     ["icon.subdued","stone 09","#5E626A","stone 09","#5E626A","",""],
-    ["icon.brand","brandPurple 02","#6A3DB8","trueBlack","#000000","⚠ icons→black? value decision","flag"],
-    ["icon.link","brandPurple 01","#2C194D","trueBlack","#000000","→ black (icons→black); purple variant = icon.link.brand",""],
+    ["icon.brand","brandPurple 02","#6A3DB8","trueBlack","#000000","→ black (DS-193)",""],
+    ["icon.link","brandPurple 01","#2C194D","—","","DELETE — 2 consumers → icon.default","del"],
     ["icon.link.brand","—","","brandPurple 700","#6A3DB8","NEW — purple link-icon escape hatch","new"],
     ["icon.critical","red 01","#CE1818","tomato 600","#E5451D","⚠","flag"],
     ["icon.success","green 01","#01795C","meadow 600","#14874F","⚠","flag"],
@@ -299,8 +300,8 @@ const componentMap = [
     ["Brand (jewelPurple) — fill","surface.brand.dark","#6A3DB8","fill.brand","#6A3DB8","surface-as-fill → fill.brand · same hex"],
     ["Destructive — fill","action.critical.default","#CE1818","fill.critical","#E5451D","→ fill.critical (tomato 600)"],
     ["Secondary — bg / border / label","surface.default · action.secondary.border · base.interactive","","surface.default · border.default · text.default","#000000","outline on white; kills base.* ; primary reserved for fill"],
-    ["Plain — label","text.action.onLight","#6A3DB8","text.default","#000000","plain text button → black"],
-    ["Plain bright — label","text.link.inline","#6A3DB8","text.link","#6A3DB8","inline link → purple 700 (accent)"],
+    ["Plain — label","text.action.onLight","#6A3DB8","text.action","#000000","plain text button → black; text.action = dedicated interactive-text token"],
+    ["Plain bright — label","text.link.inline","#6A3DB8","text.link.inline","#6A3DB8","inline link → text.link.inline (purple 700)"],
     ["Disabled — fill","action.primary.inactive","#EEE2FC","fill.primary.disabled","#EEF0F2","stone 03"],
   ]],
   ["Toggle", [
@@ -360,7 +361,7 @@ const componentMap = [
     ["Unselected — bg / text","surface.subdued · text.action","#F6F7F8","fill.neutral · text.default","#E6E8EB",""],
     ["Selected — fill","action.primary.pressed","#6A3DB8","fill.primary","#000000","⚠ purple was the OLD color → BLACK"],
     ["Selected — label","text.onDark","#FFFFFF","text.onPrimary","#FFFFFF",""],
-    ["Recommended / link","text.subdued · text.link.inline","#6A3DB8","text.subdued · text.link","#6A3DB8","purple link (accent)"],
+    ["Recommended / link","text.subdued · text.link.inline","#6A3DB8","text.subdued · text.link.inline","#6A3DB8","purple inline link"],
   ]],
   ["Calendar (date tile)", [
     ["Default cell","surface.subdued","#F6F7F8","fill.neutral","#E6E8EB",""],
@@ -424,14 +425,14 @@ const compGroups = {
   ],
   "Core": [
     ["Accordion","components/Accordion","background.lighter · text.default",[]],
-    ["Button","components/Button","border.critical · border.default · surface.default · text.onDark · text.subdued",[["action.primary* (×5)","→ fill.primary (+ states)"],["action.critical* (×3)","→ fill.critical (+ states)"],["action.secondary* / .stroke","→ border.primary / text.primary (outline)"],["base.interactive","→ fill.primary / text.accent (retire base.*)"],["surface.brand · surface.brand.dark","button fill → fill.primary / brand"],["text.action.default.disabled","→ text.disabled"],["text.link","→ text.primary / text.accent"]]],
+    ["Button","components/Button","border.critical · border.default · surface.default · text.onDark · text.subdued",[["action.primary* (×5)","→ fill.primary (+ states)"],["action.critical* (×3)","→ fill.critical (+ states)"],["action.secondary* / .stroke","→ border.primary / text.primary (outline)"],["base.interactive","→ fill.primary / text.accent (retire base.*)"],["surface.brand · surface.brand.dark","button fill → fill.primary / brand"],["text.action.default.disabled","→ text.disabled"],["text.link","DELETE — consumers → text.link.inline"]]],
     ["Card","components/Card","border.disabled",[["base.onSurface","→ text.default (retire base.*)"]]],
     ["Card · ToggleCard","components/Card","background.lighter · border.default · text.subdued",[]],
     ["ContextualToast","components/ContextualToast","surface.brand · text.onDark",[["surface.brand.dark","toast fill → surface.status.* / fill.primary"],["text.action","→ text.primary"]]],
     ["Divider","components/Divider","border.subdued",[]],
     ["FeedbackScreen","components/FeedbackScreen","— composes (no direct color)",[]],
-    ["IconButton","components/CircleIconButton","—",[["text.link","brand icon-button color (a TEXT token on an icon) → icon.default / icon.accent"]]],
-    ["IconButton · CircleIcon","components/CircleIconButton","—",[["text.link","→ icon.default / icon.accent (recat text→icon)"]]],
+    ["IconButton","components/CircleIconButton","—",[["text.link","DELETE — was a TEXT token on an icon → icon.link.brand (purple) or icon.default (black)"]]],
+    ["IconButton · CircleIcon","components/CircleIconButton","—",[["text.link","DELETE → icon.link.brand or icon.default (recat text→icon)"]]],
     ["NudgeBanner","components/core/NudgeBanner","background.lighter · surface.default/.subdued/.brand/.brand.subdued · icon.subdued · text.default",[["surface.success/.critical/.warning/.highlight/.highlight.dark","status banner → surface.status.*"],["icon.brand/.brand.dark/.primary/.critical/.success/.warning","status icons → icon.default (on status surface) / icon.accent"]]],
     ["NudgeTooltip","components/NudgeTooltip","surface.brand · text.onDark",[["base.interactive","→ fill.primary / text.accent (retire base.*)"],["surface.brand.dark","tooltip fill → fill.primary"],["text.action","→ text.primary"]]],
     ["Progress","components/ProgressBar","—",[["surface.brand.subdued","track → fill.neutral"],["action.onLight","progress fill → fill.primary / brand"],["surface.success.dark","complete → fill.success / status"]]],
@@ -531,7 +532,7 @@ document.getElementById('remap').innerHTML = h;
 let s = `<h2>Semantic colors</h2><p class="sub"><b>Remap = re-point values only — token names do NOT change.</b> The table is <code>Token · now → future value · Note</code> (no "proposed name" column, because the name stays). Net-new tokens are the only new names. Recategorizations (<code>action→fill</code>, <code>base</code> flatten, <code>surface.*.dark→fill</code>, consolidation, taxonomy) are a separate <b>post-remap naming pass</b> — shown as "naming pass" notes. <span class="okmark">green</span> = net-new · <span style="opacity:.5">faded</span> = delete · <span class="flag">⚠</span> = confirm/fix.</p>`;
 s += `<div class="principle" style="margin:6px 0 14px"><b>surface vs fill — DECIDED (keep both)</b><span><b>Surface</b> = a container / elevation layer that holds content (card, sheet, page, banner, light status pill). <b>Fill</b> = the painted body of one small control (button, solid chip/badge, toggle, indicator). Operational test: <i>solid body + on-color text</i> → fill; <i>tint/container + normal text</i> → surface. The “Dark surface → fill?” MIXED rows below (one token used as both) are the proof a single intent-token can’t serve both — so we keep the split. Middle ground between Spectrum (collapses fill) and Polaris (most explicit) = Atlassian; matches our grammar 1:1.</span></div>`;
 // ---- Component token map (button / segmented control / chip) ----
-s += `<h2>Component token map — all components</h2><p class="sub">The decided model applied per component: <b>current token → proposed token</b> (<code>surface</code>=container, <code>fill</code>=small body). <b>Selection / "on" / active / filled = <code>fill.primary</code> (BLACK)</b> everywhere (checkbox, radio, chip, toggle-on, single-select, date, calendar, progress) — reuses the primary token. <b>Tracks/rails = <code>fill.neutral</code></b>, <b>knobs/segment thumb = <code>surface.default</code></b> (white), <b>input focus = <code>border.focus</code></b>, <b>selected ring = <code>border.selected</code> (black)</b>. Purple is <b>accent only</b> via <code>text.link</code> (links, plain-bright button) + the brand button (<code>fill.brand</code>). <span class="flag">⚠</span> = the change vs today (fixes the focus-/selection-via-<code>pressed</code> misuse, surface-as-fill, retiring <code>base.*</code>).</p>`;
+s += `<h2>Component token map — all components</h2><p class="sub">The decided model applied per component: <b>current token → proposed token</b> (<code>surface</code>=container, <code>fill</code>=small body). <b>Selection / "on" / active / filled = <code>fill.primary</code> (BLACK)</b> everywhere (checkbox, radio, chip, toggle-on, single-select, date, calendar, progress) — reuses the primary token. <b>Tracks/rails = <code>fill.neutral</code></b>, <b>knobs/segment thumb = <code>surface.default</code></b> (white), <b>input focus = <code>border.focus</code></b>, <b>selected ring = <code>border.selected</code> (black)</b>. Purple is <b>accent only</b> via <code>text.link.inline</code> (inline links, plain-bright button) + <code>icon.link.brand</code> (purple link icons) + the brand button (<code>fill.brand</code>). <span class="flag">⚠</span> = the change vs today (fixes the focus-/selection-via-<code>pressed</code> misuse, surface-as-fill, retiring <code>base.*</code>).</p>`;
 for (const [comp, rows] of componentMap){
   s += `<h3 style="margin:18px 0 6px;font-size:15px">${comp}</h3>`;
   s += `<table><thead><tr><th>Slot</th><th>now</th><th></th><th>proposed</th><th>note</th></tr></thead><tbody>`;
@@ -606,23 +607,23 @@ const taxGroups = [
     ['neutral','fill.neutral','#E6E8EB','track / rail / unselected chip','new'],
   ]},
   {label:'<code>text</code>', def:'text color', states:'disabled · link pressed → opacity', roles:[
-    ['default','text.default','#000000','body text',''],
+    ['default','text.default','#000000','static body / label text (NOT for interactive elements)',''],
+    ['action','text.action','#000000','interactive tappable labels (plain buttons) — same value as default, distinct semantic role',''],
     ['subdued','text.subdued','#5E626A','secondary text',''],
     ['disabled','text.disabled','#AEB2BA','disabled text',''],
     ['onDark / onPrimary','text.onDark','#FFFFFF','text on a dark / primary fill',''],
-    ['onDark.subdued','text.onDarkSubdued','#FFFFFF','quieter text on dark','naming pass → text.onDark.subdued'],
-    ['link (= accent)','text.link','#6A3DB8','inline link / plain-text button',''],
+    ['onDark.subdued','text.onDarkSubdued','#F6F7F8','quieter text on dark','naming pass → text.onDark.subdued'],
+    ['link.inline','text.link.inline','#6A3DB8','inline links in body copy (purple) · icon pair = icon.link.brand',''],
     ['critical','text.critical','#C13714','standalone error text','⚠ black vs colored (DS-131)'],
     ['success','text.success','#106C41','standalone success text','⚠ black vs colored'],
     ['warning','text.warning','#94420C','standalone warning text','⚠ black vs colored'],
   ]},
   {label:'<code>icon</code>', def:'icon color', roles:[
-    ['default','icon.default','#000000','default icon',''],
+    ['default','icon.default','#000000','default icon (also used for black link icons)',''],
     ['subdued','icon.subdued','#5E626A','secondary icon',''],
     ['disabled','icon.default.disabled','#AEB2BA','disabled icon','naming pass → icon.disabled'],
-    ['brand','icon.brand','#000000','brand icon','⚠ black vs accent (DS-196)'],
-    ['link','icon.link','#000000','link icon (icons→black)',''],
-    ['link.brand','icon.link.brand','#6A3DB8','branded / purple link icon','new'],
+    ['brand','icon.brand','#000000','brand icon → black (DS-193)',''],
+    ['link.brand','icon.link.brand','#6A3DB8','purple link icon escape hatch · text pair = text.link.inline','new'],
     ['critical','icon.critical','#E5451D','error icon',''],
     ['success','icon.success','#14874F','success icon',''],
     ['warning','icon.warning','#DD7B02','warning icon',''],
@@ -653,7 +654,7 @@ const roleGlossary = [
   ['primary','The PRIMARY ACTION. Lives ONLY as fill.primary (+ its content pair text.onPrimary). NOT a text/border role — those use default. (Fixes the default/primary overlap.)'],
   ['subdued','A quieter step within a role — text.subdued, surface.subdued, border.subdued.'],
   ['brand','Brand identity (purple). Kept separate from status.'],
-  ['link','Inline link / plain-text button (purple) = text.link. Link ICONS default to black (icon.link); purple variant = icon.link.brand. ("accent" now names the call-out namespace, not a text synonym.)'],
+  ['link.inline / link.brand','Inline links in body copy = text.link.inline (purple 700). Purple link icons = icon.link.brand (purple 700). For black links, pair text.default + icon.default with underline decoration — no separate black "link" token. ("accent" names the call-out namespace, not a text synonym.)'],
   ['accent.*','GOVERNED call-out namespace (badges, home service-card flags) — the semantic-tier synonym for primitive decorative. Pulled out of surface; not for casual use.'],
   ['neutral','Grayscale body — tracks, rails, unselected chips (fill.neutral).'],
   ['selected','Selection / "on" reuses fill.primary (BLACK) — checkbox / radio / chip / toggle / date. No separate fill token; the selected RING is border.selected (black).'],
@@ -686,7 +687,7 @@ document.getElementById('base').innerHTML = b;
 // Components — by Storybook group, correct vs wrong split
 let totalC=0, totalFlag=0;
 for (const rows of Object.values(compGroups)){ totalC+=rows.length; totalFlag+=rows.filter(r=>r[3].length).length; }
-let c = `<p class="sub" style="color:#9a6700"><b>⚠ Snapshot as of 2026-06-08.</b> Not yet re-audited against current genoa (<code>a4586204</code>) — e.g. DS-88 fixed ChipSelector since. Re-audit = separate pass.</p><h2>Component token usage — by Storybook group (v2)</h2><p class="sub">Priority Storybook groups <b>Ultraviolet - New</b>, <b>Core</b>, <b>Components</b> audited (Product · Pages · Partner · Multi-Bill held for later). <b>${totalC}</b> components, <b>${totalFlag}</b> with role-mismatch fixes. Each component's tokens split into <span class="okmark">✅ correct</span> and <span class="flag">⚠ wrong / to fix</span> — the wrong column is the fix list. Recurring fixes: <code>border.pressed</code> reused for focus/selected, <code>surface.*.dark</code> reused for status fills, the retiring <code>base.*</code> + <code>action.*</code> groups, and brand icons (<code>icon.primary</code>/<code>icon.brand</code>/<code>text.link</code>) → black/accent.</p>`;
+let c = `<p class="sub" style="color:#9a6700"><b>⚠ Snapshot as of 2026-06-08.</b> Not yet re-audited against current genoa (<code>a4586204</code>) — e.g. DS-88 fixed ChipSelector since. Re-audit = separate pass.</p><h2>Component token usage — by Storybook group (v2)</h2><p class="sub">Priority Storybook groups <b>Ultraviolet - New</b>, <b>Core</b>, <b>Components</b> audited (Product · Pages · Partner · Multi-Bill held for later). <b>${totalC}</b> components, <b>${totalFlag}</b> with role-mismatch fixes. Each component's tokens split into <span class="okmark">✅ correct</span> and <span class="flag">⚠ wrong / to fix</span> — the wrong column is the fix list. Recurring fixes: <code>border.pressed</code> reused for focus/selected, <code>surface.*.dark</code> reused for status fills, the retiring <code>base.*</code> + <code>action.*</code> groups, and brand icons (<code>icon.primary</code>/<code>icon.brand</code>) → black; <code>text.link</code> deleted (consumers → <code>text.link.inline</code>).</p>`;
 for (const [group, rows] of Object.entries(compGroups)){
   const flagged = rows.filter(r=>r[3].length).length;
   c += `<h3 style="margin:22px 0 6px;font-size:15px">${group} <span class="note" style="font-weight:400">— ${rows.length} components, ${flagged} with fixes</span></h3>`;
