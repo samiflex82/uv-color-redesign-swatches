@@ -48,7 +48,7 @@
 <header>
   <h1>Flex DM — Color Token Remap Audit</h1>
   <ul class="lede" style="margin:8px 0;padding-left:20px">
-    <li><strong>Primitive taxonomy</strong> — <code>primitive.&lt;group&gt;.&lt;family&gt;.&lt;step&gt;</code>: 4 groups <b>brand</b> (Purple) · <b>system</b> (Meadow/Tomato/Butter/Sky) · <b>decorative</b> (Pop Yellow/Sea Glass/Bubblegum/Tangerine) · <b>neutral</b> (Stone/white/black); numeric <b>50–950</b> scale, 700 = core.</li>
+    <li><strong>Primitive taxonomy</strong> — <code>globalColors.&lt;group&gt;.&lt;family&gt;.&lt;step&gt;</code>: 4 groups <b>brand</b> (Purple) · <b>system</b> (Meadow/Tomato/Butter/Sky) · <b>decorative</b> (Pop Yellow/Sea Glass/Bubblegum/Tangerine) · <b>neutral</b> (Stone/white/black); numeric <b>50–950</b> scale, 700 = core. No <code>primitive.</code> prefix — <code>globalColors</code> export name marks the tier.</li>
     <li><strong>Semantic taxonomy</strong> — <code>group.role.prominence.state</code>: <code>background · surface · fill · text · icon · border · focus · shadow</code>, plus the governed <code>status.*</code> (feedback) &amp; <code>accent.*</code> (call-out) sub-namespaces.</li>
   </ul>
   <p class="legend"><span style="color:#0f7b53">green</span> = new token · <span style="opacity:.5">faded</span> = delete · <span class="flag">⚠</span> = fix / decision.</p>
@@ -79,38 +79,38 @@ const STEPS = ["50","100","200","300","400","500","600","700","800","900","950"]
 // Primitives grouped: brand / system (status/feedback) / decorative / neutral.
 // Path = primitive.<group>.<family>.<step>. Each ramp: {name, g, path, replaces, hexes[11], map:[[oldTok,oldHex,newStep,note?]]}
 const ramps = [
-  {name:"Brand Purple", g:"brand", path:"primitive.brand.purple", replaces:"replaces Brand Purple 01–05",
+  {name:"Brand Purple", g:"brand", path:"brand.purple", replaces:"replaces Brand Purple 01–05",
    hexes:["#F6F5FD","#EEECFB","#E0DCF8","#C9BFF3","#AD9BEA","#9172E0","#7F53D4","#6A3DB8","#5D36A1","#4E2E84","#301C59"],
    map:[["brandPurple 01","#2C194D","950"],["brandPurple 02","#6A3DB8","700","exact"],["brandPurple 03","#DDC6F9","200"],["brandPurple 04","#EEE2FC","100"],["brandPurple 05","#E3E1E6","—","drop (gray, unused)"]]},
-  {name:"Meadow", g:"system", path:"primitive.system.meadow", replaces:"replaces Green 01–04 (success)",
+  {name:"Meadow", g:"system", path:"system.meadow", replaces:"replaces Green 01–04 (success)",
    hexes:["#EEFBF3","#D5F6DF","#AFEBC5","#7ADBA3","#51C787","#21A863","#14874F","#106C41","#0F5635","#0D472D","#06281A"],
    map:[["green 01","#01795C","600"],["green 02","#67AF9D","400"],["green 03","#B3D7CE","200"],["green 04","#E6F2EF","50"]]},
-  {name:"Tomato", g:"system", path:"primitive.system.tomato", replaces:"replaces Red 01–04 (critical)",
+  {name:"Tomato", g:"system", path:"system.tomato", replaces:"replaces Red 01–04 (critical)",
    hexes:["#FFF4F1","#FFE7E1","#FFD2C7","#FFB3A0","#FF7451","#F8613B","#E5451D","#C13714","#A03014","#842E18","#481407"],
    map:[["red 01","#CE1818","600"],["red 02","#E27474","400"],["red 03","#F0BABA","200"],["red 04","#FAE8E8","50"]]},
-  {name:"Butter", g:"system", path:"primitive.system.butter", replaces:"replaces Yellow 01–05 (warning)",
+  {name:"Butter", g:"system", path:"system.butter", replaces:"replaces Yellow 01–05 (warning)",
    hexes:["#FFFBEB","#FFF5C6","#FFE988","#FFD84C","#FFC420","#F9A307","#DD7B02","#B75606","#94420C","#7A360D","#461B02"],
    map:[["yellow 01","#A16B00","800"],["yellow 02","#C58301","600"],["yellow 03","#F1A91B","300"],["yellow 04","#FFD789","200"],["yellow 05","#FFF4CB","50"]]},
-  {name:"Sky", g:"system", path:"primitive.system.sky", replaces:"replaces Blue 01–05 (highlight)",
+  {name:"Sky", g:"system", path:"system.sky", replaces:"replaces Blue 01–05 (highlight)",
    hexes:["#EFF7FF","#DFEFFF","#B8DFFF","#78C5FF","#2BA7FF","#068FF1","#0072CE","#005AA7","#024C8A","#084072","#06284B"],
    map:[["blue 01","#00359C","700"],["blue 02","#1C53BA","600"],["blue 03","#6CA3EB","400"],["blue 04","#B1D4FF","200"],["blue 05","#E5EEFF","50"]]},
-  {name:"Pop Yellow", g:"decorative", path:"primitive.decorative.popYellow", replaces:"new — no old equivalent → badge.default / decorative",
+  {name:"Pop Yellow", g:"decorative", path:"decorative.popYellow", replaces:"new — no old equivalent → badge.default / decorative",
    hexes:["#F9FFE5","#F1FFC8","#E2FF93","#CDFB5B","#B6F229","#97D80A","#74AD03","#588308","#47670D","#3C5710","#1E3102"], map:[]},
-  {name:"Sea Glass", g:"decorative", path:"primitive.decorative.seaGlass", replaces:"new — no old equivalent → badge.recommended / decorative",
+  {name:"Sea Glass", g:"decorative", path:"decorative.seaGlass", replaces:"new — no old equivalent → badge.recommended / decorative",
    hexes:["#F1FCFA","#D0F7F2","#A1EEE6","#74E1DA","#3AC7C2","#21ABA9","#188989","#176D6E","#175658","#184849","#07292C"], map:[]},
-  {name:"Bubblegum", g:"decorative", path:"primitive.decorative.bubblegum", replaces:"new — no old equivalent → badge.new / decorative",
+  {name:"Bubblegum", g:"decorative", path:"decorative.bubblegum", replaces:"new — no old equivalent → badge.new / decorative",
    hexes:["#FFF4FF","#FFE7FF","#FFCEFE","#FFA8F9","#FE76F2","#F63FE5","#DA1FC5","#B516A0","#941481","#791669","#510144"], map:[]},
-  {name:"Tangerine", g:"decorative", path:"primitive.decorative.tangerine", replaces:"new — no old equivalent → badge.current / decorative",
+  {name:"Tangerine", g:"decorative", path:"decorative.tangerine", replaces:"new — no old equivalent → badge.current / decorative",
    hexes:["#FFF9ED","#FFF0D4","#FFDEA8","#FFC671","#FFAE51","#FE8611","#EF6A07","#C64F08","#9D3E0F","#7E3510","#441906"], map:[]},
-  {name:"Stone", g:"neutral", path:"primitive.neutral.stone", replaces:"renumber 01–10 → 50–950, re-based on Tailwind gray (⚠ confirm scale + anchors)",
+  {name:"Stone", g:"neutral", path:"neutral.stone", replaces:"renumber 01–10 → 50–950, re-based on Tailwind gray (⚠ confirm scale + anchors)",
    hexes:["#F9FAFB","#F3F4F6","#E5E7EB","#D1D5DB","#9CA3AF","#6B7280","#4B5563","#374151","#1F2937","#111827","#030712"],
    map:[["stone 01","#FAFBFB","50"],["stone 02","#F6F7F8","100"],["stone 03","#EEF0F2","200"],["stone 04","#E6E8EB","300"],["stone 05","#D9DCE0","400"],["stone 06","#C7CAD0","500"],["stone 07","#AEB2BA","600"],["stone 08","#8D9199","700"],["stone 09","#5E626A","800"],["stone 10","#2F3237","900"]]},
 ];
 const GROUPS = [["brand","Brand"],["system","System — status / feedback"],["decorative","Decorative"],["neutral","Neutral — gray scale + black/white"]];
 // Neutral base (not ramps) + the Gray Purple → Stone deprecation
 const neutralBase = [
-  ["white","#FFFFFF","primitive.neutral.white","unchanged"],
-  ["True Black","#000000","primitive.neutral.black","primary action · text · icon → black (DS-130)"],
+  ["white","#FFFFFF","neutral.white","unchanged"],
+  ["True Black","#000000","neutral.black","primary action · text · icon → black (DS-130)"],
   ["off-black","#1D1D1D","(deprecating)","→ True Black per DS-130"],
 ];
 // grayPurple → stone step (by lightness; reference table, code re-points the 18 aliases). [gp, gpHex, stoneStep, stoneHex]
@@ -488,8 +488,8 @@ const PRIM_MAP = {'#000000':'True Black','#FFFFFF':'white','#1D1D1D':'offBlack',
 function prim(hex){ return PRIM_MAP[hex] ? `<span class="note" style="font-size:11px">${PRIM_MAP[hex]}</span> ` : ''; }
 
 // ---- Tab 1: Primitives — grouped brand / system / decorative / neutral ----
-let h = `<h2>Primitives — full color scales (50–950)</h2><p class="sub">Grouped <code>primitive.&lt;group&gt;.&lt;family&gt;.&lt;step&gt;</code>: <b>brand</b> · <b>system</b> (status/feedback) · <b>decorative</b> · <b>neutral</b> (gray + black/white). Each family is a full 50–950 ramp; rows map the <b>old</b> token to the <b>new step</b> (blank = net-new). Values from Figma <code>Redesign/*</code>; Stone re-based on Tailwind <code>gray</code> (⚠ confirm). Old ramps deprecated once consumers move (DS-128). <b>Code adds these in the existing style first (DS-157); the brand/system/decorative/neutral grouping shown here is the deferred naming pass (DS-178).</b></p>`;
-h += `<div class="principle" style="margin:6px 0 14px"><b>Primitive grammar — <code>primitive.&lt;group&gt;.&lt;family&gt;.&lt;step&gt;</code></b><span>Raw values only (every semantic aliases a primitive; raw hex lives only here). Numeric <b>50–950</b> scale, light→dark; <b>700</b> = the core brand/role step.</span></div>`;
+let h = `<h2>Primitives — full color scales (50–950)</h2><p class="sub">Grouped <code>globalColors.&lt;group&gt;.&lt;family&gt;.&lt;step&gt;</code>: <b>brand</b> · <b>system</b> (status/feedback) · <b>decorative</b> · <b>neutral</b> (gray + black/white). Each family is a full 50–950 ramp; rows map the <b>old</b> token to the <b>new step</b> (blank = net-new). Values from Figma <code>Redesign/*</code>; Stone re-based on Tailwind <code>gray</code> (⚠ confirm). Old ramps deprecated once consumers move (DS-128). <b>Code adds these in the existing primary/secondary/tertiary style first (DS-157); the brand/system/decorative/neutral regrouping is the deferred naming pass (DS-178). No <code>primitive.</code> prefix — <code>globalColors</code> marks the tier.</b></p>`;
+h += `<div class="principle" style="margin:6px 0 14px"><b>Primitive grammar — <code>globalColors.&lt;group&gt;.&lt;family&gt;.&lt;step&gt;</code></b><span>Raw values only (every semantic aliases a primitive; raw hex lives only here). Numeric <b>50–950</b> scale, light→dark; <b>700</b> = the core brand/role step. No <code>primitive.</code> prefix — the <code>globalColors</code> export name marks the tier (industry standard: Tailwind <code>colors.gray.700</code>, Polaris, Primer all prefix-free).</span></div>`;
 h += `<table><thead><tr><th>Group</th><th>Families</th><th>Role</th></tr></thead><tbody>`;
 const primTax = [
   ['brand','Purple (Brand Purple)','identity — kept separate from feedback'],
